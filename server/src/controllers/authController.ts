@@ -1,0 +1,1522 @@
+import { Request, Response } from 'express';
+import crypto from 'crypto';
+import bcrypt from 'bcryptjs';
+import { z } from 'zod';
+import speakeasy from 'speakeasy';
+import QRCode from 'qrcode';
+import { User } from '../models/User';
+import { PasswordResetToken } from '../models/PasswordResetToken';
+import { generateAuthToken, generate2FAPendingToken, verify2FAPendingToken, decodeAuthToken } from '../utils/generateToken';
+import { authCookieOptions } from '../utils/authCookie';
+import { AuthenticatedRequest } from '../middleware/auth';
+import { ActiveSession } from '../models/ActiveSession';
+import { PendingLoginRequest } from '../models/PendingLoginRequest';
+import {
+  sendPasswordResetEmail,
+  sendVerificationEmail,
+  sendVerificationOtpEmail,
+  sendPasswordResetOtpEmail,
+  sendWelcomeEmail,
+  sendDeviceApprovalEmail,
+  sendLoginNotificationEmail,
+  isEmailConfigured,
+} from '../services/emailService';
+import { getClientUrl, getServerUrl } from '../config/publicEnv';
+import { recordLoginFailure, recordLoginSuccess } from '../services/systemMonitor.service';
+import { ensureReferralCodeForUser, applyReferralCodeOnRegister } from '../services/referralReward.service';
+import { formatUserWithAdminAccess } from '../services/adminAccess.service';
+import type { IUser } from '../models/User';
+
+const APP_NAME = process.env.APP_NAME || 'Spacilly';
+
+function serializeAuthUser(user: InstanceType<typeof User>) {
+  const doc =
+    typeof (user as { toObject?: () => IUser }).toObject === 'function'
+      ? (user as InstanceType<typeof User>).toObject()
+      : (user as unknown as IUser);
+  return formatUserWithAdminAccess(doc);
+}
+
+const CLIENT_URL = getClientUrl();
+const SERVER_URL = getServerUrl();
+const GOOGLE_CALLBACK_URL =
+  process.env.GOOGLE_CALLBACK_URL?.trim() || `${SERVER_URL}/api/auth/google/callback`;
+
+const OTP_EXPIRY_MS = 10 * 60 * 1000; // 10 minutes
+const EMAIL_LINK_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours
+const OTP_EMAIL_COOLDOWN_MS = Number(process.env.OTP_RESEND_COOLDOWN_MS) || 45_000;
+
+const lastVerificationOtpSent = new Map<string, number>();
+const lastPasswordResetOtpSent = new Map<string, number>();
+
+/**
+ * Email OTP for registration / verification when enabled.
+ * - USE_EMAIL_OTP=false → magic-link-only flow (explicit opt-out).
+ * - USE_EMAIL_OTP=true → force OTP.
+ * - Default: OTP (6-digit code) is the primary verification path; link-based flow is secondary in the UI.
+ */
+function shouldUseEmailOtpFlow(_req?: Request): boolean {
+  const v = process.env.USE_EMAIL_OTP?.trim().toLowerCase();
+  if (v === 'false' || v === '0') return false;
+  if (v === 'true' || v === '1') return true;
+  return true;
+}
+
+async function verifyStoredOtp(stored: string | undefined, digits: string): Promise<boolean> {
+  if (!stored || !/^\d{6}$/.test(digits)) return false;
+  if (stored.startsWith('$2')) {
+    return bcrypt.compare(digits, stored);
+  }
+  return stored === digits;
+}
+
+async function issueEmailVerificationOtp(
+  user: InstanceType<typeof User>,
+  opts?: { bypassCooldown?: boolean },
+): Promise<void> {
+  const emailKey = user.email.trim().toLowerCase();
+  if (!opts?.bypassCooldown) {
+    const now = Date.now();
+    const last = lastVerificationOtpSent.get(emailKey) ?? 0;
+    if (last > 0 && now - last < OTP_EMAIL_COOLDOWN_MS) {
+      const err = new Error('OTP_RATE_LIMIT') as Error & { status: number; retryAfterSec: number };
+      err.status = 429;
+      err.retryAfterSec = Math.ceil((OTP_EMAIL_COOLDOWN_MS - (now - last)) / 1000);
+      throw err;
+    }
+  }
+  const code = Math.floor(100000 + Math.random() * 900000).toString();
+  const expiresAt = new Date(Date.now() + OTP_EXPIRY_MS);
+  user.emailVerificationOtp = await bcrypt.hash(code, 10);
+  user.emailVerificationOtpExpires = expiresAt;
+  await user.save();
+  const result = await sendVerificationOtpEmail(user.email, user.fullName, code, '10 minutes');
+  if (!result.success) {
+    user.emailVerificationOtp = undefined;
+    user.emailVerificationOtpExpires = undefined;
+    await user.save();
+    throw new Error(result.error || 'Failed to send verification email');
+  }
+  lastVerificationOtpSent.set(emailKey, Date.now());
+}
+
+async function issueEmailVerificationLink(user: InstanceType<typeof User>): Promise<void> {
+  const token = crypto.randomBytes(32).toString('hex');
+  const expiresAt = new Date(Date.now() + EMAIL_LINK_EXPIRY_MS);
+  // Invalidate any previous link/OTP when issuing a new link.
+  user.emailVerificationToken = token;
+  user.emailVerificationExpires = expiresAt;
+  user.emailVerificationOtp = undefined;
+  user.emailVerificationOtpExpires = undefined;
+  await user.save();
+  await sendVerificationEmail(user.email, user.fullName, token, '24 hours');
+}
+
+/** Escape special regex chars so email can be used in RegExp safely */
+function escapeRegex(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/** Find user by email case-insensitively (needed for Google/OAuth emails with varying casing) */
+function findUserByEmailCaseInsensitive(email: string) {
+  const normalized = (email || '').trim();
+  if (!normalized) return User.findOne({ _id: null }); // no match
+  return User.findOne({ email: new RegExp('^' + escapeRegex(normalized) + '$', 'i') });
+}
+
+/** Get device info from request (for device session) */
+function getDeviceInfo(req: Request): { deviceId: string; userAgent: string; ipAddress: string } {
+  const deviceId = (req.body?.deviceId as string) || (req.get('x-device-id') as string) || 'unknown';
+  const userAgent = (req.get('user-agent') as string) || '';
+  const ipAddress = (req.get('x-forwarded-for') as string)?.split(',')[0]?.trim() || req.ip || req.socket?.remoteAddress || '';
+  return { deviceId, userAgent, ipAddress };
+}
+
+const PENDING_REQUEST_EXPIRY_MS = 15 * 60 * 1000; // 15 min
+
+function fireLoginNotificationEmail(user: InstanceType<typeof User>, req: Request) {
+  if (!isEmailConfigured()) return;
+  const { userAgent, ipAddress } = getDeviceInfo(req);
+  const deviceInfo = (userAgent || 'Unknown client').slice(0, 160);
+  void sendLoginNotificationEmail({
+    to: user.email,
+    name: user.fullName,
+    deviceInfo,
+    ipAddress: ipAddress || '—',
+    role: String(user.role),
+  }).catch((e) => console.warn('[auth] login notification email failed', e));
+}
+
+/** For admin/seller: either issue token and register session, or return requiresDeviceApproval */
+async function completeLoginWithDeviceSession(
+  user: InstanceType<typeof User>,
+  req: Request,
+  res: Response,
+  sendToken: (token: string) => void
+): Promise<boolean> {
+  const { deviceId, userAgent, ipAddress } = getDeviceInfo(req);
+  const existing = await ActiveSession.findOne({ userId: user._id });
+  const sameDevice = existing && existing.deviceId === deviceId;
+
+  if (!existing || sameDevice) {
+    const token = generateAuthToken(user);
+    const decoded = decodeAuthToken(token);
+    if (!decoded?.jti) {
+      sendToken(token);
+      fireLoginNotificationEmail(user, req);
+      return true;
+    }
+    await ActiveSession.findOneAndUpdate(
+      { userId: user._id },
+      {
+        tokenId: decoded.jti,
+        deviceId,
+        userAgent,
+        ipAddress,
+        lastActiveAt: new Date(),
+      },
+      { upsert: true, new: true }
+    );
+    sendToken(token);
+    fireLoginNotificationEmail(user, req);
+    return true;
+  }
+
+  const requestId = crypto.randomBytes(16).toString('hex');
+  const emailApprovalToken = crypto.randomBytes(32).toString('hex');
+  const expiresAt = new Date(Date.now() + PENDING_REQUEST_EXPIRY_MS);
+  await PendingLoginRequest.create({
+    requestId,
+    userId: user._id,
+    deviceId,
+    userAgent,
+    ipAddress,
+    status: 'pending',
+    emailApprovalToken,
+    emailApprovalExpires: expiresAt,
+    expiresAt,
+  });
+  const deviceInfo = userAgent || 'Unknown device';
+  sendDeviceApprovalEmail({
+    to: user.email,
+    name: user.fullName,
+    approveToken: emailApprovalToken,
+    deviceInfo: deviceInfo.slice(0, 120),
+    ipAddress,
+    expiresIn: '15 minutes',
+  }).catch((e) => console.warn('[auth] device approval email failed', e));
+
+  res.status(200).json({
+    requiresDeviceApproval: true,
+    requestId,
+    email: user.email,
+    message: 'Your account is active on another device. Approve via email link or from the other device.',
+  });
+  return false;
+}
+
+const registerSchema = z.object({
+  fullName: z.string().min(2).max(100),
+  email: z.string().email(),
+  password: z.string().min(6),
+  role: z.enum(['buyer', 'seller']).optional().default('buyer'),
+  referralCode: z.string().max(32).optional(),
+});
+
+const loginSchema = z.object({
+  email: z.string().email(),
+  password: z.string(),
+});
+
+export async function register(req: Request, res: Response) {
+  
+  try {
+    const parsed = registerSchema.parse(req.body);
+    const { fullName, email, password, referralCode: signupReferralCode } = parsed;
+    const role = parsed.role === 'seller' ? 'seller' : 'buyer';
+
+    const existing = await User.findOne({ email });
+    if (existing) {
+      return res.status(400).json({ message: 'Email is already registered' });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    const isSeller = role === 'seller';
+
+    const user = await User.create({
+      fullName,
+      email,
+      passwordHash,
+      role,
+      emailVerified: false,
+      // For sellers, start as pending and unverified until government/admin approval
+      sellerVerificationStatus: isSeller ? 'pending' : undefined,
+      isSellerVerified: isSeller ? false : undefined,
+    });
+
+    try {
+      await ensureReferralCodeForUser(user._id);
+      await applyReferralCodeOnRegister(user._id, signupReferralCode);
+    } catch (refErr) {
+      console.warn('[auth] register referral setup', refErr);
+    }
+
+    const useOtpFlow = shouldUseEmailOtpFlow(req);
+    if (useOtpFlow) {
+      issueEmailVerificationOtp(user, { bypassCooldown: true }).catch((e) =>
+        console.warn('[auth] register: verification OTP error', e),
+      );
+    } else {
+      issueEmailVerificationLink(user).catch((e) => console.warn('[auth] register: verification link error', e));
+    }
+
+    // Do not issue token or log user in until email is verified
+    res.status(201).json({
+      message: useOtpFlow
+        ? 'Account created. Please check your email for a 6-digit verification code to verify your account.'
+        : 'Account created. Please check your email and click the verification link before signing in.',
+    });
+  } catch (err: any) {
+    if (err instanceof z.ZodError) {
+      return res.status(400).json({ message: 'Invalid data', errors: err.flatten() });
+    }
+    console.error('Register error:', err);
+    return res.status(500).json({ message: 'Failed to register user' });
+  }
+}
+
+export async function login(req: Request, res: Response) {
+  try {
+    const { email, password } = loginSchema.parse(req.body);
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      recordLoginFailure(req, 'Invalid credentials — unknown email', email);
+      return res.status(400).json({ message: 'Invalid email or password' });
+    }
+
+    // Check if user account is inactive or banned
+    if (user.accountStatus === 'inactive' || user.accountStatus === 'banned') {
+      recordLoginFailure(req, 'Sign-in blocked — account inactive/banned', user.email);
+      return res.status(403).json({ 
+        message: 'Your account has been deactivated. Please contact support for assistance.' 
+      });
+    }
+
+    // Check if user is OAuth-only (no password set)
+    if (!user.passwordHash || user.passwordHash.trim() === '') {
+      recordLoginFailure(req, 'OAuth-only account — password sign-in rejected', user.email);
+      return res.status(400).json({ 
+        message: 'This account uses Google Sign-In. Please sign in with Google instead.' 
+      });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.passwordHash);
+    if (!isMatch) {
+      recordLoginFailure(req, 'Invalid password', user.email);
+      return res.status(400).json({ message: 'Invalid email or password' });
+    }
+
+    // Require email verification before sign-in (Gmail verification flow)
+    if (!user.emailVerified) {
+      recordLoginFailure(req, 'Email not verified', user.email);
+      return res.status(403).json({
+        message: 'Please verify your email before signing in. Check your inbox for a 6-digit code, or request a new code.',
+        code: 'EMAIL_NOT_VERIFIED',
+        email: user.email,
+      });
+    }
+
+    // Record login history
+    const clientIp = req.ip || req.socket.remoteAddress || (req.headers['x-forwarded-for'] as string)?.split(',')[0] || 'Unknown';
+    const userAgent = req.headers['user-agent'] || 'Unknown';
+    
+    // Simple device detection from user agent
+    let device = 'Unknown';
+    if (userAgent.includes('Mobile') || userAgent.includes('Android') || userAgent.includes('iPhone')) {
+      device = 'Mobile Device';
+    } else if (userAgent.includes('Windows')) {
+      device = 'Windows';
+    } else if (userAgent.includes('Mac')) {
+      device = 'Mac';
+    } else if (userAgent.includes('Linux')) {
+      device = 'Linux';
+    }
+
+    // Simple browser detection
+    let browser = 'Unknown';
+    if (userAgent.includes('Chrome')) browser = 'Chrome';
+    else if (userAgent.includes('Firefox')) browser = 'Firefox';
+    else if (userAgent.includes('Safari')) browser = 'Safari';
+    else if (userAgent.includes('Edge')) browser = 'Edge';
+
+    const deviceInfo = `${browser} on ${device}`;
+
+    // Initialize login history if it doesn't exist
+    if (!user.security.loginHistory) {
+      user.security.loginHistory = [];
+    }
+
+    // Add new login entry (keep last 50 entries)
+    user.security.loginHistory.unshift({
+      date: new Date(),
+      ip: clientIp,
+      device: deviceInfo,
+      userAgent: userAgent,
+    });
+
+    // Keep only last 50 login entries
+    if (user.security.loginHistory.length > 50) {
+      user.security.loginHistory = user.security.loginHistory.slice(0, 50);
+    }
+
+    await user.save();
+
+    // Admin/Seller accounts enforce one active device session.
+    // Use shared session completion flow so ActiveSession is registered on login
+    // (or device approval is requested when another device is active).
+    if (user.role === 'admin' || user.role === 'seller') {
+      const completed = await completeLoginWithDeviceSession(user, req, res, (token) => {
+        recordLoginSuccess(req, user.role, user.email);
+        res
+          .cookie('token', token, authCookieOptions())
+          .json({
+            user: serializeAuthUser(user),
+            token,
+          });
+      });
+      if (!completed) return;
+      return;
+    }
+
+    const token = generateAuthToken(user);
+    recordLoginSuccess(req, user.role, user.email);
+    fireLoginNotificationEmail(user, req);
+    return res
+      .cookie('token', token, authCookieOptions())
+      .json({
+        user: serializeAuthUser(user),
+        token,
+      });
+  } catch (err: any) {
+    if (err instanceof z.ZodError) {
+      return res.status(400).json({ message: 'Invalid data', errors: err.flatten() });
+    }
+    console.error('Login error:', err);
+    return res.status(500).json({ message: 'Failed to login' });
+  }
+}
+
+/**
+ * POST /api/auth/verify-2fa
+ * Completes login for seller/admin after correct TOTP code.
+ */
+const verify2FASchema = z.object({
+  tempToken: z.string().min(1),
+  code: z.string().length(6).regex(/^\d{6}$/),
+  deviceId: z.string().optional(),
+});
+export async function verify2FA(req: Request, res: Response) {
+  try {
+    const { tempToken, code } = verify2FASchema.parse(req.body);
+    const payload = verify2FAPendingToken(tempToken);
+    if (!payload || payload.purpose !== '2fa') {
+      return res.status(400).json({ message: 'Invalid or expired session. Please sign in again.' });
+    }
+    const user = await User.findById(payload.userId).select('+security.twoFactorSecret');
+    if (!user || user.email !== payload.email) {
+      return res.status(400).json({ message: 'Invalid session. Please sign in again.' });
+    }
+    if (!user.security?.twoFactorSecret) {
+      return res.status(400).json({ message: '2FA is not set up. Please use the setup flow.' });
+    }
+    const valid = speakeasy.totp.verify({
+      secret: user.security.twoFactorSecret,
+      encoding: 'base32',
+      token: code,
+      window: 2,
+    });
+    if (!valid) {
+      recordLoginFailure(req, 'Invalid 2FA code', user.email);
+      return res.status(400).json({ message: 'Invalid verification code. Try again.' });
+    }
+    const completed = await completeLoginWithDeviceSession(user, req, res, (token) => {
+      res
+        .cookie('token', token, authCookieOptions())
+        .json({
+          user: serializeAuthUser(user),
+          token,
+        });
+    });
+    if (!completed) return;
+  } catch (err: any) {
+    if (err instanceof z.ZodError) {
+      return res.status(400).json({ message: 'Invalid request. Code must be 6 digits.' });
+    }
+    console.error('Verify 2FA error:', err);
+    return res.status(500).json({ message: 'Verification failed.' });
+  }
+}
+
+/**
+ * POST /api/auth/setup-2fa/start
+ * Start 2FA setup for seller/admin (with temp token from login). Returns QR code.
+ */
+export async function setup2FAStart(req: Request, res: Response) {
+  try {
+    const { tempToken } = z.object({ tempToken: z.string().min(1) }).parse(req.body);
+    const payload = verify2FAPendingToken(tempToken);
+    if (!payload || payload.purpose !== '2fa-setup') {
+      return res.status(400).json({ message: 'Invalid or expired session. Please sign in again.' });
+    }
+    const user = await User.findById(payload.userId).select('+security.twoFactorSecret');
+    if (!user || user.email !== payload.email) {
+      return res.status(400).json({ message: 'Invalid session. Please sign in again.' });
+    }
+    let secret = user.security?.twoFactorSecret;
+    if (!secret) {
+      secret = speakeasy.generateSecret({
+        name: `${user.fullName} (${APP_NAME})`,
+        length: 32,
+      }).base32;
+      if (!user.security) user.security = {} as any;
+      (user.security as any).twoFactorSecret = secret;
+      await user.save();
+    }
+    const otpAuthUrl = speakeasy.otpauthURL({
+      secret,
+      label: encodeURIComponent(`${user.fullName} (${APP_NAME})`),
+      issuer: APP_NAME,
+      encoding: 'base32',
+    });
+    const qrCode = await QRCode.toDataURL(otpAuthUrl);
+    return res.json({
+      qrCode,
+      manualEntryKey: secret ? secret.replace(/(.{4})/g, '$1 ').trim() : '',
+    });
+  } catch (err: any) {
+    if (err instanceof z.ZodError) {
+      return res.status(400).json({ message: 'Invalid request.' });
+    }
+    console.error('Setup 2FA start error:', err);
+    return res.status(500).json({ message: 'Failed to start 2FA setup.' });
+  }
+}
+
+/**
+ * POST /api/auth/setup-2fa/confirm
+ * Verify TOTP code and enable 2FA, then issue full auth token.
+ */
+const setup2FAConfirmSchema = z.object({
+  tempToken: z.string().min(1),
+  code: z.string().length(6).regex(/^\d{6}$/),
+  deviceId: z.string().optional(),
+});
+export async function setup2FAConfirm(req: Request, res: Response) {
+  try {
+    const { tempToken, code } = setup2FAConfirmSchema.parse(req.body);
+    const payload = verify2FAPendingToken(tempToken);
+    if (!payload || payload.purpose !== '2fa-setup') {
+      return res.status(400).json({ message: 'Invalid or expired session. Please sign in again.' });
+    }
+    const user = await User.findById(payload.userId).select('+security.twoFactorSecret');
+    if (!user || user.email !== payload.email) {
+      return res.status(400).json({ message: 'Invalid session. Please sign in again.' });
+    }
+    if (!user.security?.twoFactorSecret) {
+      return res.status(400).json({ message: '2FA setup not started. Please request a new code from sign in.' });
+    }
+    const valid = speakeasy.totp.verify({
+      secret: user.security.twoFactorSecret,
+      encoding: 'base32',
+      token: code,
+      window: 2,
+    });
+    if (!valid) {
+      return res.status(400).json({ message: 'Invalid verification code. Try again.' });
+    }
+    (user.security as any).twoFactorEnabled = true;
+    (user.security as any).twoFactorMethod = 'app';
+    await user.save();
+    const completed = await completeLoginWithDeviceSession(user, req, res, (token) => {
+      res
+        .cookie('token', token, authCookieOptions())
+        .json({
+          user: serializeAuthUser(user),
+          token,
+        });
+    });
+    if (!completed) return;
+  } catch (err: any) {
+    if (err instanceof z.ZodError) {
+      return res.status(400).json({ message: 'Invalid request. Code must be 6 digits.' });
+    }
+    console.error('Setup 2FA confirm error:', err);
+    return res.status(500).json({ message: 'Failed to complete 2FA setup.' });
+  }
+}
+
+/** GET /api/auth/pending-login-requests – list pending device approval requests (for current user, first device) */
+export async function getPendingLoginRequests(req: AuthenticatedRequest, res: Response) {
+  try {
+    if (!req.user?.id) return res.status(401).json({ message: 'Authentication required' });
+    if (req.user.role !== 'admin' && req.user.role !== 'seller') {
+      return res.status(403).json({ message: 'Not applicable to your role.' });
+    }
+    const pending = await PendingLoginRequest.find({
+      userId: req.user.id,
+      status: 'pending',
+      expiresAt: { $gt: new Date() },
+    })
+      .sort({ createdAt: -1 })
+      .lean();
+    return res.json({
+      requests: pending.map((r) => ({
+        requestId: r.requestId,
+        deviceId: r.deviceId,
+        userAgent: r.userAgent,
+        ipAddress: r.ipAddress,
+        createdAt: r.createdAt,
+      })),
+    });
+  } catch (err: any) {
+    console.error('Get pending login requests error:', err);
+    return res.status(500).json({ message: 'Failed to load requests.' });
+  }
+}
+
+/** POST /api/auth/approve-pending-request – approve from first device */
+export async function approvePendingRequest(req: AuthenticatedRequest, res: Response) {
+  try {
+    const { requestId } = z.object({ requestId: z.string().min(1) }).parse(req.body);
+    if (!req.user?.id) return res.status(401).json({ message: 'Authentication required' });
+    const pending = await PendingLoginRequest.findOne({
+      requestId,
+      userId: req.user.id,
+      status: 'pending',
+      expiresAt: { $gt: new Date() },
+    });
+    if (!pending) {
+      return res.status(400).json({ message: 'Request not found or expired.' });
+    }
+    const user = await User.findById(pending.userId);
+    if (!user) return res.status(400).json({ message: 'User not found.' });
+    const approvalToken = crypto.randomBytes(32).toString('hex');
+    const approvalTokenExpires = new Date(Date.now() + 5 * 60 * 1000); // 5 min
+    pending.status = 'approved';
+    pending.approvalToken = approvalToken;
+    pending.approvalTokenExpires = approvalTokenExpires;
+    await pending.save();
+    return res.json({
+      success: true,
+      message: 'Login approved. The other device can now sign in.',
+    });
+  } catch (err: any) {
+    if (err instanceof z.ZodError) return res.status(400).json({ message: 'Invalid request.' });
+    console.error('Approve pending request error:', err);
+    return res.status(500).json({ message: 'Failed to approve.' });
+  }
+}
+
+/** POST /api/auth/reject-pending-request */
+export async function rejectPendingRequest(req: AuthenticatedRequest, res: Response) {
+  try {
+    const { requestId } = z.object({ requestId: z.string().min(1) }).parse(req.body);
+    if (!req.user?.id) return res.status(401).json({ message: 'Authentication required' });
+    const pending = await PendingLoginRequest.findOne({
+      requestId,
+      userId: req.user.id,
+      status: 'pending',
+    });
+    if (!pending) {
+      return res.status(400).json({ message: 'Request not found or expired.' });
+    }
+    pending.status = 'rejected';
+    await pending.save();
+    return res.json({ success: true, message: 'Login request rejected.' });
+  } catch (err: any) {
+    if (err instanceof z.ZodError) return res.status(400).json({ message: 'Invalid request.' });
+    console.error('Reject pending request error:', err);
+    return res.status(500).json({ message: 'Failed to reject.' });
+  }
+}
+
+/** GET /api/auth/check-pending-request?requestId= – second device polls for approval */
+export async function checkPendingRequest(req: Request, res: Response) {
+  try {
+    const requestId = (req.query.requestId as string)?.trim();
+    if (!requestId) return res.status(400).json({ message: 'requestId required.' });
+    const pending = await PendingLoginRequest.findOne({ requestId }).lean();
+    if (!pending) {
+      return res.json({ approved: false, rejected: true, message: 'Request not found or expired.' });
+    }
+    if (pending.status === 'rejected') {
+      return res.json({ approved: false, rejected: true, message: 'Login was denied.' });
+    }
+    if (pending.status !== 'approved' || !pending.approvalToken || !pending.approvalTokenExpires) {
+      return res.json({ approved: false, message: 'Waiting for approval.' });
+    }
+    if (pending.approvalTokenExpires < new Date()) {
+      return res.json({ approved: false, rejected: true, message: 'Approval expired.' });
+    }
+    const user = await User.findById(pending.userId);
+    if (!user) return res.status(400).json({ message: 'User not found.' });
+    const token = generateAuthToken(user);
+    const decoded = decodeAuthToken(token);
+    if (decoded?.jti) {
+      await ActiveSession.findOneAndUpdate(
+        { userId: user._id },
+        {
+          tokenId: decoded.jti,
+          deviceId: pending.deviceId,
+          userAgent: pending.userAgent,
+          ipAddress: pending.ipAddress,
+          lastActiveAt: new Date(),
+        },
+        { upsert: true }
+      );
+    }
+    await PendingLoginRequest.updateOne(
+      { requestId },
+      { $unset: { approvalToken: 1, approvalTokenExpires: 1 } }
+    );
+    return res.json({
+      approved: true,
+      token,
+      user: serializeAuthUser(user),
+    });
+  } catch (err: any) {
+    console.error('Check pending request error:', err);
+    return res.status(500).json({ message: 'Failed to check status.' });
+  }
+}
+
+/** GET /api/auth/approve-device?token= – email link: exchange token for JWT and redirect */
+export async function approveDeviceByEmail(req: Request, res: Response) {
+  try {
+    const token = (req.query.token as string)?.trim();
+    if (!token) {
+      return res.redirect(`${CLIENT_URL}/login?error=invalid_approval_link`);
+    }
+    const pending = await PendingLoginRequest.findOne({
+      emailApprovalToken: token,
+      status: 'pending',
+      emailApprovalExpires: { $gt: new Date() },
+    });
+    if (!pending) {
+      return res.redirect(`${CLIENT_URL}/login?error=approval_link_expired`);
+    }
+    const user = await User.findById(pending.userId);
+    if (!user) return res.redirect(`${CLIENT_URL}/login?error=user_not_found`);
+    const authToken = generateAuthToken(user);
+    const decoded = decodeAuthToken(authToken);
+    if (decoded?.jti) {
+      await ActiveSession.findOneAndUpdate(
+        { userId: user._id },
+        {
+          tokenId: decoded.jti,
+          deviceId: pending.deviceId,
+          userAgent: pending.userAgent,
+          ipAddress: pending.ipAddress,
+          lastActiveAt: new Date(),
+        },
+        { upsert: true }
+      );
+    }
+    pending.status = 'approved';
+    pending.emailApprovalToken = undefined;
+    pending.emailApprovalExpires = undefined;
+    await pending.save();
+    return res
+      .cookie('token', authToken, authCookieOptions())
+      .redirect(`${CLIENT_URL}/auth/approve-device-success`);
+  } catch (err: any) {
+    console.error('Approve device by email error:', err);
+    return res.redirect(`${CLIENT_URL}/login?error=approval_failed`);
+  }
+}
+
+/** Sync httpOnly cookie session to SPA localStorage (no JWT in URLs). */
+export async function sessionBootstrap(req: AuthenticatedRequest, res: Response) {
+  if (!req.user) {
+    return res.status(401).json({ message: 'Authentication required' });
+  }
+  const cookieToken = (req as Request & { cookies?: { token?: string } }).cookies?.token;
+  if (!cookieToken) {
+    return res.status(401).json({ message: 'Session cookie required' });
+  }
+  const user = await User.findById(req.user.id).select('-passwordHash');
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+  return res.json({
+    token: cookieToken,
+    user: serializeAuthUser(user),
+  });
+}
+
+export async function me(req: AuthenticatedRequest, res: Response) {
+  if (!req.user) {
+    return res.status(401).json({ message: 'Authentication required' });
+  }
+
+  const user = await User.findById(req.user.id).select('-passwordHash');
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  const { formatUserWithAdminAccess } = await import('../services/adminAccess.service');
+  return res.json({ user: formatUserWithAdminAccess(user) });
+}
+
+/**
+ * Initiate Google OAuth flow
+ * Redirects user to Google's authorization page
+ */
+export async function googleAuth(req: Request, res: Response) {
+  try {
+    const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+    const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+    // Google redirects to backend callback, then backend redirects to frontend.
+    const REDIRECT_URI = GOOGLE_CALLBACK_URL;
+
+    // Check if Google OAuth is configured (not empty and not placeholder)
+    if (!GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID.includes('your_google_client_id')) {
+      return res.status(500).json({ 
+        message: 'Google OAuth not configured. GOOGLE_CLIENT_ID is missing or still has placeholder value in .env file.' 
+      });
+    }
+    
+    if (!GOOGLE_CLIENT_SECRET || GOOGLE_CLIENT_SECRET.includes('your_google_client_secret')) {
+      return res.status(500).json({ 
+        message: 'Google OAuth not configured. GOOGLE_CLIENT_SECRET is missing or still has placeholder value in .env file. Please get your Client Secret from Google Cloud Console and add it to server/.env' 
+      });
+    }
+
+    // Get role from query parameter (optional, defaults to 'buyer')
+    const role = (req.query.role as string) || 'buyer';
+    
+    // Validate role
+    if (!['buyer', 'seller'].includes(role)) {
+      return res.status(400).json({ message: 'Invalid role' });
+    }
+
+    // Store role in state parameter (we'll use it in callback)
+    const state = Buffer.from(JSON.stringify({ role })).toString('base64');
+
+    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
+      `client_id=${GOOGLE_CLIENT_ID}&` +
+      `redirect_uri=${encodeURIComponent(REDIRECT_URI)}&` +
+      `response_type=code&` +
+      `scope=openid email profile&` +
+      `access_type=online&` +
+      `prompt=select_account&` +
+      `state=${state}`;
+
+    res.redirect(authUrl);
+  } catch (error: any) {
+    console.error('Google auth error:', error);
+    res.status(500).json({ message: 'Failed to initiate Google authentication' });
+  }
+}
+
+/**
+ * Handle Google OAuth callback
+ * Exchange authorization code for user info and create/login user
+ */
+export async function googleCallback(req: Request, res: Response) {
+  try {
+    const { code, state, error } = req.query;
+
+    if (error) return res.redirect(`${CLIENT_URL}/login?error=access_denied`);
+
+    if (!code) return res.redirect(`${CLIENT_URL}/login?error=no_code`);
+
+    const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+    const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+    // This must match what was sent to Google in googleAuth function.
+    const REDIRECT_URI = GOOGLE_CALLBACK_URL;
+
+    if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
+      return res.redirect(`${CLIENT_URL}/login?error=oauth_not_configured`);
+    }
+
+    // Decode state to get role
+    let role = 'buyer';
+    if (state) {
+      try {
+        const decodedState = JSON.parse(Buffer.from(state as string, 'base64').toString());
+        role = decodedState.role || 'buyer';
+      } catch (e) {
+        // Invalid state, use default
+      }
+    }
+
+    // Exchange authorization code for access token
+    const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        code: code as string,
+        client_id: GOOGLE_CLIENT_ID,
+        client_secret: GOOGLE_CLIENT_SECRET,
+        redirect_uri: REDIRECT_URI,
+        grant_type: 'authorization_code',
+      }),
+    });
+
+    if (!tokenResponse.ok) {
+      throw new Error('Failed to exchange authorization code');
+    }
+
+    const tokenData = await tokenResponse.json();
+    const { access_token } = tokenData;
+
+    // Get user info from Google
+    const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+      },
+    });
+
+    if (!userInfoResponse.ok) {
+      throw new Error('Failed to fetch user info from Google');
+    }
+
+    const userInfo = await userInfoResponse.json();
+    const { id: googleId, email, name, picture } = userInfo;
+
+    // Debug: Log Google user info to verify picture is received
+    console.log('Google user info:', { googleId, email, name, picture });
+
+    if (!email) {
+      return res.redirect(`${CLIENT_URL}/login?error=no_email`);
+    }
+
+    // Find user (include verification fields for email-verification check)
+    let user = await User.findOne({ $or: [{ email }, { googleId }] })
+      .select('+emailVerificationToken +emailVerificationExpires');
+
+    if (user) {
+      // Check if user account is inactive or banned
+      if (user.accountStatus === 'inactive' || user.accountStatus === 'banned') {
+        return res.redirect(`${CLIENT_URL}/login?error=account_deactivated`);
+      }
+
+      // User exists - update Google ID and profile picture
+      if (!user.googleId && googleId) {
+        user.googleId = googleId;
+      }
+      // Always update avatar with latest Google profile picture
+      if (picture) {
+        user.avatarUrl = picture;
+        console.log('Updated user avatarUrl:', picture);
+      } else {
+        console.log('No picture received from Google for user:', user.email);
+      }
+      await user.save();
+
+      // Google sign-in must respect our own email verification state.
+      if (!user.emailVerified) {
+        await issueEmailVerificationLink(user).catch((e) =>
+          console.warn('[auth] Google callback: verification email failed', e)
+        );
+        const pendingUrl = new URL(`${CLIENT_URL}/verify-email-pending`);
+        pendingUrl.searchParams.set('email', user.email);
+        pendingUrl.searchParams.set('source', 'google');
+        pendingUrl.searchParams.set('sent', '1');
+        return res.redirect(pendingUrl.toString());
+      }
+    } else {
+      // New user - redirect to role selection instead of creating immediately
+      // Store Google info temporarily in a signed token
+      const tempToken = Buffer.from(JSON.stringify({
+        googleId,
+        email,
+        name: name || email.split('@')[0],
+        picture,
+        timestamp: Date.now(),
+      })).toString('base64');
+      
+      // Redirect to role selection page with temporary token
+      const redirectUrl = new URL(`${CLIENT_URL}/auth/google/select-role`);
+      redirectUrl.searchParams.set('temp', tempToken);
+      return res.redirect(redirectUrl.toString());
+    }
+
+    // Record login history
+    const clientIp = req.ip || req.socket.remoteAddress || (req.headers['x-forwarded-for'] as string)?.split(',')[0] || 'Unknown';
+    const userAgent = req.headers['user-agent'] || 'Unknown';
+    
+    let device = 'Unknown';
+    if (userAgent.includes('Mobile') || userAgent.includes('Android') || userAgent.includes('iPhone')) {
+      device = 'Mobile Device';
+    } else if (userAgent.includes('Windows')) {
+      device = 'Windows';
+    } else if (userAgent.includes('Mac')) {
+      device = 'Mac';
+    } else if (userAgent.includes('Linux')) {
+      device = 'Linux';
+    }
+
+    let browser = 'Unknown';
+    if (userAgent.includes('Chrome')) browser = 'Chrome';
+    else if (userAgent.includes('Firefox')) browser = 'Firefox';
+    else if (userAgent.includes('Safari')) browser = 'Safari';
+    else if (userAgent.includes('Edge')) browser = 'Edge';
+
+    const deviceInfo = `${browser} on ${device}`;
+
+    if (!user.security.loginHistory) {
+      user.security.loginHistory = [];
+    }
+
+    user.security.loginHistory.unshift({
+      date: new Date(),
+      ip: clientIp,
+      device: deviceInfo,
+      userAgent: userAgent,
+    });
+
+    if (user.security.loginHistory.length > 50) {
+      user.security.loginHistory = user.security.loginHistory.slice(0, 50);
+    }
+
+    await user.save();
+
+    const token = generateAuthToken(user);
+    // Admin/Seller: register active session so protected routes (e.g. /me) work after OAuth redirect
+    try {
+      const decoded = decodeAuthToken(token);
+      if ((user.role === 'admin' || user.role === 'seller') && decoded?.jti) {
+        const { deviceId, userAgent, ipAddress } = getDeviceInfo(req);
+        await ActiveSession.findOneAndUpdate(
+          { userId: user._id },
+          {
+            tokenId: decoded.jti,
+            deviceId,
+            userAgent,
+            ipAddress,
+            lastActiveAt: new Date(),
+          },
+          { upsert: true, new: true }
+        );
+      }
+    } catch (e) {
+      console.warn('[auth] Google callback: failed to register active session', e);
+    }
+    fireLoginNotificationEmail(user, req);
+    const redirectUrl = new URL(`${CLIENT_URL}/auth/google/callback`);
+    redirectUrl.searchParams.set('token', token);
+    redirectUrl.searchParams.set('success', 'true');
+    res.redirect(redirectUrl.toString());
+  } catch (error: any) {
+    console.error('Google callback error:', error);
+    res.redirect(`${CLIENT_URL}/login?error=oauth_failed`);
+  }
+}
+
+/**
+ * Complete Google OAuth registration with selected role
+ * Called after user selects their role on the frontend
+ */
+export async function completeGoogleRegistration(req: Request, res: Response) {
+  try {
+    const { temp, role, referralCode: googleReferralCode } = req.body as {
+      temp?: string;
+      role?: string;
+      referralCode?: string;
+    };
+
+    if (!temp || !role) {
+      return res.status(400).json({ message: 'Missing required fields' });
+    }
+
+    if (!['buyer', 'seller'].includes(role)) {
+      return res.status(400).json({ message: 'Invalid role' });
+    }
+
+    // Decode temporary token
+    let googleInfo: any;
+    try {
+      const decoded = Buffer.from(temp, 'base64').toString();
+      googleInfo = JSON.parse(decoded);
+      
+      // Check if token is expired (5 minutes)
+      if (Date.now() - googleInfo.timestamp > 5 * 60 * 1000) {
+        return res.status(400).json({ message: 'Registration token expired. Please try again.' });
+      }
+    } catch (e) {
+      return res.status(400).json({ message: 'Invalid registration token' });
+    }
+
+    const { googleId, email, name, picture } = googleInfo;
+    
+    // Debug: Log Google info from temp token
+    console.log('Google info from temp token:', { googleId, email, name, picture });
+
+    // Check if user was created in the meantime
+    let user = await User.findOne({ $or: [{ email }, { googleId }] })
+      .select('+emailVerificationToken +emailVerificationExpires');
+    
+    if (user) {
+      // Check if user account is inactive or banned
+      if (user.accountStatus === 'inactive' || user.accountStatus === 'banned') {
+        return res.status(403).json({ 
+          message: 'Your account has been deactivated. Please contact support for assistance.' 
+        });
+      }
+
+      // Google sign-up must respect our own email verification state.
+      if (!user.emailVerified) {
+        await issueEmailVerificationLink(user).catch((e) =>
+          console.warn('[auth] Google complete: verification email failed', e)
+        );
+        return res.json({
+          success: true,
+          needsVerification: true,
+          email: user.email,
+          source: 'google',
+          message: 'Please verify your email. We sent a verification link to your inbox.',
+        });
+      }
+
+      // User already exists and is verified - update profile picture and login
+      if (picture) {
+        user.avatarUrl = picture;
+        console.log('Updating existing user avatarUrl to:', picture);
+        await user.save();
+        console.log('User saved with avatarUrl:', user.avatarUrl);
+      } else {
+        console.log('Warning: No picture in temp token for existing user');
+      }
+      const token = generateAuthToken(user);
+      fireLoginNotificationEmail(user, req);
+      return res.json({
+        success: true,
+        token,
+        user: serializeAuthUser(user),
+      });
+    }
+
+    // Create new user with selected role. Email verification is required for Google flow too.
+    const isSeller = role === 'seller';
+    console.log('Creating new user with Google picture:', picture);
+    user = await User.create({
+      fullName: name || email.split('@')[0],
+      email,
+      googleId,
+      passwordHash: '', // OAuth users don't need password
+      role,
+      avatarUrl: picture || undefined,
+      emailVerified: false,
+      sellerVerificationStatus: isSeller ? 'pending' : undefined,
+      isSellerVerified: isSeller ? false : undefined,
+    });
+    console.log('User created with avatarUrl:', user.avatarUrl);
+
+    try {
+      await ensureReferralCodeForUser(user._id);
+      await applyReferralCodeOnRegister(user._id, googleReferralCode);
+    } catch (refErr) {
+      console.warn('[auth] Google register referral setup', refErr);
+    }
+
+    issueEmailVerificationLink(user).catch((e) => console.warn('[auth] Google register: verification email error', e));
+    return res.status(201).json({
+      success: true,
+      needsVerification: true,
+      email: user.email,
+      source: 'google',
+      message: 'Account created. Please check your email and click the verification link before signing in.',
+    });
+  } catch (error: any) {
+    console.error('Complete Google registration error:', error);
+    res.status(500).json({ message: 'Failed to complete registration' });
+  }
+}
+
+const forgotPasswordSchema = z.object({ email: z.string().email() });
+const RESET_TOKEN_EXPIRY_MS = 15 * 60 * 1000; // 15 minutes (OTP)
+
+/**
+ * POST /api/auth/forgot-password
+ * Sends a password reset email with a secure token. Rate-limited at route level.
+ */
+export async function forgotPassword(req: Request, res: Response) {
+  try {
+    const { email } = forgotPasswordSchema.parse(req.body);
+    const emailKey = email.trim().toLowerCase();
+
+    const user = await findUserByEmailCaseInsensitive(email)
+      .select('_id fullName email passwordHash passwordResetOtp passwordResetOtpExpires')
+      .exec();
+    if (!user) {
+      // Do not reveal whether email exists
+      return res.status(200).json({ message: 'If an account exists with this email, you will receive a reset link shortly.' });
+    }
+
+    const now = Date.now();
+    const last = lastPasswordResetOtpSent.get(emailKey) ?? 0;
+    if (last > 0 && now - last < OTP_EMAIL_COOLDOWN_MS) {
+      return res.status(429).json({ message: 'Please wait before requesting another reset code.' });
+    }
+
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + RESET_TOKEN_EXPIRY_MS);
+
+    user.passwordResetOtp = await bcrypt.hash(code, 10);
+    user.passwordResetOtpExpires = expiresAt;
+    await user.save();
+
+    const result = await sendPasswordResetOtpEmail(user.email, user.fullName, code, '15 minutes');
+
+    if (!result.success) {
+      console.error('[auth] forgotPassword send email failed:', result.error);
+      return res.status(500).json({ message: 'Failed to send reset email. Please try again later.' });
+    }
+
+    lastPasswordResetOtpSent.set(emailKey, Date.now());
+    return res.status(200).json({ message: 'If an account exists with this email, you will receive a 6-digit reset code shortly.' });
+  } catch (err: any) {
+    if (err instanceof z.ZodError) {
+      return res.status(400).json({ message: 'Invalid email address' });
+    }
+    console.error('Forgot password error:', err);
+    return res.status(500).json({ message: 'Something went wrong. Please try again later.' });
+  }
+}
+
+/**
+ * POST /api/auth/reset-password-otp
+ * Reset password using a 6-digit OTP sent by email.
+ */
+export async function resetPasswordWithOtp(req: Request, res: Response) {
+  try {
+    const schema = z.object({
+      email: z.string().email(),
+      code: z.string().length(6),
+      password: z.string().min(6),
+    });
+    const { email, code, password } = schema.parse(req.body);
+    const normalizedCode = (code || '').replace(/\D/g, '');
+    if (normalizedCode.length !== 6) {
+      return res.status(400).json({ message: 'Invalid or expired code. Please request a new one.' });
+    }
+
+    const user = await findUserByEmailCaseInsensitive(email)
+      .select('_id fullName email passwordHash security.lastPasswordChangeAt passwordResetOtp passwordResetOtpExpires')
+      .exec();
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid email or code.' });
+    }
+    if (!user.passwordResetOtp || !user.passwordResetOtpExpires) {
+      return res.status(400).json({ message: 'Invalid or expired code. Please request a new one.' });
+    }
+    if (user.passwordResetOtpExpires < new Date()) {
+      user.passwordResetOtp = undefined;
+      user.passwordResetOtpExpires = undefined;
+      await user.save();
+      return res.status(400).json({ message: 'Invalid or expired code. Please request a new one.' });
+    }
+    if (!(await verifyStoredOtp(user.passwordResetOtp, normalizedCode))) {
+      return res.status(400).json({ message: 'Invalid or expired code. Please request a new one.' });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
+    user.passwordHash = passwordHash;
+    user.security.lastPasswordChangeAt = new Date();
+    user.passwordResetOtp = undefined;
+    user.passwordResetOtpExpires = undefined;
+    await user.save();
+
+    return res.status(200).json({ message: 'Password has been reset. You can now sign in.' });
+  } catch (err: any) {
+    if (err instanceof z.ZodError) {
+      return res.status(400).json({ message: 'Email, 6-digit code, and new password (min 6 characters) are required.' });
+    }
+    console.error('Reset password OTP error:', err);
+    return res.status(500).json({ message: 'Something went wrong. Please try again.' });
+  }
+}
+
+const resetPasswordSchema = z.object({
+  token: z.string().min(1),
+  password: z.string().min(6),
+});
+
+/**
+ * POST /api/auth/reset-password
+ * Validates token and sets new password.
+ */
+export async function resetPassword(req: Request, res: Response) {
+  try {
+    const { token, password } = resetPasswordSchema.parse(req.body);
+
+    const resetDoc = await PasswordResetToken.findOne({
+      token,
+      used: { $ne: true },
+      expiresAt: { $gt: new Date() },
+    }).populate('userId', 'email passwordHash');
+
+    if (!resetDoc || !resetDoc.userId) {
+      return res.status(400).json({ message: 'Invalid or expired reset link. Please request a new one.' });
+    }
+
+    const user = await User.findById((resetDoc.userId as any)._id);
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid or expired reset link. Please request a new one.' });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
+    user.passwordHash = passwordHash;
+    user.security.lastPasswordChangeAt = new Date();
+    await user.save();
+
+    resetDoc.used = true;
+    await resetDoc.save();
+
+    return res.status(200).json({ message: 'Password has been reset. You can now sign in.' });
+  } catch (err: any) {
+    if (err instanceof z.ZodError) {
+      return res.status(400).json({ message: 'Invalid request. Token and password (min 6 characters) are required.' });
+    }
+    console.error('Reset password error:', err);
+    return res.status(500).json({ message: 'Something went wrong. Please try again.' });
+  }
+}
+
+/**
+ * GET /api/auth/verify-email?token=...
+ * Verifies email using token sent on signup.
+ */
+export async function verifyEmail(req: Request, res: Response) {
+  try {
+    const token = (req.query.token as string)?.trim();
+    const email = (req.query.email as string)?.trim().toLowerCase();
+    if (!token) {
+      return res.status(400).json({ message: 'Invalid verification link.' });
+    }
+
+    const baseFilter: any = {
+      emailVerificationToken: token,
+      emailVerificationExpires: { $gt: new Date() },
+    };
+
+    // Match by token first, then enforce case-insensitive email match if provided.
+    // This avoids false negatives from email casing differences in links.
+    const user = await User.findOne(baseFilter).select('+emailVerificationToken +emailVerificationExpires');
+    if (!user) {
+      return res.status(400).json({ message: 'Verification link is invalid or expired. Request a new one.' });
+    }
+    if (email && user.email.toLowerCase() !== email) {
+      return res.status(400).json({ message: 'Verification link is invalid or expired. Request a new one.' });
+    }
+    user.emailVerified = true;
+    user.emailVerificationToken = undefined;
+    user.emailVerificationExpires = undefined;
+    user.emailVerificationOtp = undefined;
+    user.emailVerificationOtpExpires = undefined;
+    await user.save();
+    sendWelcomeEmail(user.email, user.fullName).catch((e) => console.warn('[auth] welcome email error', e));
+    const authToken = generateAuthToken(user);
+    // Register active device session for admin/seller logins.
+    try {
+      const decoded = decodeAuthToken(authToken);
+      if ((user.role === 'admin' || user.role === 'seller') && decoded?.jti) {
+        const { deviceId, userAgent, ipAddress } = getDeviceInfo(req);
+        await ActiveSession.findOneAndUpdate(
+          { userId: user._id },
+          {
+            tokenId: decoded.jti,
+            deviceId,
+            userAgent,
+            ipAddress,
+            lastActiveAt: new Date(),
+          },
+          { upsert: true, new: true }
+        );
+      }
+    } catch (e) {
+      console.warn('[auth] verify-email: failed to register active session', e);
+    }
+    return res.status(200).json({
+      message: 'Email verified successfully.',
+      token: authToken,
+      user: serializeAuthUser(user),
+    });
+  } catch (err: any) {
+    console.error('Verify email error:', err);
+    return res.status(500).json({ message: 'Verification failed. Please try again.' });
+  }
+}
+
+/**
+ * POST /api/auth/resend-verification
+ * Resends verification email for the authenticated user or by email in body.
+ * Security: does not reveal whether an account exists (same response for valid/invalid email when unauthenticated).
+ */
+export async function resendVerification(req: Request, res: Response) {
+  const source = (req.body?.source as string)?.trim().toLowerCase();
+  const forceLinkFlow = source === 'google';
+  const useOtpFlow = forceLinkFlow ? false : shouldUseEmailOtpFlow(req);
+  const genericSuccess = useOtpFlow
+    ? 'If an account exists with this email, you will receive a verification code shortly.'
+    : 'If an account exists with this email, you will receive a verification link shortly.';
+  try {
+    const email = (req.body?.email as string)?.trim();
+    let user: InstanceType<typeof User> | null = null;
+    if (email) {
+      user = await findUserByEmailCaseInsensitive(email).exec();
+      if (!user) {
+        return res.status(200).json({ message: genericSuccess });
+      }
+    } else if ((req as AuthenticatedRequest).user?.id) {
+      user = await User.findById((req as AuthenticatedRequest).user!.id);
+      if (!user) {
+        return res.status(400).json({ message: 'User not found.' });
+      }
+    } else {
+      return res.status(400).json({ message: 'Email is required or sign in first.' });
+    }
+    if (user.emailVerified) {
+      return res.status(400).json({ message: 'Email is already verified. You can sign in.' });
+    }
+    if (useOtpFlow) {
+      try {
+        await issueEmailVerificationOtp(user);
+      } catch (e: any) {
+        if (e?.status === 429) {
+          return res.status(429).json({
+            message: `Please wait ${e.retryAfterSec}s before requesting another verification code.`,
+          });
+        }
+        throw e;
+      }
+      return res.status(200).json({ message: 'Verification code sent to your email. It expires in 10 minutes.' });
+    }
+    await issueEmailVerificationLink(user);
+    return res.status(200).json({ message: 'New link sent — check your inbox' });
+  } catch (err: any) {
+    console.error('Resend verification error:', err);
+    return res.status(500).json({ message: 'Failed to resend verification email.' });
+  }
+}
+
+/**
+ * POST /api/auth/request-verification-otp
+ * Sends a 6-digit OTP to the user's email for verification (alternative to link).
+ * Security: same generic response when account not found to avoid email enumeration.
+ */
+const OTP_GENERIC_RESPONSE = 'If an account exists with this email, you will receive a verification code shortly.';
+export async function requestVerificationOtp(req: Request, res: Response) {
+  try {
+    if (!isEmailConfigured()) {
+      return res.status(503).json({
+        message:
+          'Email delivery is not configured on this server. Use the verification link from your registration email if you have one.',
+      });
+    }
+    if (!shouldUseEmailOtpFlow(req)) {
+      return res.status(400).json({
+        message: 'OTP is disabled for this deployment. Use the verification link sent to your email.',
+      });
+    }
+    const email = (req.body?.email as string)?.trim();
+    if (!email) {
+      return res.status(400).json({ message: 'Email is required.' });
+    }
+    const user = await findUserByEmailCaseInsensitive(email).select('+emailVerificationOtp +emailVerificationOtpExpires').exec();
+    if (!user) {
+      return res.status(200).json({ message: OTP_GENERIC_RESPONSE });
+    }
+    if (user.emailVerified) {
+      return res.status(400).json({ message: 'Email is already verified. You can sign in.' });
+    }
+    try {
+      await issueEmailVerificationOtp(user);
+    } catch (e: any) {
+      if (e?.status === 429) {
+        return res.status(429).json({
+          message: `Please wait ${e.retryAfterSec}s before requesting another verification code.`,
+        });
+      }
+      throw e;
+    }
+    return res.status(200).json({ message: 'Verification code sent to your email. It expires in 10 minutes.' });
+  } catch (err: any) {
+    console.error('Request verification OTP error:', err);
+    return res.status(500).json({ message: 'Failed to send verification code.' });
+  }
+}
+
+/**
+ * POST /api/auth/verify-email-otp
+ * Verifies email using the 6-digit OTP and marks user as verified.
+ */
+export async function verifyEmailWithOtp(req: Request, res: Response) {
+  try {
+    const schema = z.object({ email: z.string().email(), code: z.string().length(6) });
+    const { email, code } = schema.parse(req.body);
+    const user = await findUserByEmailCaseInsensitive(email).select('+emailVerificationOtp +emailVerificationOtpExpires').exec();
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid email or code.' });
+    }
+    // Block verification for inactive/banned accounts
+    if (user.accountStatus === 'inactive' || user.accountStatus === 'banned') {
+      return res.status(403).json({ message: 'Your account has been deactivated. Please contact support.' });
+    }
+    if (user.emailVerified) {
+      const token = generateAuthToken(user);
+      return res.status(200).json({
+        message: 'Email verified successfully.',
+        token,
+        user: serializeAuthUser(user),
+      });
+    }
+    if (!user.emailVerificationOtp || !user.emailVerificationOtpExpires) {
+      return res.status(400).json({ message: 'No verification code was sent. Request a new code.' });
+    }
+    if (user.emailVerificationOtpExpires < new Date()) {
+      user.emailVerificationOtp = undefined;
+      user.emailVerificationOtpExpires = undefined;
+      await user.save();
+      return res.status(400).json({ message: 'Verification code expired. Request a new code.' });
+    }
+    if (!(await verifyStoredOtp(user.emailVerificationOtp, code))) {
+      return res.status(400).json({ message: 'Invalid verification code.' });
+    }
+    user.emailVerified = true;
+    user.emailVerificationToken = undefined;
+    user.emailVerificationExpires = undefined;
+    user.emailVerificationOtp = undefined;
+    user.emailVerificationOtpExpires = undefined;
+    await user.save();
+    sendWelcomeEmail(user.email, user.fullName).catch((e) => console.warn('[auth] welcome email error', e));
+    const token = generateAuthToken(user);
+    return res.status(200).json({
+      message: 'Email verified successfully.',
+      token,
+      user: serializeAuthUser(user),
+    });
+  } catch (err: any) {
+    if (err instanceof z.ZodError) {
+      return res.status(400).json({ message: 'Email and a 6-digit code are required.' });
+    }
+    console.error('Verify email OTP error:', err);
+    return res.status(500).json({ message: 'Verification failed.' });
+  }
+}
+
+/**
+ * GET /api/auth/email-config
+ * Check if email (SMTP) is configured (for frontend to show/hide email features).
+ */
+export function emailConfig(_req: Request, res: Response) {
+  return res.json({ configured: isEmailConfigured() });
+}
+
+

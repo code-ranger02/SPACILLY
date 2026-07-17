@@ -1,0 +1,530 @@
+/* ══════════════════════════════════════════════════════════════════════════════
+   SPACILLY — Centralized Theme System
+   All semantic CSS variables for light and dark modes.
+   Every buyer-facing UI element should draw from these tokens.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Typography ─────────────────────────────────────────────────────────────── */
+  --font-body: 'Times New Roman', Times, serif;
+  --font-logo: 'Mea Culpa', serif;
+
+  /* ── Page & surface backgrounds — premium light storefront ──────────────────── */
+  --bg-page:        #f7f7f8;
+  --bg-secondary:   #ffffff;
+  --bg-tertiary:    #f0f1f3;
+  --bg-elevated:    #ffffff;
+  --card-bg:        #ffffff;
+  --dropdown-bg:    #ffffff;
+  --dropdown-border: #e5e7eb;
+  --dropdown-shadow: 0 12px 40px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04);
+  --bg-hover:       #f1f5f9;  /* hover on list rows / menu items */
+  --bg-active:      #fef3ea;  /* selected / active state */
+  --bg-input:       #ffffff;  /* input / textarea / select */
+  --bg-skeleton:    #e5e7eb;  /* skeleton loading shimmer base */
+  --bg-badge:       #f3f4f6;  /* neutral badge fill */
+  --bg-tag:         #eff6ff;  /* light tag / pill fill */
+  --bg-overlay:     rgba(0,0,0,0.45); /* modal backdrop */
+
+  /* ── Header / Navbar ───────────────────────────────────────────────────────── */
+  --header-bg:      #ffffff;
+  --navbar-bg:      #ffffff;
+  --topbar-bg:      #f9fafb;
+  --topbar-text:    #64748b;
+  --announcement-bg: #f9fafb;
+  --announcement-text: #64748b;
+  --header-border:  rgba(0,0,0,0.06);
+  --search-bg:      #f3f4f6;
+  --search-border:  transparent;
+  --shadow-header:  0 1px 0 rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04);
+
+  /* ── Text — storefront hierarchy ───────────────────────────────────────────── */
+  --text-primary:     #111111;
+  --text-secondary:   #777777;
+  --text-muted:       #777777;
+  --text-faint:       #9ca3af;  /* placeholders, very subtle */
+  --text-disabled:    #94a3b8;
+  --text-emphasis:    #0f172a;  /* pricing / key emphasis (light) */
+  --text-on-accent:   #ffffff;  /* text sitting on colored background */
+  --dropdown-text:    #111827;
+  --input-text:       #0f172a;
+  --input-placeholder: #9ca3af;
+  --link-color:       #ff7a1a;
+  --link-hover:       #e86812;
+
+  /* ── Brand accent — use sparingly (CTA, active, price emphasis) ─────────────── */
+  --brand-primary:       #ff7a1a;
+  --brand-primary-hover: #e86812;
+  --brand-orange-text:   #e86812;
+  --brand-tint:          rgba(255,122,26,0.1);
+  --brand-tint-strong:   rgba(255,122,26,0.18);
+  --brand-border-subtle: rgba(255,122,26,0.28);
+  --gradient-brand-cta:  linear-gradient(135deg, var(--brand-primary), var(--brand-primary-hover));
+  --gradient-brand-bar:  linear-gradient(90deg, var(--brand-primary), var(--brand-primary-hover));
+  --shadow-cta:          0 8px 24px rgba(255, 122, 26, 0.22);
+  --shadow-cta-hover:    0 14px 40px rgba(255, 122, 26, 0.28);
+
+  --commerce-brand-primary:       #ff7a1a;
+  --commerce-brand-primary-hover: #e86812;
+  --commerce-brand-tint:          rgba(255, 122, 26, 0.1);
+  --commerce-brand-tint-strong:   rgba(255, 122, 26, 0.18);
+  --commerce-brand-border-subtle: rgba(255, 122, 26, 0.28);
+  --commerce-gradient-cta:        linear-gradient(135deg, #ff7a1a, #e86812);
+  --commerce-shadow-cta:          0 8px 24px rgba(255, 122, 26, 0.22);
+  --commerce-shadow-cta-hover:    0 14px 40px rgba(255, 122, 26, 0.28);
+
+  /* ── Product / browse specifics ───────────────────────────────────────────── */
+  --text-price:          #111111;
+  --text-in-stock:       #16a34a;
+  --text-breadcrumb:     #64748b;
+  --text-breadcrumb-active: #334155;
+  --size-selector-bg:    #f1f5f9;
+  --size-selector-selected: #ff7a1a;
+
+  /* ── Panel tabs ────────────────────────────────────────────────────────────── */
+  --tab-active-bg:       rgba(255,122,26,0.12);
+  --tab-active-text:     #ff7a1a;
+  --tab-inactive-text:   #64748b;
+
+  /* ── Semantic badges (light — slightly muted) ─────────────────────────────── */
+  --badge-success-bg:    rgba(34,197,94,0.12);
+  --badge-success-border: rgba(34,197,94,0.25);
+  --badge-success-text:  #15803d;
+  --badge-warning-bg:    rgba(251,146,60,0.12);
+  --badge-warning-border: rgba(251,146,60,0.25);
+  --badge-warning-text:  #c2410c;
+  /* Slate-tinted info (avoids bright “electric blue” panels in light mode) */
+  --badge-info-bg:       rgba(51,65,85,0.09);
+  --badge-info-border:   rgba(51,65,85,0.18);
+  --badge-info-text:     #475569;
+  --badge-error-bg:      rgba(239,68,68,0.12);
+  --badge-error-border:  rgba(239,68,68,0.25);
+  --badge-error-text:    #b91c1c;
+
+  /* ── Modal ───────────────────────────────────────────────────────────────── */
+  --modal-bg:            #ffffff;
+  --modal-border:        #e5e7eb;
+  --shadow-modal:        0 24px 48px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04);
+
+  /* ── Loading (buyer shell) ───────────────────────────────────────────────── */
+  --buyer-page-loader-bg: linear-gradient(135deg, #f5f7fa, #e4e7eb);
+  --loading-spinner:         #ff7a1a;
+  --loading-spinner-track:   rgba(255,122,26,0.2);
+  --loading-text:            #64748b;
+
+  /* ── Borders & Dividers ───────────────────────────────────────────────────── */
+  --divider:          #e5e7eb;
+  --divider-strong:   #d1d5db;
+  --border-subtle:    rgba(0,0,0,0.06);
+  --border-visible:   rgba(0,0,0,0.1);
+  --border-strong:    rgba(0,0,0,0.15);
+  --border-card:      #e5e7eb;
+  --border-input:     #d1d5db;
+  --border-focus:     #ff7a1a;
+
+  /* ── Secondary button (dark rules mainly; light uses neutrals) ────────────── */
+  --btn-secondary-bg:        #f1f5f9;
+  --btn-secondary-border:    rgba(0,0,0,0.12);
+  --btn-secondary-text:      #334155;
+  --btn-secondary-hover-bg:  #e2e8f0;
+  --btn-secondary-hover-border: rgba(0,0,0,0.18);
+  --btn-ghost-text:          #64748b;
+  --btn-ghost-hover-text:    #0f172a;
+  --btn-ghost-hover-bg:      rgba(0,0,0,0.04);
+
+  /* ── Shadows ───────────────────────────────────────────────────────────────── */
+  --shadow-xs:        0 1px 2px rgba(0,0,0,0.04);
+  --shadow-sm:        0 2px 8px rgba(0,0,0,0.06);
+  --shadow-md:        0 4px 16px rgba(0,0,0,0.08);
+  --shadow-lg:        0 10px 40px rgba(0,0,0,0.10);
+  --shadow-xl:        0 20px 50px rgba(0,0,0,0.12);
+  --shadow-hover:     0 8px 24px rgba(0,0,0,0.12);
+  --shadow-card:      0 4px 20px rgba(17,17,17,0.06), 0 0 0 1px rgba(17,17,17,0.04);
+  --shadow-navbar:    0 1px 0 rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04);
+
+  /* Marketing / hero icon circles — warm; dark theme overrides below */
+  --accent-marketing-gradient: linear-gradient(135deg, var(--brand-primary), var(--brand-primary-hover));
+  --accent-marketing-text: var(--brand-orange-text);
+  --accent-success-gradient: linear-gradient(135deg, color-mix(in srgb, var(--badge-success-text) 75%, var(--brand-primary)), var(--badge-success-text));
+  --accent-violet-gradient: linear-gradient(135deg, color-mix(in srgb, #7c3aed 55%, var(--brand-primary)), #6366f1);
+
+  /* Page heroes — neutral light surfaces + cool accents (no heavy orange wash) */
+  --hero-marketing-bg: linear-gradient(
+    165deg,
+    var(--bg-secondary) 0%,
+    var(--bg-tertiary) 42%,
+    color-mix(in srgb, var(--text-primary) 3.5%, var(--bg-page)) 100%
+  );
+  --hero-marketing-heading: var(--text-primary);
+  --hero-marketing-line2-gradient: linear-gradient(135deg, #0f172a 0%, #475569 100%);
+  --hero-marketing-subtitle: var(--text-muted);
+  --hero-marketing-pill-bg: var(--badge-success-bg);
+  --hero-marketing-pill-text: var(--badge-success-text);
+  --hero-marketing-chip-bg: rgba(15, 23, 42, 0.07);
+  --hero-marketing-chip-text: var(--text-secondary);
+  --hero-marketing-shield-gradient: linear-gradient(135deg, #0d9488, #0f766e);
+  --hero-marketing-shield-shadow: 0 14px 44px rgba(15, 118, 110, 0.22);
+  --hero-marketing-blob-a: color-mix(in srgb, #0ea5e9 14%, transparent);
+  --hero-marketing-blob-b: color-mix(in srgb, #6366f1 12%, transparent);
+  --hero-marketing-blob-c: color-mix(in srgb, #14b8a6 12%, transparent);
+  /* Table or card bands that were #1a0f3a / #0d1f3a */
+  --panel-deep-bg: linear-gradient(135deg, var(--bg-tertiary), var(--bg-secondary));
+
+  /* Auth premium split — warm charcoal rail (white copy on aside); no blue-black */
+  --auth-premium-aside-bg: linear-gradient(
+    160deg,
+    color-mix(in srgb, #2c2826 95%, var(--brand-primary)) 0%,
+    color-mix(in srgb, #1f1c1a 93%, var(--brand-primary)) 52%,
+    #181615 100%
+  );
+  --auth-premium-mesh-fade: color-mix(in srgb, #1f1c1a 86%, var(--brand-primary) 14%);
+  --auth-premium-form-bg: linear-gradient(160deg, var(--bg-secondary) 0%, var(--bg-tertiary) 60%, var(--bg-page) 100%);
+
+  /* Notification dropdown type accents */
+  --notif-type-deal: var(--text-in-stock);
+  --notif-type-system: #2563eb;
+  --notif-type-message: #7c3aed;
+  --notif-type-review: #ca8a04;
+
+  /* Navbar search decorative violet (shared with subtle glows) */
+  --navbar-violet-mix: color-mix(in srgb, #6366f1 38%, transparent);
+  --navbar-violet-strong: color-mix(in srgb, #6366f1 70%, transparent);
+  --navbar-violet-glow-soft: color-mix(in srgb, #6366f1 18%, transparent);
+
+  /* ── Scrollbar ─────────────────────────────────────────────────────────────── */
+  --scrollbar-thumb:       #d1d5db;
+  --scrollbar-thumb-hover: #94a3b8;
+  --scrollbar-track:       #f3f4f6;
+
+  /* ── Footer (main band is dark on both themes; newsletter strip follows page) ─ */
+  --footer-main-bg:          linear-gradient(180deg, #1a1a1a 0%, #121212 100%);
+  --footer-bottom-bg:        #0c0c0c;
+  --footer-inset-line:       rgba(255,255,255,0.06);
+  --footer-newsletter-bg:    #eceef2;
+  --footer-newsletter-edge:  rgba(0,0,0,0.08);
+  --footer-newsletter-form-bg:      #ffffff;
+  --footer-newsletter-form-border:  rgba(0,0,0,0.12);
+  --footer-newsletter-form-shadow:  0 8px 26px rgba(0,0,0,0.08);
+  --footer-newsletter-title:   #0f172a;
+  --footer-newsletter-muted:   #6b7280;
+  --footer-newsletter-btn-bg:  #121212;
+  --footer-newsletter-btn-text:#f2f2f2;
+  --footer-newsletter-input:   #1a1a1a;
+  --footer-newsletter-icon:    #9ca3af;
+  --footer-on-dark-heading:    #f2f2f2;
+  --footer-on-dark-body:       #9e9e9e;
+  --footer-on-dark-link-hover: #f2f2f2;
+  --footer-badge-bg:           rgba(255,255,255,0.08);
+  --footer-app-btn-bg:         rgba(255,255,255,0.12);
+  --footer-payment-bg:         rgba(255,255,255,0.08);
+  --footer-payment-border:     rgba(255,255,255,0.12);
+  --footer-tooltip-bg:         #1c1c1c;
+  --footer-tooltip-text:       #eceef8;
+  --footer-sell-link-idle:     #8a8fa8;
+
+  /* ── AI Assistant (mobile sheet + chat window) ───────────────────────────── */
+  --ai-backdrop:               var(--bg-overlay);
+  --ai-sheet-bg:               linear-gradient(165deg, #ffffff 0%, #f7f7f8 55%, #f0f1f3 100%);
+  --ai-sheet-border:           var(--border-card);
+  --ai-sheet-shadow:           0 -12px 48px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.04) inset;
+  --ai-sheet-handle:           var(--divider-strong);
+  --ai-hero-bg:                linear-gradient(
+    105deg,
+    color-mix(in srgb, #0d9488 14%, var(--card-bg)) 0%,
+    color-mix(in srgb, #0f766e 10%, var(--card-bg)) 38%,
+    var(--card-bg) 100%
+  );
+  --ai-hero-border:            rgba(45, 212, 191, 0.35);
+  --ai-hero-title:             var(--text-primary);
+  --ai-hero-sub:               var(--text-secondary);
+  --ai-hero-chevron:           var(--text-faint);
+  --ai-tile-bg:                var(--bg-secondary);
+  --ai-tile-border:            var(--border-card);
+  --ai-tile-icon-bg:           var(--bg-tertiary);
+  --ai-tile-label:             var(--text-primary);
+  --ai-tile-sub:               var(--text-muted);
+  --ai-section-label:          var(--text-faint);
+  --ai-action-title:           var(--text-primary);
+  --ai-action-sub:             var(--text-muted);
+  --ai-action-chevron:         var(--text-faint);
+  --ai-icon-btn-bg:            var(--bg-tertiary);
+  --ai-icon-btn-border:        var(--border-card);
+  --ai-icon-btn-color:         var(--text-secondary);
+  --ai-chat-window-shadow:       var(--shadow-xl);
+  --ai-chat-header-bg:         var(--card-bg);
+  --ai-chat-header-title:      var(--text-primary);
+  --ai-chat-header-online:     var(--badge-success-text);
+  --ai-online-ring:            var(--card-bg);
+  --ai-hdr-btn-bg:             var(--bg-tertiary);
+  --ai-hdr-btn-border:         var(--border-card);
+  --ai-hdr-btn-color:          var(--text-muted);
+  --ai-hdr-btn-hover-bg:       var(--bg-hover);
+  --ai-hdr-btn-hover-color:    var(--text-primary);
+  --ai-fallback-bg:            var(--badge-warning-bg);
+  --ai-fallback-text:          var(--badge-warning-text);
+  --ai-fallback-border:        var(--badge-warning-border);
+  --ai-fab-hint-bg:            var(--card-bg);
+  --ai-fab-hint-text:          var(--text-primary);
+  --ai-fab-hint-border:        var(--border-card);
+  --ai-fab-hint-shadow:        var(--shadow-lg);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   DARK MODE — Buyer storefront + admin / seller dashboards (html.dark + data-theme)
+   • Base #121212 / text #F2F2F2 — comfortable contrast, no pure black or white
+   • Brand & semantics: accent-only, desaturated to avoid glare and “vibration”
+   ══════════════════════════════════════════════════════════════════════════════ */
+.dark,
+[data-theme='dark'] {
+  /* ── Page & surfaces — charcoal storefront (#0F1115 / #171A20) ─────────────── */
+  --bg-page:        #0f1115;
+  --bg-secondary:   #171a20;
+  --bg-tertiary:    #1c2129;
+  --bg-elevated:    #222831;
+  --card-bg:        #171a20;
+  --dropdown-bg:    #1c2129;
+  --dropdown-border: rgba(255,255,255,0.07);
+  --dropdown-shadow: var(--shadow-lg);
+  --bg-hover:       #252b34;
+  --bg-active:      rgba(255,122,26,0.12);
+  --bg-input:       #1c2129;
+  --bg-skeleton:    #252b34;
+  --bg-badge:       #2E2E2E;
+  --bg-tag:         rgba(125, 160, 200, 0.12);
+  --bg-overlay:     rgba(0,0,0,0.65);
+
+  /* ── Header / Navbar (minimal lift from page, still near #121212 family) ─── */
+  --header-bg:      #13161c;
+  --navbar-bg:      #13161c;
+  --topbar-bg:      #0f1115;
+  --topbar-text:    #a8aeb8;
+  --announcement-bg: #0f1115;
+  --announcement-text: #a8aeb8;
+  --header-border:  rgba(255,255,255,0.06);
+  --search-bg:      rgba(255,255,255,0.06);
+  --search-border:  rgba(255,255,255,0.08);
+  --shadow-header:  0 1px 0 rgba(255,255,255,0.04), 0 12px 40px rgba(0,0,0,0.45);
+
+  /* ── Text — readable off-white / muted gray ─────────────────────────────── */
+  --text-primary:     #f2f3f5;
+  --text-secondary:   #a8aeb8;
+  --text-muted:       #8b929e;
+  --text-faint:       #8A8A8A;
+  --text-disabled:    #757575;
+  --text-emphasis:    #F2F2F2;
+  --text-on-accent:   #F2F2F2;
+  --dropdown-text:    #F2F2F2;
+  --input-text:       #F2F2F2;
+  --input-placeholder: #8A8A8A;
+  /* Links: muted blue — readable, not fully saturated */
+  --link-color:       #7EB0D8;
+  --link-hover:       #9BC4E5;
+
+  /* ── Brand — accent only (desaturated orange vs neon #FF6B00) ───────────── */
+  --brand-primary:       #ff7a1a;
+  --brand-primary-hover: #ff9640;
+  --brand-orange-text:   #ffb347;
+  --brand-tint:          rgba(255,122,26,0.14);
+  --brand-tint-strong:   rgba(255,122,26,0.22);
+  --brand-border-subtle: rgba(255,122,26,0.35);
+  --gradient-brand-cta:  linear-gradient(135deg, var(--brand-primary), var(--brand-primary-hover));
+  --gradient-brand-bar:  linear-gradient(90deg, var(--brand-primary), var(--brand-primary-hover));
+  --shadow-cta:          0 8px 28px rgba(255, 122, 26, 0.25), 0 0 40px rgba(255, 122, 26, 0.08);
+  --shadow-cta-hover:    0 14px 44px rgba(255, 122, 26, 0.32);
+
+  --commerce-brand-primary:       #ff7a1a;
+  --commerce-brand-primary-hover: #ff9640;
+  --commerce-brand-tint:          rgba(255, 122, 26, 0.14);
+  --commerce-brand-tint-strong:   rgba(255, 122, 26, 0.22);
+  --commerce-brand-border-subtle: rgba(255, 122, 26, 0.35);
+  --commerce-gradient-cta:        linear-gradient(135deg, #ff7a1a, #ff9640);
+  --commerce-shadow-cta:          0 8px 28px rgba(255, 122, 26, 0.25);
+  --commerce-shadow-cta-hover:    0 14px 44px rgba(255, 122, 26, 0.32);
+
+  /* ── Product / browse — price uses same soft white as body (no pure white) ─ */
+  --text-price:          #f7f8fa;
+  --text-in-stock:       #7bc99c;
+  --text-breadcrumb:     #8b929e;
+  --text-breadcrumb-active: #c9cdd4;
+  --size-selector-bg:    #1c2129;
+  --size-selector-selected: #ff7a1a;
+
+  /* ── Panel tabs ────────────────────────────────────────────────────────────── */
+  --tab-active-bg:       rgba(255,122,26,0.14);
+  --tab-active-text:     #ffb347;
+  --tab-inactive-text:   #9E9E9E;
+
+  /* ── Semantic badges — low saturation text on tinted fills ──────────────── */
+  --badge-success-bg:    rgba(90,160,120,0.16);
+  --badge-success-border: rgba(90,160,120,0.28);
+  --badge-success-text:  #8FD4AE;
+  --badge-warning-bg:    rgba(200,150,100,0.14);
+  --badge-warning-border: rgba(200,150,100,0.28);
+  --badge-warning-text:  #E8C9A8;
+  --badge-info-bg:       rgba(100,140,185,0.14);
+  --badge-info-border:   rgba(100,140,185,0.28);
+  --badge-info-text:     #A8CCE8;
+  --badge-error-bg:      rgba(200,100,100,0.14);
+  --badge-error-border:  rgba(200,100,100,0.28);
+  --badge-error-text:    #E8B0B0;
+
+  /* ── Modal ───────────────────────────────────────────────────────────────── */
+  --modal-bg:            #171a20;
+  --modal-border:        rgba(255,255,255,0.07);
+  --shadow-modal:        0 20px 56px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
+
+  /* ── Loading — page matches floor; spinner uses brand accent only ───────── */
+  --buyer-page-loader-bg: #0f1115;
+  --loading-spinner:         #ff7a1a;
+  --loading-spinner-track:   rgba(255,122,26,0.2);
+  --loading-text:            #9E9E9E;
+
+  /* ── Borders & Dividers — low contrast ──────────────────────────────────── */
+  --divider:          rgba(255,255,255,0.05);
+  --divider-strong:   rgba(255,255,255,0.1);
+  --border-subtle:    rgba(255,255,255,0.05);
+  --border-visible:   rgba(255,255,255,0.1);
+  --border-strong:    rgba(255,255,255,0.16);
+  --border-card:      rgba(255,255,255,0.05);
+  --border-input:     rgba(255,255,255,0.09);
+  --border-focus:     rgba(217,119,54,0.45);
+
+  /* ── Secondary / ghost buttons ────────────────────────────────────────────── */
+  --btn-secondary-bg:        #242424;
+  --btn-secondary-border:    rgba(255,255,255,0.1);
+  --btn-secondary-text:      #D0D0D0;
+  --btn-secondary-hover-bg:  #2E2E2E;
+  --btn-secondary-hover-border: rgba(255,255,255,0.16);
+  --btn-ghost-text:          #B0B0B0;
+  --btn-ghost-hover-text:    #F2F2F2;
+  --btn-ghost-hover-bg:      rgba(255,255,255,0.04);
+
+  /* ── Shadows — soft elevation on near-black UI ──────────────────────────── */
+  --shadow-xs:        0 1px 2px rgba(0,0,0,0.22);
+  --shadow-sm:        0 2px 10px rgba(0,0,0,0.32);
+  --shadow-md:        0 8px 24px rgba(0,0,0,0.38);
+  --shadow-lg:        0 14px 40px rgba(0,0,0,0.45);
+  --shadow-xl:        0 22px 56px rgba(0,0,0,0.5);
+  --shadow-hover:     0 10px 32px rgba(0,0,0,0.42);
+  --shadow-card:      0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.06), 0 0 48px rgba(255,122,26,0.04);
+  --shadow-navbar:    0 1px 0 rgba(255,255,255,0.04), 0 6px 24px rgba(0,0,0,0.4);
+
+  /* ── Scrollbar — low contrast against #121212 ───────────────────────────── */
+  --scrollbar-thumb:       #4A4A4A;
+  --scrollbar-thumb-hover: #5C5C5C;
+  --scrollbar-track:       #0f1115;
+
+  /* ── Footer — newsletter strip lifts slightly from #121212 floor ─────────── */
+  --footer-newsletter-bg:    #161616;
+  --footer-newsletter-edge:  rgba(255,255,255,0.07);
+  --footer-newsletter-form-bg:      rgba(255,255,255,0.05);
+  --footer-newsletter-form-border:  rgba(255,255,255,0.1);
+  --footer-newsletter-form-shadow:  0 8px 26px rgba(0,0,0,0.35);
+  --footer-newsletter-title:   #e8e8e8;
+  --footer-newsletter-muted:   #9e9e9e;
+  --footer-newsletter-btn-bg:  #e8e8e8;
+  --footer-newsletter-btn-text:#121212;
+  --footer-newsletter-input:   #f2f2f2;
+  --footer-newsletter-icon:    #757575;
+  --footer-tooltip-bg:         #242424;
+  --footer-tooltip-text:       #f2f2f2;
+  --footer-sell-link-idle:     #8a8a9e;
+
+  /* Cool-warm blend (muted link blue — no saturated Tailwind blues) */
+  --accent-marketing-gradient: linear-gradient(135deg, var(--brand-primary), var(--link-color));
+  --accent-marketing-text: var(--link-color);
+  --accent-success-gradient: linear-gradient(135deg, color-mix(in srgb, var(--badge-success-text) 80%, var(--brand-primary)), var(--text-in-stock));
+  --accent-violet-gradient: linear-gradient(135deg, color-mix(in srgb, #a78bfa 50%, var(--brand-primary)), #8b5cf6);
+
+  --hero-marketing-bg: linear-gradient(
+    165deg,
+    var(--bg-secondary) 0%,
+    var(--bg-tertiary) 40%,
+    color-mix(in srgb, #ffffff 4.5%, var(--bg-page)) 100%
+  );
+  --hero-marketing-heading: #f2f2f2;
+  --hero-marketing-line2-gradient: linear-gradient(135deg, #f1f5f9 0%, #94a3b8 100%);
+  --hero-marketing-subtitle: rgba(242, 242, 242, 0.68);
+  --hero-marketing-pill-bg: rgba(52, 211, 153, 0.14);
+  --hero-marketing-pill-text: #6ee7b7;
+  --hero-marketing-chip-bg: rgba(255, 255, 255, 0.08);
+  --hero-marketing-chip-text: rgba(242, 242, 242, 0.88);
+  --hero-marketing-shield-gradient: linear-gradient(135deg, #14b8a6, #0d9488);
+  --hero-marketing-shield-shadow: 0 14px 44px rgba(20, 184, 166, 0.28);
+  --hero-marketing-blob-a: color-mix(in srgb, #38bdf8 14%, transparent);
+  --hero-marketing-blob-b: color-mix(in srgb, #818cf8 12%, transparent);
+  --hero-marketing-blob-c: color-mix(in srgb, #2dd4bf 10%, transparent);
+  --panel-deep-bg: linear-gradient(135deg, var(--bg-tertiary), var(--bg-secondary));
+
+  --auth-premium-form-bg: linear-gradient(160deg, var(--bg-page) 0%, var(--bg-secondary) 60%, var(--bg-page) 100%);
+  /* Auth illustration rail — neutral #121212 family + warm brand tint (no blue-black) */
+  --auth-premium-aside-bg: linear-gradient(
+    160deg,
+    color-mix(in srgb, var(--bg-page) 96%, var(--brand-primary)) 0%,
+    color-mix(in srgb, var(--bg-secondary) 94%, var(--brand-primary)) 52%,
+    var(--bg-page) 100%
+  );
+  --auth-premium-mesh-fade: color-mix(in srgb, var(--bg-page) 88%, var(--brand-primary) 12%);
+  --notif-type-system: #7eb0d8;
+  --notif-type-message: #a78bfa;
+  --notif-type-review: #fbbf24;
+
+  /* ── AI Assistant (mobile sheet + chat window) ───────────────────────────── */
+  --ai-backdrop:               rgba(6, 8, 14, 0.55);
+  --ai-sheet-bg:               linear-gradient(
+    165deg,
+    rgba(22, 26, 38, 0.94) 0%,
+    rgba(14, 17, 28, 0.96) 55%,
+    rgba(10, 12, 20, 0.98) 100%
+  );
+  --ai-sheet-border:           rgba(255, 255, 255, 0.08);
+  --ai-sheet-shadow:           0 -12px 48px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+  --ai-sheet-handle:           rgba(255, 255, 255, 0.2);
+  --ai-hero-bg:                linear-gradient(
+    105deg,
+    rgba(15, 118, 110, 0.72) 0%,
+    rgba(8, 78, 92, 0.58) 38%,
+    rgba(15, 23, 42, 0.88) 100%
+  );
+  --ai-hero-border:            rgba(45, 212, 191, 0.28);
+  --ai-hero-title:             #ffffff;
+  --ai-hero-sub:               rgba(255, 255, 255, 0.78);
+  --ai-hero-chevron:           rgba(255, 255, 255, 0.45);
+  --ai-tile-bg:                rgba(255, 255, 255, 0.04);
+  --ai-tile-border:            rgba(255, 255, 255, 0.06);
+  --ai-tile-icon-bg:           rgba(30, 35, 48, 0.92);
+  --ai-tile-label:             #f1f5f9;
+  --ai-tile-sub:               rgba(148, 163, 184, 0.9);
+  --ai-section-label:          rgba(100, 116, 139, 0.95);
+  --ai-action-title:           #f1f5f9;
+  --ai-action-sub:             rgba(148, 163, 184, 0.9);
+  --ai-action-chevron:         rgba(100, 116, 139, 0.75);
+  --ai-icon-btn-bg:            rgba(255, 255, 255, 0.07);
+  --ai-icon-btn-border:        rgba(255, 255, 255, 0.1);
+  --ai-icon-btn-color:         rgba(226, 232, 240, 0.9);
+  --ai-chat-window-shadow:       0 28px 80px rgba(0, 0, 0, 0.38), 0 0 0 1px rgba(249, 115, 22, 0.07), 0 0 60px rgba(249, 115, 22, 0.06);
+  --ai-chat-header-bg:         linear-gradient(135deg, rgba(10, 10, 22, 0.98) 0%, rgba(13, 15, 28, 0.97) 100%);
+  --ai-chat-header-title:      #f0f4ff;
+  --ai-chat-header-online:     #4ade80;
+  --ai-online-ring:            #0d0f1c;
+  --ai-hdr-btn-bg:             rgba(255, 255, 255, 0.06);
+  --ai-hdr-btn-border:         rgba(255, 255, 255, 0.1);
+  --ai-hdr-btn-color:          rgba(200, 210, 230, 0.7);
+  --ai-hdr-btn-hover-bg:       rgba(255, 255, 255, 0.14);
+  --ai-hdr-btn-hover-color:    #ffffff;
+  --ai-fallback-bg:            rgba(251, 191, 36, 0.12);
+  --ai-fallback-text:          #fbbf24;
+  --ai-fallback-border:        rgba(251, 191, 36, 0.2);
+  --ai-fab-hint-bg:            rgba(15, 23, 42, 0.96);
+  --ai-fab-hint-text:          #ffffff;
+  --ai-fab-hint-border:        rgba(148, 163, 184, 0.22);
+  --ai-fab-hint-shadow:        0 12px 30px rgba(0, 0, 0, 0.45);
+}
+
+/* Prevent flash when toggling theme (used by ThemeContext) */
+html.no-transition,
+html.no-transition *,
+html.no-transition *::before,
+html.no-transition *::after {
+  transition: none !important;
+}

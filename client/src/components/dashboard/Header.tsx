@@ -1,0 +1,579 @@
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { motion } from 'framer-motion';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Bell, Menu, Search, User, Sun, Moon, ChevronDown, Settings, Package, BarChart3, ShoppingBag, LogOut, Store, Layers, Globe } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useTranslation } from '@/i18n/useTranslation';
+import { useAuthStore } from '@/stores/authStore';
+import { useNotificationStore } from '@/stores/notificationStore';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { SERVER_URL, API_BASE_URL } from '../../lib/config';
+import { systemInboxApi } from '@/services/systemInboxApi';
+
+// Helper to resolve avatar URLs (handles both full URLs and relative paths)
+// Adds cache-busting parameter to ensure fresh image loads
+const resolveAvatarUrl = (url: string | null | undefined, cacheBust?: boolean): string | null => {
+  if (!url) return null;
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
+    // For data URLs, return as-is
+    if (url.startsWith('data:')) return url;
+    // For Google profile images, they already have cache-busting parameters, so don't add another
+    // Just return the URL as-is to preserve Google's cache-busting
+    if (url.includes('googleusercontent.com')) {
+      return url;
+    }
+    // For other HTTP URLs, add cache-busting if needed
+    if (cacheBust) {
+      const separator = url.includes('?') ? '&' : '?';
+      return `${url}${separator}t=${Date.now()}`;
+    }
+    return url;
+  }
+  // If it's a relative path, prepend the server base URL
+  const base = SERVER_URL.replace(/\/$/, '');
+  const fullUrl = `${base}${url.startsWith('/') ? url : '/' + url}`;
+  // Add cache-busting parameter to force fresh load
+  if (cacheBust) {
+    const separator = fullUrl.includes('?') ? '&' : '?';
+    return `${fullUrl}${separator}t=${Date.now()}`;
+  }
+  return fullUrl;
+};
+
+interface HeaderProps {
+  setSidebarOpen: (open: boolean) => void;
+  notificationsOpen: boolean;
+  setNotificationsOpen: (open: boolean) => void;
+  userName: string;
+  userRole: string;
+  accentVariant?: 'emerald' | 'orange';
+  onOpenIntelligenceSearch?: () => void;
+  showIntelligenceSearch?: boolean;
+}
+
+const Header: React.FC<HeaderProps> = ({
+  setSidebarOpen,
+  notificationsOpen,
+  setNotificationsOpen,
+  userName,
+  userRole,
+  accentVariant = 'emerald',
+  onOpenIntelligenceSearch,
+  showIntelligenceSearch = false,
+}) => {
+  const { theme, toggleTheme, language, setLanguage } = useTheme();
+  const { t } = useTranslation();
+  const { user, signOut } = useAuthStore();
+  const { unreadMessageCount } = useNotificationStore();
+  const [systemInboxUnread, setSystemInboxUnread] = useState(0);
+
+  const notificationCount = unreadMessageCount + systemInboxUnread;
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const [avatarKey, setAvatarKey] = useState(0); // Force re-render counter
+  const userMenuRef = useRef<HTMLDivElement>(null);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [langMenuOpen, setLangMenuOpen] = useState(false);
+  const langMenuRef = useRef<HTMLDivElement>(null);
+  
+  // Force re-render when user.avatar_url changes
+  // Handle both snake_case (avatar_url) and camelCase (avatarUrl) for compatibility
+  // Ensure avatarUrl is a non-empty string
+  const avatarUrl = (user?.avatar_url || (user as any)?.avatarUrl || '').trim();
+  const hasAvatar = avatarUrl && avatarUrl.length > 0;
+  
+  // Debug: Log avatar URL for troubleshooting
+  useEffect(() => {
+    console.log('[Header] User object:', user);
+    console.log('[Header] Avatar URL:', avatarUrl);
+    console.log('[Header] Has avatar:', hasAvatar);
+  }, [user, avatarUrl, hasAvatar]);
+
+  const isSellerUser = user?.role === 'seller';
+  const isAdminUser = user?.role === 'admin';
+  const isSellerHub = isSellerUser && location.pathname.startsWith('/seller');
+  const isAdminHub = isAdminUser && location.pathname.startsWith('/admin');
+  const mobileSubtitle = isSellerHub ? 'Seller Hub' : isAdminHub ? 'Admin' : '';
+
+  const refreshSystemInboxUnread = useCallback(() => {
+    if (!isSellerHub && !isAdminHub) {
+      setSystemInboxUnread(0);
+      return;
+    }
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      setSystemInboxUnread(0);
+      return;
+    }
+    systemInboxApi
+      .unreadCount()
+      .then((c) => setSystemInboxUnread(Number.isFinite(c) ? c : 0))
+      .catch(() => setSystemInboxUnread(0));
+  }, [isSellerHub, isAdminHub]);
+
+  useEffect(() => {
+    refreshSystemInboxUnread();
+    const t = window.setInterval(refreshSystemInboxUnread, 90_000);
+    const onRefresh = () => refreshSystemInboxUnread();
+    window.addEventListener('systemInboxUnreadRefresh', onRefresh);
+    return () => {
+      window.clearInterval(t);
+      window.removeEventListener('systemInboxUnreadRefresh', onRefresh);
+    };
+  }, [refreshSystemInboxUnread]);
+
+  // Listen for avatar updates and user state changes
+  useEffect(() => {
+    const handleAvatarUpdate = () => {
+      console.log('[Header] Avatar update event received, forcing re-render');
+      setAvatarKey(prev => prev + 1); // Force image re-render
+    };
+    window.addEventListener('avatarUpdated', handleAvatarUpdate);
+    return () => window.removeEventListener('avatarUpdated', handleAvatarUpdate);
+  }, []);
+
+  // Also react to user.avatar_url changes from Zustand
+  useEffect(() => {
+    console.log('[Header] Avatar URL changed:', avatarUrl, 'hasAvatar:', hasAvatar);
+    if (hasAvatar) {
+      setAvatarKey(prev => prev + 1); // Force re-render when avatar URL changes
+    }
+  }, [avatarUrl, hasAvatar]);
+  
+  // Also react to user object changes
+  useEffect(() => {
+    if (user) {
+      const currentAvatarUrl = (user.avatar_url || (user as any)?.avatarUrl || '').trim();
+      if (currentAvatarUrl && currentAvatarUrl.length > 0) {
+        console.log('[Header] User object changed, avatar URL:', currentAvatarUrl);
+        setAvatarKey(prev => prev + 1);
+      }
+    }
+  }, [user]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setShowUserMenu(false);
+      }
+      if (langMenuRef.current && !langMenuRef.current.contains(event.target as Node)) {
+        setLangMenuOpen(false);
+      }
+    };
+
+    if (showUserMenu || langMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showUserMenu, langMenuOpen]);
+
+  const handleProfileClick = () => {
+    // Determine profile route based on current path
+    if (isAdminUser) {
+      navigate('/admin/settings');
+    } else if (isSellerUser) {
+      navigate('/seller/settings');
+    } else {
+      navigate('/profile');
+    }
+    setShowUserMenu(false);
+  };
+
+  const handleLogout = () => {
+    signOut();
+    setShowUserMenu(false);
+    navigate('/login');
+  };
+
+  const accent = accentVariant === 'emerald'
+    ? {
+        focusRing: 'focus:ring-emerald-500',
+        badgeBg: 'bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500',
+        avatarBg: 'bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500',
+      }
+    : {
+        focusRing: 'focus:ring-red-500',
+        badgeBg: 'bg-red-500',
+        avatarBg: 'bg-gradient-to-br from-red-500 to-[var(--brand-primary)]',
+      };
+
+  return (
+    <header
+      className={`dashboard-header backdrop-blur-md border-b border-gray-200 dark:border-gray-700/30 flex items-center justify-between sticky top-0 z-30 transition-colors duration-300 ${
+        isAdminHub
+          ? 'px-3 py-2.5 sm:px-4 sm:py-3 md:px-6 md:py-4 lg:px-8'
+          : 'px-4 md:px-6 lg:px-8 py-4'
+      }`}
+    >
+      <div className={`flex items-center flex-1 min-w-0 ${isAdminHub ? 'gap-2 sm:gap-3 md:gap-4' : 'gap-4'}`}>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setSidebarOpen(true)}
+          className="lg:hidden min-h-[44px] min-w-[44px] text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-dark-secondary/60 transition-colors"
+          aria-label={t('header.openMenu')}
+        >
+          <Menu className="w-6 h-6" />
+        </Button>
+
+        {/* Mobile title (matches screenshot vibe) */}
+        <div className="md:hidden flex flex-col leading-tight min-w-0 flex-1">
+          <span className="text-sm font-bold text-gray-900 dark:text-white sm:text-[15px]">{mobileSubtitle || 'Dashboard'}</span>
+          <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400 truncate sm:text-[11px] sm:font-semibold">
+            {userName}
+          </span>
+        </div>
+
+        {isAdminHub && showIntelligenceSearch ? (
+          <button
+            type="button"
+            onClick={onOpenIntelligenceSearch}
+            className="md:hidden shrink-0 min-h-[40px] min-w-[40px] inline-flex items-center justify-center rounded-lg border border-gray-200 bg-gray-100 text-gray-600 dark:border-gray-700 dark:bg-dark-secondary/70 dark:text-gray-300"
+            aria-label="Search platform"
+          >
+            <Search className="w-4 h-4" />
+          </button>
+        ) : null}
+
+        <div
+          className={`hidden md:flex items-center flex-1 max-w-md${showIntelligenceSearch ? ' intel-search-trigger' : ''}`}
+          onClick={showIntelligenceSearch ? onOpenIntelligenceSearch : undefined}
+          role={showIntelligenceSearch ? 'button' : undefined}
+          tabIndex={showIntelligenceSearch ? 0 : undefined}
+          onKeyDown={
+            showIntelligenceSearch
+              ? (e) => {
+                  if (e.key === 'Enter' || e.key === ' ') onOpenIntelligenceSearch?.();
+                }
+              : undefined
+          }
+        >
+          <motion.div className="relative w-full">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+            <input
+              type="text"
+              readOnly={showIntelligenceSearch}
+              placeholder={
+                showIntelligenceSearch ? 'Search platform… ⌘K' : t('search.placeholderShort')
+              }
+              onFocus={
+                showIntelligenceSearch
+                  ? (e) => {
+                      e.preventDefault();
+                      onOpenIntelligenceSearch?.();
+                    }
+                  : undefined
+              }
+              className={`w-full bg-gray-100 dark:bg-dark-secondary/70 border border-gray-300 dark:border-[var(--border-card)] rounded-lg pl-10 pr-4 py-2 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-[var(--input-placeholder)] focus:outline-none focus:ring-2 ${accent.focusRing} focus:border-transparent transition-all${showIntelligenceSearch ? ' cursor-pointer' : ''}`}
+            />
+          </motion.div>
+        </div>
+      </div>
+
+      <div className={`flex items-center shrink-0 ${isAdminHub ? 'gap-1.5 sm:gap-2 md:gap-3' : 'gap-3'}`}>
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={toggleTheme}
+          className={`inline-flex items-center justify-center p-2 hover:bg-gray-100 dark:hover:bg-gray-800/50 rounded-lg transition-colors ${isAdminHub ? 'min-h-[40px] min-w-[40px] md:min-h-[44px] md:min-w-[44px]' : 'min-h-[44px] min-w-[44px]'}`}
+          title={theme === 'dark' ? t('header.switchToLight') : t('header.switchToDark')}
+        >
+          {theme === 'dark' ? (
+            <Sun className={`text-yellow-400 ${isAdminHub ? 'w-5 h-5 md:w-6 md:h-6' : 'w-6 h-6'}`} />
+          ) : (
+            <Moon className={`text-gray-600 dark:text-gray-400 ${isAdminHub ? 'w-5 h-5 md:w-6 md:h-6' : 'w-6 h-6'}`} />
+          )}
+        </motion.button>
+
+        <div className="relative" ref={langMenuRef}>
+          <motion.button
+            type="button"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setLangMenuOpen((o) => !o)}
+            className="min-h-[44px] min-w-[44px] sm:min-w-[52px] inline-flex items-center justify-center gap-1 p-2 hover:bg-gray-100 dark:hover:bg-gray-800/50 rounded-lg transition-colors"
+            title={t('header.language')}
+            aria-label={t('header.language')}
+            aria-expanded={langMenuOpen}
+            aria-haspopup="menu"
+          >
+            <Globe className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            <span className="hidden sm:inline text-xs font-bold uppercase text-gray-700 dark:text-gray-300">
+              {language}
+            </span>
+          </motion.button>
+          {langMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="absolute right-0 mt-2 w-44 rounded-xl border border-gray-200 bg-white py-1 shadow-xl z-40 dark:border-[var(--border-card)] dark:bg-[var(--dropdown-bg)]"
+              role="menu"
+            >
+              {(['en', 'fr', 'rw'] as const).map((code) => (
+                <button
+                  key={code}
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    setLanguage(code);
+                    setLangMenuOpen(false);
+                  }}
+                  className={`w-full px-3 py-2 text-left text-sm transition-colors ${
+                    language === code
+                      ? 'bg-emerald-50 font-semibold text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-200'
+                      : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800'
+                  }`}
+                >
+                  {t(`languages.${code}`)}
+                </button>
+              ))}
+            </motion.div>
+          )}
+        </div>
+
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setNotificationsOpen(!notificationsOpen)}
+          className="relative min-h-[44px] min-w-[44px] inline-flex items-center justify-center p-2 hover:bg-gray-100 dark:hover:bg-gray-800/50 rounded-lg transition-colors"
+          aria-label={t('nav.notifications')}
+        >
+          <Bell className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+          {notificationCount > 0 && (
+            <motion.span
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full min-w-[1.25rem] h-5 px-1 flex items-center justify-center shadow-lg shadow-red-500/30"
+            >
+              {notificationCount > 99 ? '99+' : notificationCount}
+            </motion.span>
+          )}
+        </motion.button>
+
+        <div className="flex items-center gap-3 pl-3 border-l border-gray-200 dark:border-gray-700/30 transition-colors duration-300">
+          <div className="hidden sm:block text-right">
+            <p className="text-sm font-semibold text-gray-900 dark:text-white transition-colors duration-300">{userName}</p>
+          </div>
+          <div className="relative" ref={userMenuRef}>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setShowUserMenu(!showUserMenu)}
+              className="flex items-center gap-1 sm:gap-2 px-1.5 sm:px-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              aria-label={t('header.userMenu')}
+              title={t('header.userMenu')}
+            >
+              {avatarUrl ? (
+                <img
+                  key={`${avatarUrl}-${user?.updated_at || Date.now()}-${avatarKey}`} // Force re-render when avatar changes
+                  src={resolveAvatarUrl(avatarUrl, !avatarUrl.includes('googleusercontent.com')) || ''} // Don't cache-bust Google URLs
+                  alt={user?.full_name || user?.email || userName}
+                  className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover relative cursor-pointer hover:opacity-90 hover:ring-2 hover:ring-offset-2 hover:ring-gray-300 dark:hover:ring-gray-600 transition-all"
+                  loading="eager" // Load immediately, don't lazy load
+                  // Don't use crossOrigin for Google images - they don't support CORS and will cause errors
+                  referrerPolicy="no-referrer" // Don't send referrer for privacy
+                  onError={(e) => {
+                    console.error('[Header] Failed to load avatar image:', avatarUrl);
+                    console.error('[Header] Image error details:', e);
+                    // Fallback to default icon on error
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                    const parent = target.parentElement;
+                    if (parent && !parent.querySelector('.fallback-icon')) {
+                      const fallback = document.createElement('div');
+                      fallback.className = 'fallback-icon w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 rounded-full flex items-center justify-center';
+                      fallback.innerHTML = '<svg class="h-4 w-4 sm:h-5 sm:w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>';
+                      parent.appendChild(fallback);
+                    }
+                  }}
+                  onLoad={() => {
+                    console.log('[Header] Avatar image loaded successfully:', avatarUrl);
+                  }}
+                />
+              ) : (
+                <div className={`w-7 h-7 sm:w-8 sm:h-8 ${accent.avatarBg} rounded-full flex items-center justify-center cursor-pointer hover:opacity-90 hover:ring-2 hover:ring-offset-2 hover:ring-gray-300 dark:hover:ring-gray-600 transition-all`}>
+                  <User className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+                </div>
+              )}
+              <ChevronDown className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400 hidden md:block" />
+            </motion.button>
+            {showUserMenu && (
+              <>
+                <div
+                  className="fixed inset-0 z-10"
+                  onClick={() => setShowUserMenu(false)}
+                />
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="absolute right-0 mt-2 w-64 bg-white dark:bg-[var(--dropdown-bg)] border border-gray-200 dark:border-[var(--border-card)] rounded-xl shadow-2xl z-20 backdrop-blur-xl"
+                >
+                  <div className="px-4 py-2.5 border-b border-gray-200 dark:border-gray-700">
+                    <p className="font-semibold text-gray-900 dark:text-white text-sm">
+                      {user?.full_name || user?.email || userName}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                      {user?.email}
+                    </p>
+                    {isSellerUser && (
+                      <div className="mt-1.5 flex items-center gap-1 text-xs">
+                        {user?.seller_status === 'approved' ? (
+                          <span className="text-green-600 dark:text-green-400 flex items-center gap-1">
+                            <Store className="h-3 w-3" />
+                            {t('header.verifiedSeller')}
+                          </span>
+                        ) : user?.seller_status === 'rejected' ? (
+                          <span className="text-red-600 dark:text-red-400 flex items-center gap-1">
+                            <Store className="h-3 w-3" />
+                            {t('header.sellerVerificationRejected')}
+                          </span>
+                        ) : (
+                          <span className="text-yellow-600 dark:text-yellow-400 flex items-center gap-1">
+                            <Store className="h-3 w-3" />
+                            {t('header.sellerPendingApproval')}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <div className="py-1.5">
+                    {isAdminUser && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            navigate('/admin');
+                            setShowUserMenu(false);
+                          }}
+                          className="w-full text-left flex items-center gap-3 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-sm text-gray-700 dark:text-gray-300 transition-colors"
+                        >
+                          <BarChart3 className="h-4 w-4" />
+                          Admin dashboard
+                        </button>
+                        <div className="my-1.5 border-t border-gray-200 dark:border-gray-700" />
+                      </>
+                    )}
+                    {isSellerUser && (
+                      <>
+                        <button
+                          onClick={() => {
+                            navigate('/seller');
+                            setShowUserMenu(false);
+                          }}
+                          className="w-full text-left flex items-center gap-3 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-sm text-gray-700 dark:text-gray-300 transition-colors"
+                        >
+                          <BarChart3 className="h-4 w-4" />
+                          {t('nav.dashboard')}
+                        </button>
+                        <button
+                          onClick={() => {
+                            navigate('/seller/products');
+                            setShowUserMenu(false);
+                          }}
+                          className="w-full text-left flex items-center gap-3 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-sm text-gray-700 dark:text-gray-300 transition-colors"
+                        >
+                          <Package className="h-4 w-4" />
+                          {t('header.products')}
+                        </button>
+                        <button
+                          onClick={() => {
+                            navigate('/seller/inventory');
+                            setShowUserMenu(false);
+                          }}
+                          className="w-full text-left flex items-center gap-3 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-sm text-gray-700 dark:text-gray-300 transition-colors"
+                        >
+                          <Layers className="h-4 w-4" />
+                          {t('header.inventory')}
+                        </button>
+                        <button
+                          onClick={() => {
+                            navigate('/seller/orders');
+                            setShowUserMenu(false);
+                          }}
+                          className="w-full text-left flex items-center gap-3 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-sm text-gray-700 dark:text-gray-300 transition-colors"
+                        >
+                          <ShoppingBag className="h-4 w-4" />
+                          {t('nav.orders')}
+                        </button>
+                        <button
+                          onClick={() => {
+                            navigate('/seller/analytics');
+                            setShowUserMenu(false);
+                          }}
+                          className="w-full text-left flex items-center gap-3 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-sm text-gray-700 dark:text-gray-300 transition-colors"
+                        >
+                          <BarChart3 className="h-4 w-4" />
+                          {t('header.analytics')}
+                        </button>
+                        <div className="my-1.5 border-t border-gray-200 dark:border-gray-700" />
+                      </>
+                    )}
+                    <button
+                      onClick={handleProfileClick}
+                      className="w-full text-left flex items-center gap-3 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-sm text-gray-700 dark:text-gray-300 transition-colors"
+                    >
+                      <Settings className="h-4 w-4" />
+                      {t('account.profileSettings')}
+                    </button>
+                    <div className="my-1.5 border-t border-gray-200 dark:border-gray-700" />
+                    <button
+                      onClick={() => setShowLogoutConfirm(true)}
+                      className="w-full text-left flex items-center gap-3 px-3 py-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg text-sm text-red-600 dark:text-red-400 transition-colors font-medium"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      {t('buttons.logout')}
+                    </button>
+                  </div>
+                </motion.div>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Logout confirmation dialog */}
+      <Dialog open={showLogoutConfirm} onOpenChange={setShowLogoutConfirm}>
+        <DialogContent className="max-w-sm bg-white dark:bg-[var(--modal-bg)] border border-red-200 dark:border-red-700">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold text-red-600 dark:text-red-400">
+              {t('dialog.logoutTitle')}
+            </DialogTitle>
+            <DialogDescription className="text-sm text-gray-600 dark:text-gray-400">
+              {t('dialog.logoutConfirmSeller')}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-2 pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              className="border-gray-300 dark:border-gray-700"
+              onClick={() => setShowLogoutConfirm(false)}
+            >
+              {t('buttons.cancel')}
+            </Button>
+            <Button
+              type="button"
+              className="bg-red-600 hover:bg-red-700 text-white"
+              onClick={() => {
+                handleLogout();
+                setShowLogoutConfirm(false);
+              }}
+            >
+              {t('buttons.logout')}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </header>
+  );
+};
+
+export default Header;
+

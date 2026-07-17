@@ -1,0 +1,992 @@
+import React, { useState, useEffect } from 'react';
+import {
+  DollarSign,
+  TrendingUp,
+  Wallet,
+  CreditCard,
+  CheckCircle,
+  Download,
+  BarChart3,
+  FileText,
+  Settings,
+  RefreshCw,
+  AlertTriangle,
+  X,
+  Eye,
+} from 'lucide-react';
+import { BarChart } from '@/components/charts/BarChart';
+import { adminFinanceAPI } from '@/lib/api';
+import SellerPayouts from './finance/SellerPayouts';
+import TransactionLogs from './finance/TransactionLogs';
+import PaymentGateways from './finance/PaymentGateways';
+import RefundsManagement from './finance/RefundsManagement';
+import Chargebacks from './finance/Chargebacks';
+import TaxManagement from './finance/TaxManagement';
+import FinancialReports from './finance/FinancialReports';
+import FinanceSettings from './finance/FinanceSettings';
+import { AdminPageHeader } from '@/components/admin/layout/AdminPageHeader';
+import { AdminHubTabs } from '@/components/admin/layout/AdminHubTabs';
+import { adminMobileClasses } from '@/components/admin/layout/adminMobileClasses';
+
+type TabId =
+  | 'dashboard'
+  | 'payouts'
+  | 'transactions'
+  | 'gateways'
+  | 'refunds'
+  | 'chargebacks'
+  | 'tax'
+  | 'reports'
+  | 'settings';
+
+const tabs: { id: TabId; label: string; icon: React.ComponentType<React.SVGProps<SVGSVGElement>> }[] = [
+  { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
+  { id: 'payouts', label: 'Seller Payouts', icon: Wallet },
+  { id: 'transactions', label: 'Transactions', icon: CreditCard },
+  { id: 'gateways', label: 'Payment Gateways', icon: Settings },
+  { id: 'refunds', label: 'Refunds', icon: RefreshCw },
+  { id: 'chargebacks', label: 'Chargebacks', icon: AlertTriangle },
+  { id: 'tax', label: 'Tax Management', icon: FileText },
+  { id: 'reports', label: 'Reports', icon: FileText },
+  { id: 'settings', label: 'Settings', icon: Settings },
+];
+
+export default function PaymentsFinancial() {
+  const [activeTab, setActiveTab] = useState<TabId>('dashboard');
+  const [showGenerateReportModal, setShowGenerateReportModal] = useState(false);
+  const [showPendingPayoutsModal, setShowPendingPayoutsModal] = useState(false);
+  const [showExportLogsModal, setShowExportLogsModal] = useState(false);
+  const [dashboardData, setDashboardData] = useState<{
+    metrics: Record<string, number>;
+    revenueData: { date: string; value: number }[];
+    revenueStreams?: Record<string, number>;
+  } | null>(null);
+  const [dashboardLoading, setDashboardLoading] = useState(true);
+  const [dashboardTimeRange, setDashboardTimeRange] = useState<'daily' | 'weekly' | 'monthly'>('monthly');
+
+  useEffect(() => {
+    let cancelled = false;
+    setDashboardLoading(true);
+    adminFinanceAPI.getDashboard({ timeRange: dashboardTimeRange }).then((res) => {
+      if (!cancelled) {
+        setDashboardData({
+          metrics: res.metrics,
+          revenueData: res.revenueData || [],
+          revenueStreams: res.revenueStreams,
+        });
+      }
+      setDashboardLoading(false);
+    }).catch(() => setDashboardLoading(false));
+    return () => { cancelled = true; };
+  }, [activeTab === 'dashboard', dashboardTimeRange]);
+
+  const revenueData = dashboardData?.revenueData ?? [];
+  const metrics = dashboardData?.metrics ?? {
+    totalPlatformRevenue: 0,
+    totalSales: 0,
+    totalCommissionEarned: 0,
+    totalPayoutsToSellers: 0,
+    pendingPayouts: 0,
+    availableBalance: 0,
+    refundAmount: 0,
+    totalTransactions: 0,
+    failedTransactions: 0,
+    chargebacksCount: 0,
+  };
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'dashboard':
+        return (
+          <DashboardTab
+            metrics={metrics}
+            revenueData={revenueData}
+            revenueStreams={dashboardData?.revenueStreams}
+            loading={dashboardLoading}
+            onGenerateReport={() => setShowGenerateReportModal(true)}
+            onPendingPayouts={() => setShowPendingPayoutsModal(true)}
+            onExportLogs={() => setShowExportLogsModal(true)}
+            onConfigureGateways={() => setActiveTab('gateways')}
+            onTimeRangeChange={setDashboardTimeRange}
+          />
+        );
+      case 'payouts':
+        return <SellerPayouts />;
+      case 'transactions':
+        return <TransactionLogs />;
+      case 'gateways':
+        return <PaymentGateways />;
+      case 'refunds':
+        return <RefundsManagement />;
+      case 'chargebacks':
+        return <Chargebacks />;
+      case 'tax':
+        return <TaxManagement />;
+      case 'reports':
+        return <FinancialReports />;
+      case 'settings':
+        return <FinanceSettings />;
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <>
+      <div className={`${adminMobileClasses.pageShell} pb-10`}>
+        <AdminPageHeader
+          eyebrow="Finance • Management"
+          title="Finance Management"
+          description="Manage payments, payouts, and financial operations"
+          actions={
+            <button
+              type="button"
+              className="flex min-h-[40px] items-center gap-2 rounded-xl border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-700 hover:border-emerald-400 dark:border-gray-700 dark:text-gray-300 sm:px-4 sm:text-sm"
+            >
+              <Download className="h-4 w-4" /> Export
+            </button>
+          }
+        />
+
+        <AdminHubTabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
+
+        <div className={adminMobileClasses.hubTabContent}>{renderTabContent()}</div>
+      </div>
+
+      {/* Modals */}
+      {showGenerateReportModal && (
+        <GenerateReportModal onClose={() => setShowGenerateReportModal(false)} />
+      )}
+      {showPendingPayoutsModal && (
+        <PendingPayoutsModal onClose={() => setShowPendingPayoutsModal(false)} />
+      )}
+      {showExportLogsModal && (
+        <ExportLogsModal onClose={() => setShowExportLogsModal(false)} />
+      )}
+    </>
+  );
+}
+
+// Dashboard Tab Component
+function DashboardTab({
+  metrics,
+  revenueData,
+  revenueStreams,
+  loading,
+  onGenerateReport,
+  onPendingPayouts,
+  onExportLogs,
+  onConfigureGateways,
+  onTimeRangeChange,
+}: {
+  metrics: any;
+  revenueData: any[];
+  revenueStreams?: Record<string, number>;
+  loading?: boolean;
+  onGenerateReport: () => void;
+  onPendingPayouts: () => void;
+  onExportLogs: () => void;
+  onConfigureGateways: () => void;
+  onTimeRangeChange?: (range: 'daily' | 'weekly' | 'monthly') => void;
+}) {
+  const [timeRange, setTimeRange] = useState<'daily' | 'weekly' | 'monthly'>('monthly');
+
+  const handleTimeRange = (range: 'daily' | 'weekly' | 'monthly') => {
+    setTimeRange(range);
+    onTimeRangeChange?.(range);
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Key Metrics */}
+      <div className="grid gap-4 lg:grid-cols-5">
+        <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow dark:border-gray-800 dark:bg-gray-900">
+          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 text-white">
+            <DollarSign className="h-5 w-5" />
+          </div>
+          <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Platform Revenue</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-white">
+            ${(metrics.totalPlatformRevenue / 1000).toFixed(0)}k
+          </p>
+        </div>
+        <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow dark:border-gray-800 dark:bg-gray-900">
+          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-500 text-white">
+            <TrendingUp className="h-5 w-5" />
+          </div>
+          <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Total Sales</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-white">{metrics.totalSales.toLocaleString()}</p>
+        </div>
+        <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow dark:border-gray-800 dark:bg-gray-900">
+          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500 via-[var(--brand-primary)] to-red-500 text-white">
+            <Wallet className="h-5 w-5" />
+          </div>
+          <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Commission Earned</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-white">
+            ${(metrics.totalCommissionEarned / 1000).toFixed(0)}k
+          </p>
+        </div>
+        <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow dark:border-gray-800 dark:bg-gray-900">
+          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 text-white">
+            <CreditCard className="h-5 w-5" />
+          </div>
+          <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Pending Payouts</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-white">
+            ${(metrics.pendingPayouts / 1000).toFixed(0)}k
+          </p>
+        </div>
+        <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow dark:border-gray-800 dark:bg-gray-900">
+          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-green-500 to-emerald-500 text-white">
+            <CheckCircle className="h-5 w-5" />
+          </div>
+          <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Available Balance</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-white">
+            ${(metrics.availableBalance / 1000).toFixed(0)}k
+          </p>
+        </div>
+      </div>
+
+      {/* Secondary Metrics */}
+      <div className="grid gap-4 lg:grid-cols-5">
+        <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow dark:border-gray-800 dark:bg-gray-900">
+          <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Refund Amount</p>
+          <p className="text-xl font-bold text-gray-900 dark:text-white">
+            ${(metrics.refundAmount / 1000).toFixed(0)}k
+          </p>
+          <p className="mt-1 text-[11px] text-gray-500 dark:text-gray-400">
+            Includes full and partial refunds.
+          </p>
+        </div>
+        <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow dark:border-gray-800 dark:bg-gray-900">
+          <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Total Transactions</p>
+          <p className="text-xl font-bold text-gray-900 dark:text-white">{metrics.totalTransactions.toLocaleString()}</p>
+        </div>
+        <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow dark:border-gray-800 dark:bg-gray-900">
+          <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Failed Transactions</p>
+          <p className="text-xl font-bold text-red-600 dark:text-red-400">{metrics.failedTransactions}</p>
+        </div>
+        <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow dark:border-gray-800 dark:bg-gray-900">
+          <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Chargebacks</p>
+          <p className="text-xl font-bold text-amber-600 dark:text-amber-400">{metrics.chargebacksCount}</p>
+        </div>
+        <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow dark:border-gray-800 dark:bg-gray-900">
+          <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Total Payouts</p>
+          <p className="text-xl font-bold text-gray-900 dark:text-white">
+            ${(metrics.totalPayoutsToSellers / 1000).toFixed(0)}k
+          </p>
+        </div>
+      </div>
+
+      {/* Revenue Graph */}
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow dark:border-gray-800 dark:bg-gray-900">
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Revenue Over Time</h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Platform revenue trends</p>
+          </div>
+          <div className="flex gap-2">
+            {['daily', 'weekly', 'monthly'].map((range) => (
+              <button
+                key={range}
+                onClick={() => handleTimeRange(range as 'daily' | 'weekly' | 'monthly')}
+                className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                  timeRange === range
+                    ? 'bg-emerald-500 text-white'
+                    : 'border border-gray-200 text-gray-600 dark:border-gray-700 dark:text-gray-300'
+                }`}
+              >
+                {range.charAt(0).toUpperCase() + range.slice(1)}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div>
+          {loading ? (
+            <div className="flex h-[300px] items-center justify-center text-gray-500 dark:text-gray-400">Loading...</div>
+          ) : (
+            <BarChart
+              data={revenueData}
+              height={300}
+              color="from-emerald-500 via-teal-500 to-cyan-500"
+              yAxisLabel="Revenue ($)"
+            />
+          )}
+        </div>
+      </div>
+
+      {/* Revenue Streams Breakdown */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow dark:border-gray-800 dark:bg-gray-900">
+          <h3 className="mb-4 text-sm font-semibold text-gray-900 dark:text-white">Revenue Streams</h3>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600 dark:text-gray-300">Commission Earnings</span>
+              <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                ${(metrics.totalCommissionEarned / 1000).toFixed(0)}k
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600 dark:text-gray-300">Transaction Fees</span>
+              <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                ${revenueStreams?.transactionFees != null ? (revenueStreams.transactionFees / 1000).toFixed(0) + 'k' : '37.5k'}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600 dark:text-gray-300">Advertisement Payments</span>
+              <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                ${revenueStreams?.advertisementPayments != null ? (revenueStreams.advertisementPayments / 1000).toFixed(0) + 'k' : '15k'}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600 dark:text-gray-300">Subscription Fees</span>
+              <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                ${revenueStreams?.subscriptionFees != null ? (revenueStreams.subscriptionFees / 1000).toFixed(0) + 'k' : '8k'}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600 dark:text-gray-300">Penalties/Fines</span>
+              <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                ${revenueStreams?.penaltiesFines != null ? (revenueStreams.penaltiesFines / 1000).toFixed(0) + 'k' : '2.5k'}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow dark:border-gray-800 dark:bg-gray-900">
+          <h3 className="mb-4 text-sm font-semibold text-gray-900 dark:text-white">Quick Actions</h3>
+          <div className="space-y-2">
+            <button 
+              onClick={onGenerateReport}
+              className="w-full rounded-xl border border-gray-200 px-4 py-2 text-left text-sm font-semibold text-gray-700 hover:border-emerald-400 dark:border-gray-700 dark:text-gray-300"
+            >
+              Generate Monthly Report
+            </button>
+            <button 
+              onClick={onPendingPayouts}
+              className="w-full rounded-xl border border-gray-200 px-4 py-2 text-left text-sm font-semibold text-gray-700 hover:border-emerald-400 dark:border-gray-700 dark:text-gray-300"
+            >
+              View Pending Payouts
+            </button>
+            <button 
+              onClick={onExportLogs}
+              className="w-full rounded-xl border border-gray-200 px-4 py-2 text-left text-sm font-semibold text-gray-700 hover:border-emerald-400 dark:border-gray-700 dark:text-gray-300"
+            >
+              Export Transaction Logs
+            </button>
+            <button 
+              onClick={onConfigureGateways}
+              className="w-full rounded-xl border border-gray-200 px-4 py-2 text-left text-sm font-semibold text-gray-700 hover:border-emerald-400 dark:border-gray-700 dark:text-gray-300"
+            >
+              Configure Payment Gateways
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Generate Monthly Report Modal
+function GenerateReportModal({ onClose }: { onClose: () => void }) {
+  const [reportType, setReportType] = useState('revenue');
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [selectedSeller, setSelectedSeller] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('all');
+  const [exportFormat, setExportFormat] = useState('pdf');
+  const [emailReport, setEmailReport] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [sellers, setSellers] = useState<{ id: string; name: string }[]>([]);
+  useEffect(() => {
+    adminFinanceAPI.getSellersList().then((r) => setSellers(r.sellers || [])).catch(() => {});
+  }, []);
+
+  const reportTypes = [
+    { id: 'revenue', label: 'Revenue Report' },
+    { id: 'transactions', label: 'Transactions Summary' },
+    { id: 'seller_earnings', label: 'Seller Earnings Summary' },
+    { id: 'refunds', label: 'Refund Report' },
+    { id: 'chargebacks', label: 'Chargebacks Report' },
+    { id: 'profit', label: 'Platform Profit Report' },
+    { id: 'payouts', label: 'Payouts Summary' },
+  ];
+
+  const months = Array.from({ length: 12 }, (_, i) => i + 1);
+  const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
+
+  const handleGenerate = () => {
+    setGenerating(true);
+    adminFinanceAPI.generateReport({
+      reportType,
+      month: selectedMonth,
+      year: selectedYear,
+      sellerId: selectedSeller || undefined,
+      paymentMethod: paymentMethod !== 'all' ? paymentMethod : undefined,
+      format: exportFormat,
+      emailReport,
+    }).then(() => {
+      setGenerating(false);
+      onClose();
+    }).catch(() => setGenerating(false));
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
+      <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl border border-gray-200 bg-white shadow-xl dark:border-gray-800 dark:bg-gray-900" onClick={(e) => e.stopPropagation()}>
+        <div className="sticky top-0 flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4 dark:border-gray-800 dark:bg-gray-900">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white">Generate Monthly Report</h2>
+          <button onClick={onClose} className="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="p-6 space-y-6 overflow-y-auto scroll-smooth [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:dark:bg-gray-700">
+          {/* Report Type Selection */}
+          <div>
+            <label className="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">Select Report Type</label>
+            <div className="grid grid-cols-2 gap-2">
+              {reportTypes.map((type) => (
+                <button
+                  key={type.id}
+                  onClick={() => setReportType(type.id)}
+                  className={`rounded-xl border px-4 py-3 text-left text-sm transition-colors ${
+                    reportType === type.id
+                      ? 'border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400'
+                      : 'border-gray-200 bg-white text-gray-700 hover:border-emerald-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300'
+                  }`}
+                >
+                  {type.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Filters */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">Month</label>
+              <select
+                value={selectedMonth}
+                onChange={(e) => setSelectedMonth(Number(e.target.value))}
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+              >
+                {months.map((month) => (
+                  <option key={month} value={month}>
+                    {new Date(2000, month - 1).toLocaleString('default', { month: 'long' })}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">Year</label>
+              <select
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(Number(e.target.value))}
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+              >
+                {years.map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">Seller (Optional)</label>
+              <select
+                value={selectedSeller}
+                onChange={(e) => setSelectedSeller(e.target.value)}
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+              >
+                <option value="">All Sellers</option>
+                {sellers.map((s) => (
+                  <option key={s.id} value={s.id}>{s.name}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">Payment Method</label>
+              <select
+                value={paymentMethod}
+                onChange={(e) => setPaymentMethod(e.target.value)}
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+              >
+                <option value="all">All Methods</option>
+                <option value="mobile_money">Mobile Money</option>
+                <option value="stripe">Stripe</option>
+                <option value="paypal">PayPal</option>
+                <option value="card">Card</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Export Options */}
+          <div>
+            <label className="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">Export Format</label>
+            <div className="flex gap-2">
+              {['pdf', 'csv', 'excel'].map((format) => (
+                <button
+                  key={format}
+                  onClick={() => setExportFormat(format)}
+                  className={`rounded-xl border px-4 py-2 text-sm font-semibold capitalize transition-colors ${
+                    exportFormat === format
+                      ? 'border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400'
+                      : 'border-gray-200 bg-white text-gray-700 hover:border-emerald-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300'
+                  }`}
+                >
+                  {format}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="emailReport"
+              checked={emailReport}
+              onChange={(e) => setEmailReport(e.target.checked)}
+              className="h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+            />
+            <label htmlFor="emailReport" className="text-sm text-gray-700 dark:text-gray-300">
+              Send report via email
+            </label>
+          </div>
+
+          {/* Auto-Generated Summary Preview */}
+          <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800">
+            <h3 className="mb-3 text-sm font-semibold text-gray-900 dark:text-white">Report Summary Preview</h3>
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div>
+                <span className="text-gray-600 dark:text-gray-400">Total Revenue:</span>
+                <span className="ml-2 font-semibold text-gray-900 dark:text-white">$125,000</span>
+              </div>
+              <div>
+                <span className="text-gray-600 dark:text-gray-400">Total Commission:</span>
+                <span className="ml-2 font-semibold text-gray-900 dark:text-white">$12,500</span>
+              </div>
+              <div>
+                <span className="text-gray-600 dark:text-gray-400">Total Payouts:</span>
+                <span className="ml-2 font-semibold text-gray-900 dark:text-white">$100,000</span>
+              </div>
+              <div>
+                <span className="text-gray-600 dark:text-gray-400">Total Refunds:</span>
+                <span className="ml-2 font-semibold text-gray-900 dark:text-white">$1,500</span>
+              </div>
+              <div>
+                <span className="text-gray-600 dark:text-gray-400">Total Net Profit:</span>
+                <span className="ml-2 font-semibold text-emerald-600 dark:text-emerald-400">$11,000</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex justify-end gap-3 border-t border-gray-200 pt-4 dark:border-gray-800">
+            <button
+              onClick={onClose}
+              className="rounded-xl border border-gray-200 px-6 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleGenerate}
+              disabled={generating}
+              className="rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 px-6 py-2 text-sm font-semibold text-white shadow-lg hover:shadow-xl disabled:opacity-70"
+            >
+              <Download className="mr-2 inline h-4 w-4" />
+              {generating ? 'Generating...' : 'Generate & Download'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Pending Payouts Modal
+function PendingPayoutsModal({ onClose }: { onClose: () => void }) {
+  const [selectedPayouts, setSelectedPayouts] = useState<Set<string>>(new Set());
+  const [sellerFilter, setSellerFilter] = useState('all');
+  const [amountRange, setAmountRange] = useState({ min: '', max: '' });
+  const [dateFilter, setDateFilter] = useState('all');
+  const [paymentMethodFilter, setPaymentMethodFilter] = useState('all');
+  const [payouts, setPayouts] = useState<{ id: string; seller: string; amount: number; balance?: number; date: string; method: string; reference?: string }[]>([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    adminFinanceAPI.getPayouts({ status: 'pending', limit: 50 }).then((res) => {
+      setPayouts(res.payouts.map((p: any) => ({
+        id: p.id,
+        seller: p.sellerName || 'Unknown',
+        amount: p.amount,
+        balance: p.availableForWithdrawal,
+        date: p.requestedDate ? new Date(p.requestedDate).toISOString().slice(0, 10) : '',
+        method: p.paymentMethod || '',
+        reference: p.referenceId,
+      })));
+    }).catch(() => setPayouts([])).finally(() => setLoading(false));
+  }, []);
+
+  const toggleSelectPayout = (id: string) => {
+    setSelectedPayouts((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
+      <div className="w-full max-w-6xl max-h-[90vh] overflow-y-auto rounded-2xl border border-gray-200 bg-white shadow-xl dark:border-gray-800 dark:bg-gray-900" onClick={(e) => e.stopPropagation()}>
+        <div className="sticky top-0 flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4 dark:border-gray-800 dark:bg-gray-900">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white">Pending Payouts</h2>
+          <button onClick={onClose} className="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="p-6 space-y-4">
+          {/* Filters */}
+          <div className="grid grid-cols-4 gap-4">
+            <div>
+              <label className="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">Seller</label>
+              <select
+                value={sellerFilter}
+                onChange={(e) => setSellerFilter(e.target.value)}
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+              >
+                <option value="all">All Sellers</option>
+                <option value="tech">Tech Store</option>
+                <option value="fashion">Fashion Hub</option>
+              </select>
+            </div>
+            <div>
+              <label className="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">Amount Range</label>
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  placeholder="Min"
+                  value={amountRange.min}
+                  onChange={(e) => setAmountRange({ ...amountRange, min: e.target.value })}
+                  className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                />
+                <input
+                  type="number"
+                  placeholder="Max"
+                  value={amountRange.max}
+                  onChange={(e) => setAmountRange({ ...amountRange, max: e.target.value })}
+                  className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">Date</label>
+              <select
+                value={dateFilter}
+                onChange={(e) => setDateFilter(e.target.value)}
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+              >
+                <option value="all">All Dates</option>
+                <option value="today">Today</option>
+                <option value="week">This Week</option>
+                <option value="month">This Month</option>
+              </select>
+            </div>
+            <div>
+              <label className="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">Payment Method</label>
+              <select
+                value={paymentMethodFilter}
+                onChange={(e) => setPaymentMethodFilter(e.target.value)}
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+              >
+                <option value="all">All Methods</option>
+                <option value="mobile_money">Mobile Money</option>
+                <option value="bank">Bank Transfer</option>
+                <option value="paypal">PayPal</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Bulk Actions */}
+          {selectedPayouts.size > 0 && (
+            <div className="flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 dark:border-emerald-800 dark:bg-emerald-900/20">
+              <span className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">
+                {selectedPayouts.size} payout(s) selected
+              </span>
+              <div className="flex gap-2">
+                <button className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700">
+                  Approve All
+                </button>
+                <button className="rounded-lg border border-emerald-600 bg-white px-4 py-2 text-sm font-semibold text-emerald-600 hover:bg-emerald-50 dark:bg-gray-800 dark:text-emerald-400">
+                  Mark All as Paid
+                </button>
+                <button className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300">
+                  Export Selected
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Payouts Table */}
+          <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800">
+            <table className="w-full">
+              <thead className="bg-gray-50 dark:bg-gray-800">
+                <tr>
+                  <th className="px-4 py-3 text-left">
+                    <input
+                      type="checkbox"
+                      checked={selectedPayouts.size === payouts.length}
+                      onChange={() => {
+                        if (selectedPayouts.size === payouts.length) {
+                          setSelectedPayouts(new Set());
+                        } else {
+                          setSelectedPayouts(new Set(payouts.map((p) => p.id)));
+                        }
+                      }}
+                      className="h-4 w-4 rounded border-gray-300 text-emerald-600"
+                    />
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Seller</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Amount</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Balance</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Date</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Method</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Reference</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
+                {payouts.map((payout) => (
+                  <tr key={payout.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                    <td className="px-4 py-3">
+                      <input
+                        type="checkbox"
+                        checked={selectedPayouts.has(payout.id)}
+                        onChange={() => toggleSelectPayout(payout.id)}
+                        className="h-4 w-4 rounded border-gray-300 text-emerald-600"
+                      />
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">{payout.seller}</td>
+                    <td className="px-4 py-3 text-sm font-semibold text-gray-900 dark:text-white">${payout.amount.toLocaleString()}</td>
+                    <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">${payout.balance.toLocaleString()}</td>
+                    <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">{payout.date}</td>
+                    <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">{payout.method}</td>
+                    <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">{payout.reference}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex gap-1">
+                        <button
+                          className="rounded-lg bg-emerald-600 p-1.5 text-white hover:bg-emerald-700"
+                          title="Approve"
+                        >
+                          <CheckCircle className="h-4 w-4" />
+                        </button>
+                        <button
+                          className="rounded-lg bg-red-600 p-1.5 text-white hover:bg-red-700"
+                          title="Reject"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                        <button
+                          className="rounded-lg bg-blue-600 p-1.5 text-white hover:bg-blue-700"
+                          title="Mark as Paid"
+                        >
+                          <CheckCircle className="h-4 w-4" />
+                        </button>
+                        <button
+                          className="rounded-lg border border-gray-300 p-1.5 text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300"
+                          title="View History"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Export Transaction Logs Modal
+function ExportLogsModal({ onClose }: { onClose: () => void }) {
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [paymentStatus, setPaymentStatus] = useState('all');
+  const [paymentMethod, setPaymentMethod] = useState('all');
+  const [selectedSeller, setSelectedSeller] = useState('');
+  const [orderId, setOrderId] = useState('');
+  const [exportFormat, setExportFormat] = useState('csv');
+  const [emailExport, setEmailExport] = useState(false);
+  const [sellers, setSellers] = useState<{ id: string; name: string }[]>([]);
+  const [exporting, setExporting] = useState(false);
+  useEffect(() => {
+    adminFinanceAPI.getSellersList().then((r) => setSellers(r.sellers || [])).catch(() => {});
+  }, []);
+
+  const handleExport = () => {
+    setExporting(true);
+    adminFinanceAPI.exportTransactionLogs({
+      startDate: startDate || undefined,
+      endDate: endDate || undefined,
+      paymentStatus: paymentStatus !== 'all' ? paymentStatus : undefined,
+      paymentMethod: paymentMethod !== 'all' ? paymentMethod : undefined,
+      sellerId: selectedSeller || undefined,
+      orderId: orderId || undefined,
+      format: exportFormat,
+    }).then(() => {
+      setExporting(false);
+      onClose();
+    }).catch(() => setExporting(false));
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
+      <div className="w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl border border-gray-200 bg-white shadow-xl dark:border-gray-800 dark:bg-gray-900" onClick={(e) => e.stopPropagation()}>
+        <div className="sticky top-0 flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4 dark:border-gray-800 dark:bg-gray-900">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white">Export Transaction Logs</h2>
+          <button onClick={onClose} className="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="p-6 space-y-4">
+          {/* Filters */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">Start Date</label>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+              />
+            </div>
+            <div>
+              <label className="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">End Date</label>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+              />
+            </div>
+            <div>
+              <label className="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">Payment Status</label>
+              <select
+                value={paymentStatus}
+                onChange={(e) => setPaymentStatus(e.target.value)}
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+              >
+                <option value="all">All Statuses</option>
+                <option value="paid">Paid</option>
+                <option value="failed">Failed</option>
+                <option value="refunded">Refunded</option>
+              </select>
+            </div>
+            <div>
+              <label className="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">Payment Method</label>
+              <select
+                value={paymentMethod}
+                onChange={(e) => setPaymentMethod(e.target.value)}
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+              >
+                <option value="all">All Methods</option>
+                <option value="mobile_money">Mobile Money</option>
+                <option value="stripe">Stripe</option>
+                <option value="paypal">PayPal</option>
+                <option value="card">Card</option>
+              </select>
+            </div>
+            <div>
+              <label className="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">Seller (Optional)</label>
+              <select
+                value={selectedSeller}
+                onChange={(e) => setSelectedSeller(e.target.value)}
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+              >
+                <option value="">All Sellers</option>
+                {sellers.map((s) => (
+                  <option key={s.id} value={s.id}>{s.name}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">Order ID (Optional)</label>
+              <input
+                type="text"
+                value={orderId}
+                onChange={(e) => setOrderId(e.target.value)}
+                placeholder="Enter Order ID"
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+              />
+            </div>
+          </div>
+
+          {/* Export Format */}
+          <div>
+            <label className="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">Export Format</label>
+            <div className="flex gap-2">
+              {['csv', 'excel', 'pdf'].map((format) => (
+                <button
+                  key={format}
+                  onClick={() => setExportFormat(format)}
+                  className={`rounded-xl border px-4 py-2 text-sm font-semibold capitalize transition-colors ${
+                    exportFormat === format
+                      ? 'border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400'
+                      : 'border-gray-200 bg-white text-gray-700 hover:border-emerald-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300'
+                  }`}
+                >
+                  {format}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Logs Included Info */}
+          <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800">
+            <h3 className="mb-2 text-sm font-semibold text-gray-900 dark:text-white">Logs Will Include:</h3>
+            <ul className="space-y-1 text-sm text-gray-600 dark:text-gray-400">
+              <li>• Transaction ID, Order ID, Customer, Seller</li>
+              <li>• Payment Method, Amount, Commission, Platform Earnings</li>
+              <li>• Status, Timestamp</li>
+            </ul>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="emailExport"
+              checked={emailExport}
+              onChange={(e) => setEmailExport(e.target.checked)}
+              className="h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+            />
+            <label htmlFor="emailExport" className="text-sm text-gray-700 dark:text-gray-300">
+              Email export to admin email
+            </label>
+          </div>
+
+          {/* Actions */}
+          <div className="flex justify-end gap-3 border-t border-gray-200 pt-4 dark:border-gray-800">
+            <button
+              onClick={onClose}
+              className="rounded-xl border border-gray-200 px-6 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleExport}
+              disabled={exporting}
+              className="rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 px-6 py-2 text-sm font-semibold text-white shadow-lg hover:shadow-xl disabled:opacity-70"
+            >
+              <Download className="mr-2 inline h-4 w-4" />
+              {exporting ? 'Exporting...' : 'Export Logs'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

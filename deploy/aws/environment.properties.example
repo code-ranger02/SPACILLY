@@ -1,0 +1,116 @@
+# AWS Elastic Beanstalk — Environment properties
+# Copy each Name/Value pair into: EB Console → Environment → Configuration → Software → Environment properties
+# Or use: eb setenv KEY=value ...
+#
+# Do NOT commit real secrets. Set values in the AWS console or AWS Secrets Manager.
+
+# --- Core ---
+PORT=8080
+NODE_ENV=production
+HOST=0.0.0.0
+APP_NAME=Spacilly
+
+# Public URLs (replace with your domains / EB URL)
+CLIENT_URL=https://www.spacilly.com
+SERVER_URL=https://api.spacilly.com
+ALLOWED_ORIGINS=https://www.spacilly.com,https://spacilly.com
+
+# --- Database ---
+MONGODB_URI=mongodb+srv://spacilly:<password>@spacilly.phhthbt.mongodb.net/SpacillyDB?retryWrites=true&w=majority&appName=spacilly
+
+# --- Auth ---
+JWT_SECRET=
+JWT_EXPIRES_IN=7d
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_CALLBACK_URL=https://api.spacilly.com/api/auth/google/callback
+WEBAUTHN_RP_NAME=Spacilly
+WEBAUTHN_RP_ID=spacilly.com
+WEBAUTHN_ORIGIN=https://www.spacilly.com
+
+# --- Email ---
+EMAIL_PROVIDER=resend
+RESEND_API_KEY=
+RESEND_FROM_EMAIL=noreply@spacilly.com
+SMTP_USER=
+SMTP_PASS=
+
+# --- Cloudinary ---
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
+
+# --- AI ---
+GEMINI_API_KEY=
+GEMINI_MODEL=gemini-flash-latest
+ANTHROPIC_API_KEY=
+
+# --- Payments: Stripe ---
+STRIPE_SECRET_KEY=
+STRIPE_PUBLISHABLE_KEY=
+STRIPE_WEBHOOK_SECRET=
+
+# --- Payments: Flutterwave ---
+FLW_PUBLIC_KEY=
+FLW_SECRET_KEY=
+FLW_ENCRYPTION_KEY=
+FLW_SECRET_HASH=
+
+# --- Payments: MTN MoMo ---
+MOMO_BASE_URL=https://sandbox.momodeveloper.mtn.com
+MOMO_SUBSCRIPTION_KEY=
+MOMO_API_USER=
+MOMO_API_KEY=
+MOMO_TARGET_ENVIRONMENT=sandbox
+MOMO_CALLBACK_URL=https://api.spacilly.com/api/payments/momo/callback
+MOMO_CURRENCY=
+
+# --- Payments: PayPal / Airtel (optional) ---
+PAYPAL_CLIENT_ID=
+PAYPAL_CLIENT_SECRET=
+PAYPAL_ENVIRONMENT=sandbox
+PAYPAL_WEBHOOK_ID=
+AIRTEL_CLIENT_ID=
+AIRTEL_CLIENT_SECRET=
+
+# --- Payment security ---
+PAYMENT_SECRETS_MASTER_KEY=
+
+# --- Exchange rates ---
+EXCHANGE_RATE_API_KEY=
+EXCHANGE_RATE_API_URL=https://v6.exchangerate-api.com/v6
+EXCHANGE_RATE_REFRESH_MS=300000
+
+# --- Microblink KYC ---
+MICROBLINK_LICENSE_KEY=
+MICROBLINK_SECRET=
+# Or base64-encoded secret if special chars cause issues in the EB console:
+# MICROBLINK_SECRET_B64=
+MICROBLINK_REGION=EU
+
+# --- Redis / search (optional) ---
+REDIS_URL=
+MEILISEARCH_HOST=
+MEILISEARCH_API_KEY=
+
+# --- Push notifications (optional) ---
+VAPID_PUBLIC_KEY=
+VAPID_PRIVATE_KEY=
+VAPID_SUBJECT=mailto:notifications@spacilly.com
+
+# --- SEO SSR (optional separate process behind nginx/CloudFront) ---
+SEO_SSR_ORIGIN=
+SEO_PUBLIC_BASE_URL=https://www.spacilly.com
+SEO_PUBLIC_SITE_URL=https://www.spacilly.com
+API_ORIGIN=https://api.spacilly.com
+MEDIA_ORIGIN=https://api.spacilly.com
+
+# --- Misc ---
+OPENROUTESERVICE_API_KEY=
+PLATFORM_FEE_PERCENT=5
+DEFAULT_CURRENCY=USD
+SYSTEM_FEATURES_UNLOCK_SECRET=
+
+# Legacy 3D payment keys (if still in use)
+Access_Key=
+Secret_Key=

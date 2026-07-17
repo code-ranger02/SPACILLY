@@ -1,0 +1,404 @@
+/* Home hero — ~35vh, theme surfaces, B/W typography, sliding motion */
+
+.fx-hero {
+  --fx-bg: #ffffff;
+  --fx-bg-elevated: #f4f4f5;
+  --fx-ink: #000000;
+  --fx-ink-muted: rgba(0, 0, 0, 0.62);
+  --fx-ink-faint: rgba(0, 0, 0, 0.45);
+  --fx-slide-1: rgba(0, 0, 0, 0.04);
+  --fx-slide-2: rgba(0, 0, 0, 0.07);
+  --fx-slide-3: rgba(0, 0, 0, 0.03);
+  --fx-border: rgba(0, 0, 0, 0.12);
+  --fx-btn-primary-bg: #000000;
+  --fx-btn-primary-fg: #ffffff;
+  --fx-btn-ghost-fg: #000000;
+  --fx-btn-ghost-border: rgba(0, 0, 0, 0.22);
+  --fx-btn-ghost-bg: rgba(255, 255, 255, 0.72);
+  --hpc-label-text: #000000;
+  --hpc-label-bg: rgba(255, 255, 255, 0.9);
+  --hpc-border: rgba(0, 0, 0, 0.12);
+  --hpc-panel-bg: rgba(0, 0, 0, 0.04);
+  --hpc-caption-text: #000000;
+  --hpc-caption-muted: rgba(0, 0, 0, 0.55);
+  --hpc-caption-bg: rgba(255, 255, 255, 0.94);
+
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  height: 35vh;
+  min-height: 220px;
+  max-height: 420px;
+  overflow: hidden;
+  background: var(--fx-bg);
+  color: var(--fx-ink);
+  box-sizing: border-box;
+}
+
+.dark .fx-hero,
+[data-theme='dark'] .fx-hero {
+  --fx-bg: #0a0a0b;
+  --fx-bg-elevated: #141416;
+  --fx-ink: #ffffff;
+  --fx-ink-muted: rgba(255, 255, 255, 0.72);
+  --fx-ink-faint: rgba(255, 255, 255, 0.5);
+  --fx-slide-1: rgba(255, 255, 255, 0.05);
+  --fx-slide-2: rgba(255, 255, 255, 0.08);
+  --fx-slide-3: rgba(255, 255, 255, 0.04);
+  --fx-border: rgba(255, 255, 255, 0.14);
+  --fx-btn-primary-bg: #ffffff;
+  --fx-btn-primary-fg: #000000;
+  --fx-btn-ghost-fg: #ffffff;
+  --fx-btn-ghost-border: rgba(255, 255, 255, 0.28);
+  --fx-btn-ghost-bg: rgba(255, 255, 255, 0.06);
+  --hpc-label-text: #ffffff;
+  --hpc-label-bg: rgba(10, 10, 11, 0.88);
+  --hpc-border: rgba(255, 255, 255, 0.14);
+  --hpc-panel-bg: rgba(255, 255, 255, 0.05);
+  --hpc-caption-text: #ffffff;
+  --hpc-caption-muted: rgba(255, 255, 255, 0.65);
+  --hpc-caption-bg: rgba(10, 10, 11, 0.92);
+}
+
+/* Subtle horizontal slide panels (background only) */
+.fx-hero__slide-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.fx-hero__slide-track {
+  display: flex;
+  width: 300%;
+  height: 100%;
+  will-change: transform;
+  animation: fx-hero-slide 32s linear infinite;
+}
+
+.fx-hero__slide-panel {
+  flex: 1 0 33.333%;
+  height: 100%;
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    var(--fx-slide-1) 22%,
+    var(--fx-slide-2) 50%,
+    var(--fx-slide-3) 78%,
+    transparent 100%
+  );
+}
+
+@keyframes fx-hero-slide {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-33.333%);
+  }
+}
+
+.fx-hero__grid-bg {
+  position: absolute;
+  inset: 0;
+  opacity: 0.35;
+  background-image:
+    linear-gradient(var(--fx-border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--fx-border) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent);
+  pointer-events: none;
+}
+
+.fx-hero__inner {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 1440px;
+  height: 100%;
+  margin: 0 auto;
+  padding: clamp(0.75rem, 2vh, 1.25rem) clamp(1rem, 3vw, 2rem);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  align-items: stretch;
+  justify-content: center;
+}
+
+.fx-hero--compact {
+  min-height: 200px;
+  max-height: 320px;
+}
+
+.fx-hero--compact .fx-hero__inner {
+  padding: 0.7rem 1rem;
+  gap: 0.45rem;
+}
+
+.fx-hero__copy {
+  display: contents;
+}
+
+.fx-hero__badge {
+  order: 1;
+}
+.fx-hero__title {
+  order: 2;
+}
+.fx-hero__subtitle {
+  order: 3;
+  display: none;
+}
+.fx-hero__ctas {
+  order: 4;
+}
+.fx-hero__collage-wrap {
+  order: 5;
+  width: 100%;
+  min-width: 0;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: stretch;
+}
+.fx-hero__trust {
+  order: 6;
+  display: none;
+}
+
+.fx-hero__badge,
+.fx-hero__title,
+.fx-hero__subtitle,
+.fx-hero__ctas,
+.fx-hero__trust {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  padding-inline: 0;
+}
+
+@media (min-width: 768px) {
+  .fx-hero__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    gap: 0.85rem 1.5rem;
+    align-items: center;
+  }
+
+  .fx-hero__copy {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    justify-content: center;
+  }
+
+  .fx-hero__subtitle {
+    display: block;
+  }
+
+  .fx-hero__trust {
+    display: flex;
+  }
+
+  .fx-hero__badge,
+  .fx-hero__title,
+  .fx-hero__subtitle,
+  .fx-hero__ctas,
+  .fx-hero__trust,
+  .fx-hero__collage-wrap {
+    order: unset;
+  }
+}
+
+.fx-hero__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: fit-content;
+  max-width: 100%;
+  padding: 0.28rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fx-ink);
+  background: var(--fx-btn-ghost-bg);
+  border: 1px solid var(--fx-border);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.fx-hero__badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--fx-ink);
+  opacity: 0.85;
+}
+
+.fx-hero__title {
+  margin: 0;
+  font-size: clamp(1.35rem, 3.6vh, 2.1rem);
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  color: var(--fx-ink);
+}
+
+.fx-hero--compact .fx-hero__title {
+  font-size: clamp(1.15rem, 4.2vw, 1.6rem);
+}
+
+.fx-hero__title-line {
+  display: block;
+}
+
+.fx-hero__subtitle {
+  margin: 0;
+  font-size: clamp(0.76rem, 1.7vh, 0.9rem);
+  line-height: 1.45;
+  color: var(--fx-ink-muted);
+  max-width: 38ch;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.fx-hero__ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.fx-hero__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 0.2s ease, opacity 0.2s ease, background 0.2s ease;
+}
+
+.fx-hero__btn:focus-visible {
+  outline: 2px solid var(--fx-ink);
+  outline-offset: 3px;
+}
+
+.fx-hero__btn--primary {
+  color: var(--fx-btn-primary-fg);
+  background: var(--fx-btn-primary-bg);
+  border: 1px solid var(--fx-btn-primary-bg);
+}
+
+.fx-hero__btn--primary:hover {
+  transform: translateY(-1px);
+  opacity: 0.92;
+}
+
+.fx-hero__btn--ghost {
+  color: var(--fx-btn-ghost-fg);
+  background: var(--fx-btn-ghost-bg);
+  border: 1px solid var(--fx-btn-ghost-border);
+}
+
+.fx-hero__btn--ghost:hover {
+  transform: translateY(-1px);
+  opacity: 0.9;
+}
+
+.fx-hero__trust {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.85rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.fx-hero__trust-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--fx-ink-faint);
+}
+
+.fx-hero__trust-item svg {
+  color: var(--fx-ink);
+  opacity: 0.75;
+  flex-shrink: 0;
+}
+
+.fx-hero__empty {
+  position: absolute;
+  bottom: 0.5rem;
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0 1rem;
+  text-align: center;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--fx-ink-muted);
+  z-index: 3;
+}
+
+.fx-hero__sr-status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Collage slide captions — B/W only inside hero */
+.fx-hero .hpc-showcase-label,
+.fx-hero .hpc-slide-tile__name,
+.fx-hero .hpc-slide-tile__price {
+  color: var(--fx-ink);
+}
+
+.fx-hero .hpc-slide-tile__price {
+  color: var(--fx-ink-muted);
+}
+
+.fx-hero .hpc-loading-msg {
+  color: var(--fx-ink-muted);
+}
+
+@media (max-width: 767px) {
+  .fx-hero__ctas {
+    width: 100%;
+  }
+
+  .fx-hero__btn {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-hero__slide-track {
+    animation: none;
+    transform: none;
+  }
+
+  .fx-hero__badge-dot {
+    animation: none;
+  }
+}

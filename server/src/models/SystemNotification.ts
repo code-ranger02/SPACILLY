@@ -1,0 +1,110 @@
+import mongoose, { Document, Schema } from 'mongoose';
+
+export type SystemNotificationAudience =
+  | 'all_sellers'
+  | 'verified_sellers'
+  | 'pending_sellers'
+  | 'specific_seller'
+  | 'all_buyers'
+  | 'all_admins'
+  | 'everyone'
+  | 'specific_user';
+
+export interface ISystemNotification extends Document {
+  title: string;
+  message: string;
+  type: 'info' | 'warning' | 'error' | 'success' | 'policy_update' | 'system_announcement';
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  targetAudience: SystemNotificationAudience;
+  targetSellerId?: mongoose.Types.ObjectId;
+  /** When targetAudience is specific_user — any role */
+  targetUserId?: mongoose.Types.ObjectId;
+  isRead: boolean;
+  readBy: mongoose.Types.ObjectId[];
+  actionRequired: boolean;
+  actionUrl?: string;
+  actionText?: string;
+  expiresAt?: Date;
+  /** Rich card payload for modern seller/buyer notification UI */
+  metadata?: {
+    category?: string;
+    tone?: string;
+    eventKey?: string;
+    entityId?: string;
+    productThumbnails?: string[];
+    visualStyle?: {
+      showProductPreview?: boolean;
+      compact?: boolean;
+      thumbnailCount?: number;
+    };
+    visualVariant?: string;
+  };
+  createdBy: mongoose.Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const systemNotificationSchema = new Schema<ISystemNotification>(
+  {
+    title: { type: String, required: true, trim: true },
+    message: { type: String, required: true },
+    type: {
+      type: String,
+      enum: ['info', 'warning', 'error', 'success', 'policy_update', 'system_announcement'],
+      required: true,
+      index: true,
+    },
+    priority: {
+      type: String,
+      enum: ['low', 'medium', 'high', 'urgent'],
+      default: 'medium',
+      index: true,
+    },
+    targetAudience: {
+      type: String,
+      enum: [
+        'all_sellers',
+        'verified_sellers',
+        'pending_sellers',
+        'specific_seller',
+        'all_buyers',
+        'all_admins',
+        'everyone',
+        'specific_user',
+      ],
+      required: true,
+      index: true,
+    },
+    targetSellerId: { type: Schema.Types.ObjectId, ref: 'User', index: true },
+    targetUserId: { type: Schema.Types.ObjectId, ref: 'User', index: true },
+    isRead: { type: Boolean, default: false },
+    readBy: { type: [Schema.Types.ObjectId], default: [] },
+    actionRequired: { type: Boolean, default: false },
+    actionUrl: { type: String },
+    actionText: { type: String },
+    expiresAt: { type: Date },
+    metadata: {
+      category: { type: String, trim: true, index: true },
+      tone: { type: String, trim: true },
+      eventKey: { type: String, trim: true, index: true },
+      entityId: { type: String, trim: true, index: true },
+      productThumbnails: { type: [String], default: undefined },
+      visualStyle: {
+        showProductPreview: { type: Boolean },
+        compact: { type: Boolean },
+        thumbnailCount: { type: Number },
+      },
+      visualVariant: { type: String, trim: true },
+    },
+    createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  },
+  { timestamps: true }
+);
+
+// Indexes
+systemNotificationSchema.index({ targetAudience: 1, targetSellerId: 1, createdAt: -1 });
+systemNotificationSchema.index({ targetAudience: 1, targetUserId: 1, createdAt: -1 });
+systemNotificationSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+
+export const SystemNotification = mongoose.model<ISystemNotification>('SystemNotification', systemNotificationSchema);
+

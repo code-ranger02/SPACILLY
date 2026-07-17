@@ -1,0 +1,303 @@
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ShoppingBag, Heart, Play, Star, Plus, Minus } from 'lucide-react';
+import { useBuyerCart } from '../stores/buyerCartStore';
+import ProductInfoCard from './ProductInfoCard';
+import { useTranslation } from '../i18n/useTranslation';
+
+import { SERVER_URL } from '../lib/config';
+import { buyerProductPath } from '../lib/productUrl';
+
+function extractImageSrc(src) {
+  if (!src) return null;
+  if (Array.isArray(src)) return extractImageSrc(src[0]);
+  if (typeof src === 'string') return src;
+  if (typeof src === 'object') return src.url || src.secure_url || src.path || src.src || null;
+  return null;
+}
+
+function resolveImage(src) {
+  const value = extractImageSrc(src);
+  if (!value) return 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&q=80';
+  return value.startsWith('http') ? value : `${SERVER_URL}${value}`;
+}
+
+export default function HeroProduct({ product }) {
+  const { t } = useTranslation();
+  const [quantity, setQuantity] = useState(1);
+  const [wishlisted, setWishlisted] = useState(false);
+  const [addedAnim, setAddedAnim] = useState(false);
+  const addItem = useBuyerCart((s) => s.addItem);
+
+  if (!product) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="w-12 h-12 rounded-full border-4 border-[color-mix(in_srgb,var(--brand-primary)_22%,var(--card-bg))] border-t-[var(--brand-primary)] animate-spin" />
+      </div>
+    );
+  }
+
+  const primary = Array.isArray(product.images)
+    ? (product.images.find((img) => img?.is_primary) || product.images[0])
+    : product.images?.[0];
+  const imageUrl = resolveImage(primary || product.image || product.imageUrl || product.thumbnail || product.thumbnailUrl);
+  const price = product.price || 0;
+  const oldPrice = product?.compareAtPrice || product?.originalPrice || null;
+  const discount = oldPrice ? Math.round(((oldPrice - price) / oldPrice) * 100) : null;
+  const rating = product.averageRating || product.rating || 4.8;
+  const category = product.category || product.categoryName || t('home.featured');
+
+  const handleAddToCart = () => {
+    addItem(product, quantity);
+    setAddedAnim(true);
+    setTimeout(() => setAddedAnim(false), 1200);
+  };
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center min-h-[520px]">
+
+      {/* ── LEFT: Product Image ─────────────────────────────────── */}
+      <motion.div
+        className="lg:col-span-5 flex justify-center"
+        initial={{ opacity: 0, scale: 0.85 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
+      >
+        <div className="relative">
+          {/* Glow blob */}
+          <div
+            className="absolute inset-0 rounded-full blur-3xl opacity-30 -z-10 scale-75"
+            style={{ background: 'radial-gradient(circle, var(--brand-primary) 0%, #6c63ff 60%, transparent 80%)' }}
+          />
+
+          {/* Main image card */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={product._id || product.id}
+              initial={{ opacity: 0, scale: 0.9, rotate: -3 }}
+              animate={{ opacity: 1, scale: 1, rotate: 0 }}
+              exit={{ opacity: 0, scale: 0.9, rotate: 3 }}
+              transition={{ duration: 0.45, ease: 'easeOut' }}
+              className="relative rounded-3xl overflow-hidden"
+              style={{
+                width: 'clamp(280px, 40vw, 420px)',
+                height: 'clamp(300px, 42vw, 440px)',
+                background: 'var(--bg-tertiary)',
+                boxShadow: 'var(--shadow-lg)',
+                border: '1px solid var(--border-card)',
+              }}
+            >
+              <img
+                src={imageUrl}
+                alt={product.title || product.name}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.target.src = 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&q=80';
+                }}
+              />
+              {/* Overlay gradient */}
+              <div
+                className="absolute inset-0"
+                style={{ background: 'linear-gradient(180deg, transparent 60%, rgba(0,0,0,0.18) 100%)' }}
+              />
+
+              {/* Discount badge */}
+              {discount && (
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.4, type: 'spring' }}
+                  className="absolute top-4 left-4 px-2.5 py-1 rounded-full text-white text-xs font-bold"
+                  style={{ background: 'var(--brand-primary)' }}
+                >
+                  -{discount}%
+                </motion.div>
+              )}
+
+              {/* Play video button */}
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                className="absolute bottom-4 left-4 flex items-center gap-2 px-3 py-1.5 rounded-full text-white text-xs font-semibold"
+                style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(10px)' }}
+              >
+                <Play className="w-3.5 h-3.5" fill="white" />
+                {t('product.preview')}
+              </motion.button>
+
+              {/* Wishlist */}
+              <motion.button
+                whileHover={{ scale: 1.15 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => setWishlisted(!wishlisted)}
+                className="absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center"
+                style={{
+                  background: 'var(--card-bg)',
+                  backdropFilter: 'blur(8px)',
+                  border: '1px solid var(--border-card)',
+                  boxShadow: 'var(--shadow-sm)',
+                }}
+              >
+                <Heart
+                  className="w-4.5 h-4.5"
+                  fill={wishlisted ? 'var(--brand-primary)' : 'none'}
+                  stroke={wishlisted ? 'var(--brand-primary)' : 'var(--text-muted)'}
+                  style={{ width: '18px', height: '18px' }}
+                />
+              </motion.button>
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Floating category tag */}
+          <motion.div
+            initial={{ x: 30, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="absolute -bottom-4 left-6 px-4 py-1.5 rounded-full text-white text-xs font-semibold"
+            style={{ background: 'linear-gradient(135deg, #6c63ff, #a78bfa)' }}
+          >
+            {category}
+          </motion.div>
+        </div>
+      </motion.div>
+
+      {/* ── CENTER: Product Info ────────────────────────────────── */}
+      <motion.div
+        className="lg:col-span-4 flex flex-col gap-4"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.15 }}
+      >
+        {/* Tag line */}
+        <div className="flex items-center gap-2">
+          <Star className="w-4 h-4" fill="var(--brand-primary)" stroke="none" />
+          <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--brand-primary)' }}>
+            {t('marketing.mostLoved')}
+          </span>
+        </div>
+
+        {/* Product name */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={product._id || product.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.35 }}
+          >
+            <h1
+              className="font-black leading-tight product-title"
+              style={{
+                color: 'var(--text-primary)',
+                fontSize: 'clamp(2rem, 4vw, 3rem)',
+                letterSpacing: '-1.5px',
+                lineHeight: 1.1,
+              }}
+            >
+              {(product.title || product.name || t('product.details')).toUpperCase()}
+            </h1>
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Short description */}
+        <p
+          className="text-sm leading-relaxed max-w-sm product-desc"
+          style={{ color: 'var(--text-secondary)' }}
+        >
+          {product.description?.slice(0, 120) || t('marketing.premiumQuality')}
+          {(product.description?.length || 0) > 120 ? '…' : ''}
+        </p>
+
+        {/* Price */}
+        <div className="flex items-baseline gap-3">
+          <span
+            className="font-black product-price"
+            style={{ color: 'var(--text-primary)', fontSize: '1.75rem' }}
+          >
+            ${price.toFixed(2)}
+          </span>
+          {oldPrice && (
+            <span
+              className="text-base line-through"
+              style={{ color: 'var(--text-muted)' }}
+            >
+              ${oldPrice.toFixed(2)}
+            </span>
+          )}
+        </div>
+
+        {/* Quantity + Add to Cart */}
+        <div className="flex items-center gap-3 flex-wrap">
+          {/* Quantity selector */}
+          <div
+            className="flex items-center gap-0 rounded-2xl overflow-hidden"
+            style={{
+              border: '1.5px solid var(--border-input)',
+              background: 'var(--bg-input)',
+            }}
+          >
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={() => setQuantity(Math.max(1, quantity - 1))}
+              className="px-3 py-2.5 transition"
+              style={{ color: 'var(--text-muted)' }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-hover)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+            >
+              <Minus className="w-4 h-4" />
+            </motion.button>
+            <span
+              className="px-4 font-semibold text-sm"
+              style={{ color: 'var(--text-primary)', minWidth: '32px', textAlign: 'center' }}
+            >
+              {quantity}
+            </span>
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={() => setQuantity(quantity + 1)}
+              className="px-3 py-2.5 transition"
+              style={{ color: 'var(--text-muted)' }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-hover)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+            >
+              <Plus className="w-4 h-4" />
+            </motion.button>
+          </div>
+
+          {/* Add to Cart */}
+          <motion.button
+            whileHover={{ y: -3, boxShadow: 'var(--shadow-cta-hover)' }}
+            whileTap={{ scale: 0.97 }}
+            onClick={handleAddToCart}
+            className="flex items-center gap-2 px-6 py-2.5 rounded-2xl text-white text-sm font-semibold"
+            style={{
+              background: addedAnim
+                ? 'linear-gradient(135deg, #22c55e, #16a34a)'
+                : 'var(--gradient-brand-cta)',
+              transition: 'background 0.3s',
+              boxShadow: 'var(--shadow-cta)',
+            }}
+          >
+            <ShoppingBag className="w-4 h-4" />
+            {addedAnim ? t('messages.addedToCart') : t('buttons.addToCart')}
+          </motion.button>
+
+          {/* View detail */}
+          <Link
+            to={buyerProductPath(product)}
+            className="text-xs font-semibold underline underline-offset-2"
+            style={{ color: '#6c63ff' }}
+          >
+            {t('buttons.buy')}
+          </Link>
+        </div>
+      </motion.div>
+
+      {/* ── RIGHT: Floating Info Card ───────────────────────────── */}
+      <div className="lg:col-span-3 flex justify-center lg:justify-end">
+        <ProductInfoCard product={product} />
+      </div>
+    </div>
+  );
+}

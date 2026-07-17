@@ -1,0 +1,171 @@
+import type { ReactNode } from 'react';
+import { Link, Navigate, useLocation } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { useSellerAccess } from '../hooks/useSellerAccess';
+import { useAuthStore } from '../stores/authStore';
+import { getDashboardPathForRole } from '../lib/authRouting';
+
+type SellerRouteProps = {
+  children: ReactNode;
+};
+
+function SellerAccessDenied() {
+  return (
+    <div
+      className="min-h-[60vh] flex items-center justify-center px-4 py-12"
+      style={{ background: 'var(--bg-page)' }}
+    >
+      <div
+        className="w-full max-w-xl rounded-[24px] px-8 py-10 text-center space-y-6"
+        style={{
+          background: 'var(--card-bg)',
+          boxShadow: 'var(--shadow-lg)',
+        }}
+      >
+        <motion.div
+          initial={{ rotate: 0, x: 0 }}
+          animate={{
+            x: [-5, 5, -3, 3, 0],
+          }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
+        >
+          <div
+            className="mx-auto flex h-20 w-20 items-center justify-center rounded-full text-3xl"
+            style={{
+              background: 'var(--gradient-brand-cta)',
+              boxShadow: '0 0 30px color-mix(in srgb, var(--brand-primary) 70%, transparent)',
+            }}
+          >
+            🔒
+          </div>
+        </motion.div>
+        <div className="space-y-3">
+          <p
+            className="text-2xl font-bold"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            Seller Account Required
+          </p>
+          <p
+            className="text-sm"
+            style={{ color: 'var(--text-muted)' }}
+          >
+            This page is only accessible to approved Spacilly sellers. Join thousands of
+            sellers already earning on our platform.
+          </p>
+        </div>
+        <div className="flex flex-wrap justify-center gap-2 text-xs">
+          {[
+            '📦 Your own store',
+            '💰 Keep 95% of sales',
+            '🛡️ Seller protection',
+            '📊 Sales analytics',
+          ].map((chip) => (
+            <span
+              key={chip}
+              className="px-4 py-2 rounded-full"
+              style={{
+                background: 'var(--brand-tint)',
+                color: 'var(--brand-primary)',
+              }}
+            >
+              {chip}
+            </span>
+          ))}
+        </div>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+          <Link
+            to="/become-seller"
+            className="w-full sm:w-auto rounded-[12px] px-6 py-2.5 text-sm font-semibold text-white"
+            style={{
+              background: 'var(--gradient-brand-cta)',
+            }}
+          >
+            🚀 Become a Seller
+          </Link>
+          <button
+            type="button"
+            onClick={() => window.history.back()}
+            className="w-full sm:w-auto rounded-[12px] px-6 py-2.5 text-sm font-semibold"
+            style={{
+              background: 'transparent',
+              color: 'var(--text-secondary)',
+              boxShadow: '0 0 0 1px var(--divider)',
+            }}
+          >
+            ← Go Back
+          </button>
+        </div>
+        <p
+          className="text-xs"
+          style={{ color: 'var(--text-faint)' }}
+        >
+          Already applied?{' '}
+          <Link to="/seller/pending" style={{ color: 'var(--brand-primary)' }}>
+            Check status →
+          </Link>
+        </p>
+      </div>
+    </div>
+  );
+}
+
+export default function SellerRoute({ children }: SellerRouteProps) {
+  const location = useLocation();
+  const user = useAuthStore((s) => s.user);
+  const { loading, initialized } = useAuthStore();
+  const { isLoggedIn, isSeller } = useSellerAccess();
+
+  if (!initialized || loading) {
+    return (
+      <div
+        className="min-h-[60vh] flex items-center justify-center"
+        style={{ background: 'var(--bg-page)' }}
+      >
+        <div className="w-12 h-12 rounded-full border-4 border-[color-mix(in_srgb,var(--brand-primary)_22%,var(--card-bg))] border-t-[var(--brand-primary)] animate-spin" />
+      </div>
+    );
+  }
+
+  if (!isLoggedIn) {
+    return (
+      <Navigate
+        to="/login"
+        state={{ reason: 'login_required', intended: location.pathname }}
+        replace
+      />
+    );
+  }
+
+  if (user && user.email_verified !== true) {
+    return (
+      <Navigate
+        to={`/verify-otp?email=${encodeURIComponent(user.email)}`}
+        replace
+      />
+    );
+  }
+
+  if (user && user.role === 'admin') {
+    return <Navigate to={getDashboardPathForRole('admin')} replace />;
+  }
+
+  if (user && user.role === 'buyer') {
+    if (location.pathname === '/seller') {
+      return <SellerAccessDenied />;
+    }
+    return (
+      <Navigate
+        to="/become-seller"
+        state={{ reason: 'not_seller', intended: location.pathname }}
+        replace
+      />
+    );
+  }
+
+  if (!isSeller) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
+}
