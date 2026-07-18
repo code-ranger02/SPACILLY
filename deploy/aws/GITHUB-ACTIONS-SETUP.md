@@ -61,6 +61,10 @@ Manual deploy: GitHub → **Actions** → select workflow → **Run workflow**.
 3. **Security credentials** → **Create access key** → Application running outside AWS
 4. Save **Access key ID** and **Secret access key** (shown once)
 
+**Critical:** On the IAM user, ensure **`AWSCompromisedKeyQuarantineV2` is NOT attached**. That managed policy adds explicit `Deny` on S3 uploads and causes `403` with an empty message when deploying to `elasticbeanstalk-*` buckets.
+
+If deploy packages exceed ~7 MB, the IAM user also needs `s3:ListBucketMultipartUploads`, `s3:ListMultipartUploadParts`, and `s3:AbortMultipartUpload` on the EB artifact bucket (included in the policy above and in `AdministratorAccess`).
+
 ---
 
 ## Step 2 — GitHub repository secrets
@@ -73,10 +77,11 @@ GitHub repo → **Settings** → **Secrets and variables** → **Actions** → *
 |--------|---------------|-------|
 | `AWS_ACCESS_KEY_ID` | `AKIA...` | From IAM user |
 | `AWS_SECRET_ACCESS_KEY` | `...` | From IAM user |
-| `AWS_REGION` | `us-east-1` | Same region as EB |
+| `AWS_REGION` | `eu-north-1` | Same region as EB |
 | `EB_APPLICATION_NAME` | `spacilly-api` | EB application name |
 | `EB_ENVIRONMENT_NAME` | `spacilly-api-prod` | EB environment name |
-| `EB_ENVIRONMENT_URL` | `http://spacilly-api-prod.eba-xxxxx.us-east-1.elasticbeanstalk.com` | Optional; post-deploy health check |
+| `EB_S3_BUCKET` | `elasticbeanstalk-eu-north-1-285407029888` | Optional; auto-detected if omitted |
+| `EB_ENVIRONMENT_URL` | `http://spacilly-api.eu-north-1.elasticbeanstalk.com` | Health check + docs |
 
 ### Required for frontend deploy (add when S3 + CloudFront exist)
 

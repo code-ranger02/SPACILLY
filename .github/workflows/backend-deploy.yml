@@ -1,5 +1,6 @@
 # Deploy Spacilly API (server/) to AWS Elastic Beanstalk on push to master.
-# Required GitHub secrets: see deploy/aws/GITHUB-ACTIONS-SETUP.md
+# TEMPORARY: deployment is disabled until AWS permission audit passes.
+# See deploy/aws/GITHUB-ACTIONS-SETUP.md
 
 name: Deploy Backend (Elastic Beanstalk)
 
@@ -16,11 +17,6 @@ concurrency:
   group: spacilly-backend-${{ github.ref }}
   cancel-in-progress: false
 
-env:
-  AWS_REGION: ${{ secrets.AWS_REGION }}
-  EB_APPLICATION_NAME: ${{ secrets.EB_APPLICATION_NAME }}
-  EB_ENVIRONMENT_NAME: ${{ secrets.EB_ENVIRONMENT_NAME }}
-
 jobs:
   deploy:
     name: Deploy to Elastic Beanstalk
@@ -31,13 +27,37 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Validate secrets
+      - name: Verify GitHub repository secrets are present
         run: |
-          test -n "${{ secrets.AWS_ACCESS_KEY_ID }}" || (echo "Missing AWS_ACCESS_KEY_ID" && exit 1)
-          test -n "${{ secrets.AWS_SECRET_ACCESS_KEY }}" || (echo "Missing AWS_SECRET_ACCESS_KEY" && exit 1)
-          test -n "${{ secrets.AWS_REGION }}" || (echo "Missing AWS_REGION" && exit 1)
-          test -n "${{ secrets.EB_APPLICATION_NAME }}" || (echo "Missing EB_APPLICATION_NAME" && exit 1)
-          test -n "${{ secrets.EB_ENVIRONMENT_NAME }}" || (echo "Missing EB_ENVIRONMENT_NAME" && exit 1)
+          echo "Checking that required repository secrets are configured (values are NOT printed)."
+          missing=0
+          check_secret() {
+            label="$1"
+            val="$2"
+            if [ -z "$val" ]; then
+              echo "MISSING: $label"
+              missing=1
+            else
+              echo "OK: $label is set (length=${#val})"
+            fi
+          }
+          check_secret "AWS_ACCESS_KEY_ID" "${{ secrets.AWS_ACCESS_KEY_ID }}"
+          check_secret "AWS_SECRET_ACCESS_KEY" "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+          check_secret "AWS_REGION" "${{ secrets.AWS_REGION }}"
+          check_secret "EB_APPLICATION_NAME" "${{ secrets.EB_APPLICATION_NAME }}"
+          check_secret "EB_ENVIRONMENT_NAME" "${{ secrets.EB_ENVIRONMENT_NAME }}"
+          key="${{ secrets.AWS_ACCESS_KEY_ID }}"
+          if [ -n "$key" ]; then
+            echo "AWS_ACCESS_KEY_ID prefix: ${key:0:4}**** (compare last 4 chars in IAM console)"
+            echo "AWS_ACCESS_KEY_ID suffix: ****${key: -4}"
+          fi
+          echo "AWS_REGION value: ${{ secrets.AWS_REGION }}"
+          echo "EB_APPLICATION_NAME value: ${{ secrets.EB_APPLICATION_NAME }}"
+          echo "EB_ENVIRONMENT_NAME value: ${{ secrets.EB_ENVIRONMENT_NAME }}"
+          if [ "$missing" -eq 1 ]; then
+            echo "One or more required secrets are missing."
+            exit 1
+          fi
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -63,8 +83,165 @@ jobs:
             -x ".env" \
             -x "env" \
             -x "*.log"
+          test -f deploy.zip || (echo "deploy.zip was not created" && exit 1)
+          ls -lh deploy.zip
+
+      - name: Configure AWS credentials (for CLI audit only)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Elastic Beanstalk deployment preflight (temporary — blocks deploy on any failure)
+        env:
+          EB_APPLICATION_NAME: ${{ secrets.EB_APPLICATION_NAME }}
+          EB_ENVIRONMENT_NAME: ${{ secrets.EB_ENVIRONMENT_NAME }}
+          EB_ARTIFACT_BUCKET: elasticbeanstalk-eu-north-1-285407029888
+        run: |
+          set -euo pipefail
+
+          print_aws_failure() {
+            local step="$1"
+            local cmd="$2"
+            local exit_code="$3"
+            local stdout="$4"
+            local stderr="$5"
+
+            echo ""
+            echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+            echo "PREFLIGHT FAILED: ${step}"
+            echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+            echo "AWS CLI command: ${cmd}"
+            echo "Exit code: ${exit_code}"
+            if [ -n "$stdout" ]; then
+              echo "Stdout:"
+              echo "$stdout"
+            fi
+            if [ -n "$stderr" ]; then
+              echo "Stderr:"
+              echo "$stderr"
+            fi
+
+            local combined="${stdout}"$'\n'"${stderr}"
+            local error_code
+            error_code="$(printf '%s' "$combined" | sed -n 's/.*(\([A-Za-z0-9]*\)).*/\1/p' | head -1 || true)"
+            if [ -n "$error_code" ]; then
+              echo "AWS error code: ${error_code}"
+            else
+              echo "AWS error code: (not parsed — see stderr above)"
+            fi
+
+            local request_id
+            request_id="$(printf '%s' "$combined" | grep -oE '([A-Fa-f0-9-]{8}-){4}[A-Fa-f0-9-]{12}' | head -1 || true)"
+            if [ -n "$request_id" ]; then
+              echo "AWS request id: ${request_id}"
+            else
+              echo "AWS request id: (not found in CLI output)"
+            fi
+
+            echo "Capturing HTTP status via AWS CLI debug..."
+            local debug_log
+            debug_log="$(mktemp)"
+            sh -c "${cmd} --debug" >"${debug_log}" 2>&1 || true
+            local http_status
+            http_status="$(grep -oE 'Response code: [0-9]{3}' "${debug_log}" | tail -1 | awk '{print $3}' || true)"
+            if [ -n "$http_status" ]; then
+              echo "HTTP status: ${http_status}"
+            else
+              http_status="$(grep -oE 'HTTPStatusCode: [0-9]{3}' "${debug_log}" | tail -1 | awk '{print $2}' || true)"
+              if [ -n "$http_status" ]; then
+                echo "HTTP status: ${http_status}"
+              else
+                echo "HTTP status: (not found — inspect debug excerpt below)"
+              fi
+            fi
+            echo "Debug excerpt (last 40 lines):"
+            tail -40 "${debug_log}" || true
+            rm -f "${debug_log}"
+
+            echo ""
+            echo "Deployment will NOT continue until this API call succeeds in IAM."
+            exit 1
+          }
+
+          run_preflight() {
+            local step="$1"
+            local description="$2"
+            local cmd="$3"
+            shift 3
+
+            echo ""
+            echo "============================================================"
+            echo "${step} ${description}"
+            echo "AWS CLI command: ${cmd}"
+            echo "============================================================"
+
+            local out err rc
+            out="$(mktemp)"
+            err="$(mktemp)"
+            set +e
+            "$@" >"${out}" 2>"${err}"
+            rc=$?
+            set -e
+
+            if [ "$rc" -eq 0 ]; then
+              cat "${out}"
+              if [ -s "${err}" ]; then
+                cat "${err}"
+              fi
+              echo "RESULT: OK"
+              rm -f "${out}" "${err}"
+              return 0
+            fi
+
+            print_aws_failure "${step}" "${cmd}" "${rc}" "$(cat "${out}")" "$(cat "${err}")"
+          }
+
+          echo "Expected IAM principal ARN suffix: user/github-actions-spacilly"
+          echo "Expected AWS account: 285407029888"
+          echo "Expected EB artifact bucket: ${EB_ARTIFACT_BUCKET}"
+
+          run_preflight "1/5" "Verify identity" \
+            "aws sts get-caller-identity" \
+            aws sts get-caller-identity
+
+          run_preflight "2/5" "Verify Elastic Beanstalk application" \
+            "aws elasticbeanstalk describe-applications --application-names \"${EB_APPLICATION_NAME}\"" \
+            aws elasticbeanstalk describe-applications \
+              --application-names "${EB_APPLICATION_NAME}"
+
+          run_preflight "3/5" "Verify environment" \
+            "aws elasticbeanstalk describe-environments --application-name \"${EB_APPLICATION_NAME}\" --environment-names \"${EB_ENVIRONMENT_NAME}\"" \
+            aws elasticbeanstalk describe-environments \
+              --application-name "${EB_APPLICATION_NAME}" \
+              --environment-names "${EB_ENVIRONMENT_NAME}"
+
+          run_preflight "4/5" "Verify Elastic Beanstalk storage location" \
+            "aws elasticbeanstalk create-storage-location" \
+            aws elasticbeanstalk create-storage-location
+
+          echo "test" > eb-test.txt
+          run_preflight "5/5" "Verify S3 upload permission" \
+            "aws s3 cp eb-test.txt s3://${EB_ARTIFACT_BUCKET}/ci-test.txt" \
+            aws s3 cp eb-test.txt "s3://${EB_ARTIFACT_BUCKET}/ci-test.txt"
+
+          echo "Cleaning up temporary S3 object..."
+          run_preflight "5/5 cleanup" "Delete temporary S3 test object" \
+            "aws s3 rm s3://${EB_ARTIFACT_BUCKET}/ci-test.txt" \
+            aws s3 rm "s3://${EB_ARTIFACT_BUCKET}/ci-test.txt"
+
+          rm -f eb-test.txt
+
+          echo ""
+          echo "============================================================"
+          echo "PREFLIGHT SUMMARY"
+          echo "============================================================"
+          echo "All Elastic Beanstalk deployment API checks passed."
+          echo "You may enable the deploy step after reviewing this output."
 
       - name: Deploy to Elastic Beanstalk
+        if: false # TEMPORARY — remove this line (or set to true) only after preflight passes
         uses: einaregilsson/beanstalk-deploy@v22
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -79,12 +256,13 @@ jobs:
           wait_for_environment_recovery: 300
 
       - name: Health check
+        if: false # TEMPORARY — enable with deploy step
         run: |
           EB_URL="${{ secrets.EB_ENVIRONMENT_URL }}"
           if [ -z "$EB_URL" ]; then
             echo "EB_ENVIRONMENT_URL not set — skip health check"
             exit 0
           fi
-          curl -fsS "${EB_URL%/}/api/health" | head -c 500
+          curl -fsS "${EB_URL%/}/api/health"
           echo ""
           echo "Health check OK"
