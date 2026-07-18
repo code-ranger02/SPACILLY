@@ -1,0 +1,90 @@
+# Deploy Spacilly API (server/) to AWS Elastic Beanstalk on push to master.
+# Required GitHub secrets: see deploy/aws/GITHUB-ACTIONS-SETUP.md
+
+name: Deploy Backend (Elastic Beanstalk)
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'server/**'
+      - '.github/workflows/backend-deploy.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: spacilly-backend-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+  EB_APPLICATION_NAME: ${{ secrets.EB_APPLICATION_NAME }}
+  EB_ENVIRONMENT_NAME: ${{ secrets.EB_ENVIRONMENT_NAME }}
+
+jobs:
+  deploy:
+    name: Deploy to Elastic Beanstalk
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate secrets
+        run: |
+          test -n "${{ secrets.AWS_ACCESS_KEY_ID }}" || (echo "Missing AWS_ACCESS_KEY_ID" && exit 1)
+          test -n "${{ secrets.AWS_SECRET_ACCESS_KEY }}" || (echo "Missing AWS_SECRET_ACCESS_KEY" && exit 1)
+          test -n "${{ secrets.AWS_REGION }}" || (echo "Missing AWS_REGION" && exit 1)
+          test -n "${{ secrets.EB_APPLICATION_NAME }}" || (echo "Missing EB_APPLICATION_NAME" && exit 1)
+          test -n "${{ secrets.EB_ENVIRONMENT_NAME }}" || (echo "Missing EB_ENVIRONMENT_NAME" && exit 1)
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+
+      - name: Install dependencies
+        working-directory: server
+        run: npm ci
+
+      - name: Build API
+        working-directory: server
+        run: npm run build
+
+      - name: Create deployment package
+        working-directory: server
+        run: |
+          zip -r deploy.zip . \
+            -x "node_modules/*" \
+            -x "uploads/*" \
+            -x ".env" \
+            -x "env" \
+            -x "*.log"
+
+      - name: Deploy to Elastic Beanstalk
+        uses: einaregilsson/beanstalk-deploy@v22
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          application_name: ${{ secrets.EB_APPLICATION_NAME }}
+          environment_name: ${{ secrets.EB_ENVIRONMENT_NAME }}
+          version_label: api-${{ github.run_number }}-${{ github.sha }}
+          region: ${{ secrets.AWS_REGION }}
+          deployment_package: server/deploy.zip
+          use_existing_version_if_available: false
+          wait_for_deployment: true
+          wait_for_environment_recovery: 300
+
+      - name: Health check
+        run: |
+          EB_URL="${{ secrets.EB_ENVIRONMENT_URL }}"
+          if [ -z "$EB_URL" ]; then
+            echo "EB_ENVIRONMENT_URL not set — skip health check"
+            exit 0
+          fi
+          curl -fsS "${EB_URL%/}/api/health" | head -c 500
+          echo ""
+          echo "Health check OK"
