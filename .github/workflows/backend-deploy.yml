@@ -1,5 +1,13 @@
 # Deploy Spacilly API (server/) to AWS Elastic Beanstalk on push to master.
-# TEMPORARY: deployment is disabled until AWS permission audit passes.
+#
+# Workflow order:
+#   1. Build server/ and create server/deploy.zip
+#   2. Preflight — AWS permission checks (job exits if any check fails)
+#   3. Deploy — uploads server/deploy.zip to Elastic Beanstalk (beanstalk-deploy)
+#   4. Health check — verifies /api/health on the deployed API
+#
+# Secrets: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION,
+#          EB_APPLICATION_NAME, EB_ENVIRONMENT_NAME, EB_ENVIRONMENT_URL (optional)
 # See deploy/aws/GITHUB-ACTIONS-SETUP.md
 
 name: Deploy Backend (Elastic Beanstalk)
@@ -238,10 +246,11 @@ jobs:
           echo "PREFLIGHT SUMMARY"
           echo "============================================================"
           echo "All Elastic Beanstalk deployment API checks passed."
-          echo "You may enable the deploy step after reviewing this output."
+          echo "Deployment will proceed in the next step."
 
+      # Preflight must pass before this step runs (job exits on any preflight failure above).
+      # Uploads server/deploy.zip to Elastic Beanstalk and updates spacilly-api-prod.
       - name: Deploy to Elastic Beanstalk
-        if: false # TEMPORARY — remove this line (or set to true) only after preflight passes
         uses: einaregilsson/beanstalk-deploy@v22
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -255,8 +264,8 @@ jobs:
           wait_for_deployment: true
           wait_for_environment_recovery: 300
 
+      # Verifies the deployed Spacilly API responds at /api/health after EB update completes.
       - name: Health check
-        if: false # TEMPORARY — enable with deploy step
         run: |
           EB_URL="${{ secrets.EB_ENVIRONMENT_URL }}"
           if [ -z "$EB_URL" ]; then
