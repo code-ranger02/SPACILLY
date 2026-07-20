@@ -14,7 +14,7 @@ Manual deploy: GitHub → **Actions** → select workflow → **Run workflow**.
 ## Step 1 — IAM user for GitHub Actions
 
 1. IAM → **Users** → **Create user** → `github-actions-spacilly`
-2. Attach policy **`SpacillyGitHubDeployPolicy`** (customer managed). Use this complete JSON when creating or editing the policy in IAM:
+2. Attach policy **`SpacillyGitHubDeployPolicy`** (customer managed). Copy the complete JSON from [`SpacillyGitHubDeployPolicy.json`](./SpacillyGitHubDeployPolicy.json) when creating or editing the policy in IAM:
 
 ```json
 {
@@ -81,10 +81,17 @@ Manual deploy: GitHub → **Actions** → select workflow → **Run workflow**.
         "cloudformation:GetTemplate",
         "cloudformation:UpdateStack",
         "ec2:DescribeInstances",
+        "ec2:DescribeImages",
+        "ec2:DescribeLaunchTemplates",
+        "ec2:DescribeLaunchTemplateVersions",
+        "ec2:DescribeAvailabilityZones",
         "ec2:DescribeSecurityGroups",
         "ec2:DescribeSubnets",
         "ec2:DescribeVpcs",
         "ec2:DescribeKeyPairs",
+        "elasticloadbalancing:DescribeLoadBalancers",
+        "elasticloadbalancing:DescribeTargetGroups",
+        "elasticloadbalancing:DescribeTargetHealth",
         "autoscaling:DescribeAutoScalingGroups",
         "autoscaling:DescribeScalingActivities",
         "autoscaling:SuspendProcesses",
@@ -152,7 +159,7 @@ Manual deploy: GitHub → **Actions** → select workflow → **Run workflow**.
 }
 ```
 
-**Required for full deploy completion:** `s3:GetObjectAcl` on the EB artifact bucket and SNS permissions (`sns:CreateTopic`, `sns:ListSubscriptionsByTopic`, plus the recommended topic management actions above). EB uses these when creating/updating application versions and environment notifications.
+**Required for full deploy completion:** `s3:GetObjectAcl`, SNS permissions, and EC2/ELB describe actions (including `ec2:DescribeImages`) on the GitHub deploy user. If EB still reports EC2 errors after updating this policy, also verify **`aws-elasticbeanstalk-service-role`** (see Troubleshooting).
 
 3. **Security credentials** → **Create access key** → Application running outside AWS
 4. Save **Access key ID** and **Secret access key** (shown once)
@@ -261,6 +268,7 @@ Watch: GitHub → **Actions** → **Deploy Backend (Elastic Beanstalk)**
 | EB deploy fails on `s3:GetObjectAcl` | Add `s3:GetObjectAcl` on EB bucket objects; confirm policy is on the GitHub IAM user (see error ARN) |
 | EB deploy fails on SNS | Add SNS actions to policy; confirm user is `github-actions-spacilly` if that ARN appears in EB events |
 | `Version: null` after upload | IAM user missing SNS + GetObjectAcl — update policy and attach to correct user, re-run workflow |
+| `ec2:DescribeImages` during deploy | Add EC2/ELB describe actions to `SpacillyGitHubDeployPolicy`; verify `aws-elasticbeanstalk-service-role` has `AWSElasticBeanstalkManagedUpdatesCustomerRolePolicy` or `AdministratorAccess-AWSElasticBeanstalk` |
 | EB deploy fails permissions (general) | Update `SpacillyGitHubDeployPolicy` with full JSON in Step 1 |
 | Health check fails | Set `EB_ENVIRONMENT_URL`; verify env vars in EB |
 | Frontend skipped | Add S3 + CloudFront secrets |
