@@ -14,34 +14,128 @@ Manual deploy: GitHub → **Actions** → select workflow → **Run workflow**.
 ## Step 1 — IAM user for GitHub Actions
 
 1. IAM → **Users** → **Create user** → `github-actions-spacilly`
-2. Attach policy (create inline policy `SpacillyGitHubDeploy`):
+2. Attach policy **`SpacillyGitHubDeployPolicy`** (customer managed). Use this complete JSON when creating or editing the policy in IAM:
 
 ```json
 {
   "Version": "2012-10-17",
   "Statement": [
     {
+      "Sid": "STSIdentity",
+      "Effect": "Allow",
+      "Action": "sts:GetCallerIdentity",
+      "Resource": "*"
+    },
+    {
       "Sid": "ElasticBeanstalkDeploy",
       "Effect": "Allow",
       "Action": [
-        "elasticbeanstalk:*",
+        "elasticbeanstalk:CreateStorageLocation",
+        "elasticbeanstalk:DescribeApplications",
+        "elasticbeanstalk:DescribeEnvironments",
+        "elasticbeanstalk:DescribeEvents",
+        "elasticbeanstalk:CreateApplicationVersion",
+        "elasticbeanstalk:UpdateEnvironment",
+        "elasticbeanstalk:DescribeApplicationVersions",
+        "elasticbeanstalk:DescribeConfigurationSettings",
+        "elasticbeanstalk:DescribeEnvironmentHealth",
+        "elasticbeanstalk:DescribeEnvironmentResources",
+        "elasticbeanstalk:DescribeInstancesHealth",
+        "elasticbeanstalk:ListAvailableSolutionStacks",
+        "elasticbeanstalk:ValidateConfigurationSettings",
+        "elasticbeanstalk:RequestEnvironmentInfo",
+        "elasticbeanstalk:RetrieveEnvironmentInfo",
+        "elasticbeanstalk:AbortEnvironmentUpdate",
+        "elasticbeanstalk:UpdateApplicationVersion"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "ElasticBeanstalkArtifactBucket",
+      "Effect": "Allow",
+      "Action": [
+        "s3:CreateBucket",
+        "s3:GetBucketLocation",
+        "s3:ListBucket",
+        "s3:ListBucketMultipartUploads",
+        "s3:ListMultipartUploadParts",
+        "s3:AbortMultipartUpload",
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:DeleteObject",
+        "s3:PutObjectAcl",
+        "s3:GetObjectAcl"
+      ],
+      "Resource": [
+        "arn:aws:s3:::elasticbeanstalk-eu-north-1-285407029888",
+        "arn:aws:s3:::elasticbeanstalk-eu-north-1-285407029888/*"
+      ]
+    },
+    {
+      "Sid": "ElasticBeanstalkSupportingRead",
+      "Effect": "Allow",
+      "Action": [
+        "cloudformation:DescribeStacks",
+        "cloudformation:DescribeStackResources",
+        "cloudformation:DescribeStackResource",
+        "cloudformation:GetTemplate",
+        "cloudformation:UpdateStack",
         "ec2:DescribeInstances",
         "ec2:DescribeSecurityGroups",
         "ec2:DescribeSubnets",
         "ec2:DescribeVpcs",
+        "ec2:DescribeKeyPairs",
         "autoscaling:DescribeAutoScalingGroups",
+        "autoscaling:DescribeScalingActivities",
         "autoscaling:SuspendProcesses",
-        "autoscaling:ResumeProcesses",
-        "cloudformation:DescribeStackResource",
-        "cloudformation:DescribeStackResources",
-        "cloudformation:DescribeStacks",
-        "cloudformation:GetTemplate",
-        "cloudformation:UpdateStack",
-        "s3:GetObject",
-        "s3:PutObject",
+        "autoscaling:ResumeProcesses"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "PassRoleToElasticBeanstalk",
+      "Effect": "Allow",
+      "Action": "iam:PassRole",
+      "Resource": [
+        "arn:aws:iam::285407029888:role/aws-elasticbeanstalk-service-role",
+        "arn:aws:iam::285407029888:role/aws-elasticbeanstalk-ec2-role"
+      ],
+      "Condition": {
+        "StringEquals": {
+          "iam:PassedToService": [
+            "elasticbeanstalk.amazonaws.com",
+            "ec2.amazonaws.com"
+          ]
+        }
+      }
+    },
+    {
+      "Sid": "SNSElasticBeanstalkDeploy",
+      "Effect": "Allow",
+      "Action": "sns:CreateTopic",
+      "Resource": "*"
+    },
+    {
+      "Sid": "SNSElasticBeanstalkDeployTopicManagement",
+      "Effect": "Allow",
+      "Action": [
+        "sns:GetTopicAttributes",
+        "sns:SetTopicAttributes",
+        "sns:Subscribe",
+        "sns:ListSubscriptionsByTopic",
+        "sns:Publish"
+      ],
+      "Resource": "arn:aws:sns:eu-north-1:285407029888:*"
+    },
+    {
+      "Sid": "FrontendDeploy",
+      "Effect": "Allow",
+      "Action": [
         "s3:ListBucket",
-        "s3:DeleteObject",
-        "s3:CreateBucket"
+        "s3:GetBucketLocation",
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:DeleteObject"
       ],
       "Resource": "*"
     },
@@ -58,10 +152,14 @@ Manual deploy: GitHub → **Actions** → select workflow → **Run workflow**.
 }
 ```
 
+**Required for full deploy completion:** `s3:GetObjectAcl` on the EB artifact bucket and SNS permissions (`sns:CreateTopic`, `sns:ListSubscriptionsByTopic`, plus the recommended topic management actions above). EB uses these when creating/updating application versions and environment notifications.
+
 3. **Security credentials** → **Create access key** → Application running outside AWS
 4. Save **Access key ID** and **Secret access key** (shown once)
 
-**Critical:** On the IAM user, ensure **`AWSCompromisedKeyQuarantineV2` is NOT attached**. That managed policy adds explicit `Deny` on S3 uploads and causes `403` with an empty message when deploying to `elasticbeanstalk-*` buckets.
+**Critical:** Attach **`SpacillyGitHubDeployPolicy`** to the **same IAM user whose access key is in GitHub secrets**. If logs show `user/github-actions-spacilly`, the policy must be on **`github-actions-spacilly`**, not only on `github-actions-spacilly-v2`.
+
+On the IAM user, ensure **`AWSCompromisedKeyQuarantineV2` / `V3` is NOT attached**.
 
 If deploy packages exceed ~7 MB, the IAM user also needs `s3:ListBucketMultipartUploads`, `s3:ListMultipartUploadParts`, and `s3:AbortMultipartUpload` on the EB artifact bucket (included in the policy above and in `AdministratorAccess`).
 
@@ -160,7 +258,10 @@ Watch: GitHub → **Actions** → **Deploy Backend (Elastic Beanstalk)**
 | Issue | Fix |
 |-------|-----|
 | `Missing EB_APPLICATION_NAME` | Add GitHub secret |
-| EB deploy fails permissions | Check IAM policy includes `elasticbeanstalk:*` and S3 for EB bucket |
+| EB deploy fails on `s3:GetObjectAcl` | Add `s3:GetObjectAcl` on EB bucket objects; confirm policy is on the GitHub IAM user (see error ARN) |
+| EB deploy fails on SNS | Add SNS actions to policy; confirm user is `github-actions-spacilly` if that ARN appears in EB events |
+| `Version: null` after upload | IAM user missing SNS + GetObjectAcl — update policy and attach to correct user, re-run workflow |
+| EB deploy fails permissions (general) | Update `SpacillyGitHubDeployPolicy` with full JSON in Step 1 |
 | Health check fails | Set `EB_ENVIRONMENT_URL`; verify env vars in EB |
 | Frontend skipped | Add S3 + CloudFront secrets |
 | CORS errors after frontend deploy | Update EB `CLIENT_URL` and `ALLOWED_ORIGINS` to CloudFront URL |
