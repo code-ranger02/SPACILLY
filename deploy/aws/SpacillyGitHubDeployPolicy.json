@@ -12,55 +12,67 @@
       "Effect": "Allow",
       "Action": [
         "elasticbeanstalk:CreateStorageLocation",
-        "elasticbeanstalk:DescribeApplications",
-        "elasticbeanstalk:DescribeEnvironments",
-        "elasticbeanstalk:DescribeEvents",
         "elasticbeanstalk:CreateApplicationVersion",
         "elasticbeanstalk:UpdateEnvironment",
+        "elasticbeanstalk:UpdateApplicationVersion",
+        "elasticbeanstalk:DescribeApplications",
+        "elasticbeanstalk:DescribeEnvironments",
         "elasticbeanstalk:DescribeApplicationVersions",
+        "elasticbeanstalk:DescribeEvents",
         "elasticbeanstalk:DescribeConfigurationSettings",
         "elasticbeanstalk:DescribeEnvironmentHealth",
         "elasticbeanstalk:DescribeEnvironmentResources",
         "elasticbeanstalk:DescribeInstancesHealth",
-        "elasticbeanstalk:ListAvailableSolutionStacks",
         "elasticbeanstalk:ValidateConfigurationSettings",
-        "elasticbeanstalk:RequestEnvironmentInfo",
-        "elasticbeanstalk:RetrieveEnvironmentInfo",
         "elasticbeanstalk:AbortEnvironmentUpdate",
-        "elasticbeanstalk:UpdateApplicationVersion"
+        "elasticbeanstalk:RequestEnvironmentInfo",
+        "elasticbeanstalk:RetrieveEnvironmentInfo"
       ],
       "Resource": "*"
     },
     {
-      "Sid": "ElasticBeanstalkArtifactBucket",
+      "Sid": "ElasticBeanstalkArtifactBucketManagement",
       "Effect": "Allow",
       "Action": [
         "s3:CreateBucket",
+        "s3:GetBucketPolicy",
+        "s3:PutBucketPolicy",
         "s3:GetBucketLocation",
         "s3:ListBucket",
-        "s3:ListBucketMultipartUploads",
-        "s3:ListMultipartUploadParts",
-        "s3:AbortMultipartUpload",
+        "s3:ListBucketMultipartUploads"
+      ],
+      "Resource": "arn:aws:s3:::elasticbeanstalk-*"
+    },
+    {
+      "Sid": "ElasticBeanstalkArtifactBucketObjects",
+      "Effect": "Allow",
+      "Action": [
         "s3:PutObject",
         "s3:GetObject",
         "s3:DeleteObject",
         "s3:PutObjectAcl",
-        "s3:GetObjectAcl"
+        "s3:GetObjectAcl",
+        "s3:AbortMultipartUpload",
+        "s3:ListMultipartUploadParts"
       ],
-      "Resource": [
-        "arn:aws:s3:::elasticbeanstalk-eu-north-1-285407029888",
-        "arn:aws:s3:::elasticbeanstalk-eu-north-1-285407029888/*"
-      ]
+      "Resource": "arn:aws:s3:::elasticbeanstalk-*/*"
     },
     {
-      "Sid": "ElasticBeanstalkSupportingRead",
+      "Sid": "ElasticBeanstalkCloudFormation",
       "Effect": "Allow",
       "Action": [
         "cloudformation:DescribeStacks",
         "cloudformation:DescribeStackResources",
         "cloudformation:DescribeStackResource",
         "cloudformation:GetTemplate",
-        "cloudformation:UpdateStack",
+        "cloudformation:UpdateStack"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "ElasticBeanstalkEC2Read",
+      "Effect": "Allow",
+      "Action": [
         "ec2:DescribeInstances",
         "ec2:DescribeImages",
         "ec2:DescribeLaunchTemplates",
@@ -69,10 +81,24 @@
         "ec2:DescribeSecurityGroups",
         "ec2:DescribeSubnets",
         "ec2:DescribeVpcs",
-        "ec2:DescribeKeyPairs",
+        "ec2:DescribeKeyPairs"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "ElasticBeanstalkELBRead",
+      "Effect": "Allow",
+      "Action": [
         "elasticloadbalancing:DescribeLoadBalancers",
         "elasticloadbalancing:DescribeTargetGroups",
-        "elasticloadbalancing:DescribeTargetHealth",
+        "elasticloadbalancing:DescribeTargetHealth"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "ElasticBeanstalkAutoScaling",
+      "Effect": "Allow",
+      "Action": [
         "autoscaling:DescribeAutoScalingGroups",
         "autoscaling:DescribeScalingActivities",
         "autoscaling:SuspendProcesses",
@@ -98,13 +124,13 @@
       }
     },
     {
-      "Sid": "SNSElasticBeanstalkDeploy",
+      "Sid": "SNSElasticBeanstalkCreateTopic",
       "Effect": "Allow",
       "Action": "sns:CreateTopic",
       "Resource": "*"
     },
     {
-      "Sid": "SNSElasticBeanstalkDeployTopicManagement",
+      "Sid": "SNSElasticBeanstalkTopicManagement",
       "Effect": "Allow",
       "Action": [
         "sns:GetTopicAttributes",
@@ -116,18 +142,32 @@
       "Resource": "arn:aws:sns:eu-north-1:285407029888:*"
     },
     {
-      "Sid": "FrontendDeploy",
+      "Sid": "FrontendDeployBucket",
       "Effect": "Allow",
       "Action": [
         "s3:ListBucket",
-        "s3:GetBucketLocation",
+        "s3:GetBucketLocation"
+      ],
+      "Resource": "arn:aws:s3:::MY_FRONTEND_BUCKET"
+    },
+    {
+      "Sid": "FrontendDeployObjects",
+      "Effect": "Allow",
+      "Action": [
         "s3:PutObject",
         "s3:GetObject",
-        "s3:DeleteObject",
+        "s3:DeleteObject"
+      ],
+      "Resource": "arn:aws:s3:::MY_FRONTEND_BUCKET/*"
+    },
+    {
+      "Sid": "FrontendDeployCloudFront",
+      "Effect": "Allow",
+      "Action": [
         "cloudfront:CreateInvalidation",
         "cloudfront:GetInvalidation"
       ],
-      "Resource": "*"
+      "Resource": "arn:aws:cloudfront::285407029888:distribution/*"
     }
   ]
 }
