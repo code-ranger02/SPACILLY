@@ -61,6 +61,8 @@ When you create your first EB environment, AWS offers to create:
 
 Click **Create role** if prompted. If they already exist, reuse them.
 
+**Critical for CI/CD deploys:** open **`aws-elasticbeanstalk-service-role`** and attach **`AdministratorAccess-AWSElasticBeanstalk`**. Without this, GitHub Actions can upload artifacts but environment updates fail with `CloudFormation: S3 error: Access Denied`.
+
 ### 1.2 EC2 instance profile permissions
 
 1. AWS Console → **IAM** → **Roles**

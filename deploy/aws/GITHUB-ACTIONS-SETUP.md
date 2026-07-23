@@ -161,6 +161,18 @@ Manual deploy: GitHub → **Actions** → select workflow → **Run workflow**.
 
 **Required for full deploy completion:** `s3:GetObjectAcl`, SNS permissions, and EC2/ELB describe actions (including `ec2:DescribeImages`) on the GitHub deploy user. If EB still reports EC2 errors after updating this policy, also verify **`aws-elasticbeanstalk-service-role`** (see Troubleshooting).
 
+### Step 1b — Fix EB service role (required for `CloudFormation` S3 Access Denied)
+
+If GitHub Actions **uploads to S3** and **creates the application version** but fails on **environment update** with `Service:AmazonCloudFormation, Message:S3 error: Access Denied`, the GitHub IAM user is usually fine. Elastic Beanstalk’s **service role** cannot read deployment artifacts or runtime paths in the artifact bucket.
+
+1. IAM → **Roles** → open **`aws-elasticbeanstalk-service-role`**
+2. **Add permissions** → attach **`AdministratorAccess-AWSElasticBeanstalk`** (recommended)  
+   Or attach both **`AWSElasticBeanstalkEnhancedHealth`** and **`AWSElasticBeanstalkManagedUpdatesCustomerRolePolicy`**
+3. IAM → **Roles** → open **`aws-elasticbeanstalk-ec2-role`**
+4. Confirm attached: **`AWSElasticBeanstalkWebTier`**, **`AWSElasticBeanstalkMulticontainerDocker`**, **`AWSElasticBeanstalkWorkerTier`**
+5. S3 → artifact bucket (`elasticbeanstalk-*-285407029888`) → **Permissions** → **Object Ownership** → **Bucket owner enforced**
+6. Re-run the GitHub Actions deploy workflow
+
 3. **Security credentials** → **Create access key** → Application running outside AWS
 4. Save **Access key ID** and **Secret access key** (shown once)
 
@@ -265,12 +277,16 @@ Watch: GitHub → **Actions** → **Deploy Backend (Elastic Beanstalk)**
 | Issue | Fix |
 |-------|-----|
 | `Missing EB_APPLICATION_NAME` | Add GitHub secret |
+| `ec2:DescribeAddresses` (or other `ec2:Describe*`) denied | Add the action to `ElasticBeanstalkEC2Read` in `SpacillyGitHubDeployPolicy.json` and re-attach to `github-actions-spacilly`. |
+| `cloudformation:DescribeStackEvents` or `CancelUpdateStack` denied | Add both actions to `SpacillyGitHubDeployPolicy` (scoped to `awseb-*` stacks). Re-attach policy to `github-actions-spacilly`. |
+| `CloudFormation` + `S3 error: Access Denied` during `UpdateEnvironment` | Upload succeeded but deploy failed — **fix EB service role first** (Step 1b below). Then update GitHub user policy (`s3:GetObjectVersion`, `iam:PassRole` for `cloudformation.amazonaws.com`). Re-run workflow. |
 | EB deploy fails on `s3:GetObjectAcl` | Add `s3:GetObjectAcl` on EB bucket objects; confirm policy is on the GitHub IAM user (see error ARN) |
 | EB deploy fails on SNS | Add SNS actions to policy; confirm user is `github-actions-spacilly` if that ARN appears in EB events |
 | `Version: null` after upload | IAM user missing SNS + GetObjectAcl — update policy and attach to correct user, re-run workflow |
 | `ec2:DescribeImages` during deploy | Add EC2/ELB describe actions to `SpacillyGitHubDeployPolicy`; verify `aws-elasticbeanstalk-service-role` has `AWSElasticBeanstalkManagedUpdatesCustomerRolePolicy` or `AdministratorAccess-AWSElasticBeanstalk` |
 | EB deploy fails permissions (general) | Update `SpacillyGitHubDeployPolicy` with full JSON in Step 1 |
-| Health check fails | Set `EB_ENVIRONMENT_URL`; verify env vars in EB |
+| Health check fails with `502` | nginx is up but Node is not listening. In **EB → Configuration → Software → Environment properties**, set at minimum `MONGODB_URI`, `JWT_SECRET`, `PORT=8080`, `NODE_ENV=production`, `HOST=0.0.0.0`. In **MongoDB Atlas → Network Access**, allow the EB instance (or `0.0.0.0/0` temporarily). Check **Logs → web.stdout.log** for `JWT_SECRET`, `MONGO_URI`, or MongoDB connection errors. |
+| Health check fails (general) | Set `EB_ENVIRONMENT_URL`; verify env vars in EB |
 | Frontend skipped | Add S3 + CloudFront secrets |
 | CORS errors after frontend deploy | Update EB `CLIENT_URL` and `ALLOWED_ORIGINS` to CloudFront URL |
 | Build fails on EB | Check EB logs: Logs → Request logs / Last 100 lines |

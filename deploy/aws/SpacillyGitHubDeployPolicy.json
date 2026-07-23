@@ -39,7 +39,8 @@
         "s3:PutBucketPolicy",
         "s3:GetBucketLocation",
         "s3:ListBucket",
-        "s3:ListBucketMultipartUploads"
+        "s3:ListBucketMultipartUploads",
+        "s3:ListBucketVersions"
       ],
       "Resource": "arn:aws:s3:::elasticbeanstalk-*"
     },
@@ -49,6 +50,7 @@
       "Action": [
         "s3:PutObject",
         "s3:GetObject",
+        "s3:GetObjectVersion",
         "s3:DeleteObject",
         "s3:PutObjectAcl",
         "s3:GetObjectAcl",
@@ -62,10 +64,13 @@
       "Effect": "Allow",
       "Action": [
         "cloudformation:DescribeStacks",
+        "cloudformation:DescribeStackEvents",
         "cloudformation:DescribeStackResources",
         "cloudformation:DescribeStackResource",
+        "cloudformation:ListStackResources",
         "cloudformation:GetTemplate",
-        "cloudformation:UpdateStack"
+        "cloudformation:UpdateStack",
+        "cloudformation:CancelUpdateStack"
       ],
       "Resource": "*"
     },
@@ -75,6 +80,11 @@
       "Action": [
         "ec2:DescribeInstances",
         "ec2:DescribeImages",
+        "ec2:DescribeAddresses",
+        "ec2:DescribeNetworkInterfaces",
+        "ec2:DescribeVolumes",
+        "ec2:DescribeTags",
+        "ec2:DescribeAccountAttributes",
         "ec2:DescribeLaunchTemplates",
         "ec2:DescribeLaunchTemplateVersions",
         "ec2:DescribeAvailabilityZones",
@@ -112,13 +122,16 @@
       "Action": "iam:PassRole",
       "Resource": [
         "arn:aws:iam::285407029888:role/aws-elasticbeanstalk-service-role",
-        "arn:aws:iam::285407029888:role/aws-elasticbeanstalk-ec2-role"
+        "arn:aws:iam::285407029888:role/aws-elasticbeanstalk-ec2-role",
+        "arn:aws:iam::285407029888:role/service-role/aws-elasticbeanstalk-service-role",
+        "arn:aws:iam::285407029888:role/service-role/aws-elasticbeanstalk-ec2-role"
       ],
       "Condition": {
         "StringEquals": {
           "iam:PassedToService": [
             "elasticbeanstalk.amazonaws.com",
-            "ec2.amazonaws.com"
+            "ec2.amazonaws.com",
+            "cloudformation.amazonaws.com"
           ]
         }
       }

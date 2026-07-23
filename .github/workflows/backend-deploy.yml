@@ -105,7 +105,6 @@ jobs:
         env:
           EB_APPLICATION_NAME: ${{ secrets.EB_APPLICATION_NAME }}
           EB_ENVIRONMENT_NAME: ${{ secrets.EB_ENVIRONMENT_NAME }}
-          EB_ARTIFACT_BUCKET: elasticbeanstalk-eu-north-1-285407029888
         run: |
           set -euo pipefail
 
@@ -208,34 +207,45 @@ jobs:
 
           echo "Expected IAM principal ARN suffix: user/github-actions-spacilly"
           echo "Expected AWS account: 285407029888"
-          echo "Expected EB artifact bucket: ${EB_ARTIFACT_BUCKET}"
-
-          run_preflight "1/5" "Verify identity" \
+          run_preflight "1/7" "Verify identity" \
             "aws sts get-caller-identity" \
             aws sts get-caller-identity
 
-          run_preflight "2/5" "Verify Elastic Beanstalk application" \
+          run_preflight "2/7" "Verify Elastic Beanstalk application" \
             "aws elasticbeanstalk describe-applications --application-names \"${EB_APPLICATION_NAME}\"" \
             aws elasticbeanstalk describe-applications \
               --application-names "${EB_APPLICATION_NAME}"
 
-          run_preflight "3/5" "Verify environment" \
+          run_preflight "3/7" "Verify environment" \
             "aws elasticbeanstalk describe-environments --application-name \"${EB_APPLICATION_NAME}\" --environment-names \"${EB_ENVIRONMENT_NAME}\"" \
             aws elasticbeanstalk describe-environments \
               --application-name "${EB_APPLICATION_NAME}" \
               --environment-names "${EB_ENVIRONMENT_NAME}"
 
-          run_preflight "4/5" "Verify Elastic Beanstalk storage location" \
+          EB_ARTIFACT_BUCKET="$(
+            aws elasticbeanstalk create-storage-location --query 'S3Bucket' --output text
+          )"
+          echo "Expected EB artifact bucket: ${EB_ARTIFACT_BUCKET}"
+
+          run_preflight "4/7" "Verify Elastic Beanstalk storage location" \
             "aws elasticbeanstalk create-storage-location" \
             aws elasticbeanstalk create-storage-location
 
+          run_preflight "5/7" "Verify S3 bucket policy read" \
+            "aws s3api get-bucket-policy --bucket \"${EB_ARTIFACT_BUCKET}\"" \
+            aws s3api get-bucket-policy --bucket "${EB_ARTIFACT_BUCKET}"
+
           echo "test" > eb-test.txt
-          run_preflight "5/5" "Verify S3 upload permission" \
+          run_preflight "6/7" "Verify S3 upload permission" \
             "aws s3 cp eb-test.txt s3://${EB_ARTIFACT_BUCKET}/ci-test.txt" \
             aws s3 cp eb-test.txt "s3://${EB_ARTIFACT_BUCKET}/ci-test.txt"
 
+          run_preflight "7/7" "Verify S3 object read" \
+            "aws s3api get-object --bucket \"${EB_ARTIFACT_BUCKET}\" --key ci-test.txt /dev/null" \
+            aws s3api get-object --bucket "${EB_ARTIFACT_BUCKET}" --key ci-test.txt /dev/null
+
           echo "Cleaning up temporary S3 object..."
-          run_preflight "5/5 cleanup" "Delete temporary S3 test object" \
+          run_preflight "7/7 cleanup" "Delete temporary S3 test object" \
             "aws s3 rm s3://${EB_ARTIFACT_BUCKET}/ci-test.txt" \
             aws s3 rm "s3://${EB_ARTIFACT_BUCKET}/ci-test.txt"
 
@@ -272,6 +282,26 @@ jobs:
             echo "EB_ENVIRONMENT_URL not set — skip health check"
             exit 0
           fi
-          curl -fsS "${EB_URL%/}/api/health"
-          echo ""
-          echo "Health check OK"
+          HEALTH_URL="${EB_URL%/}/api/health"
+          echo "Checking ${HEALTH_URL}"
+          for attempt in $(seq 1 20); do
+            HTTP_CODE="$(curl -sS -o /tmp/health-body.txt -w '%{http_code}' "${HEALTH_URL}" || true)"
+            if [ "$HTTP_CODE" = "200" ]; then
+              cat /tmp/health-body.txt
+              echo ""
+              echo "Health check OK (attempt ${attempt})"
+              exit 0
+            fi
+            echo "Attempt ${attempt}/20 — HTTP ${HTTP_CODE:-000}"
+            if [ -s /tmp/health-body.txt ]; then
+              head -c 500 /tmp/health-body.txt || true
+              echo ""
+            fi
+            sleep 15
+          done
+          echo "Health check failed after 20 attempts (502 usually means Node is not listening on PORT 8080)."
+          echo "In EB Console → Logs → Request full logs, open web.stdout.log and look for:"
+          echo "  - Missing JWT_SECRET or MONGODB_URI"
+          echo "  - MongoDB connection / Atlas network access errors"
+          echo "  - dist/index.js not found"
+          exit 1

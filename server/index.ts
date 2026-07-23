@@ -263,11 +263,13 @@ app.use('/api', apiLimiter);
 // Per-route limits live in authRoutes (login, register, OTP, etc.). A global /api/auth
 // limiter was stacking with those and counting /me + every auth call — causing 429 on normal use.
 
-// Health check
+// Health check — must respond before MongoDB finishes connecting (EB/nginx probes this path).
 app.get('/api/health', (_req: Request, res: Response) => {
+  const dbConnected = mongoose.connection.readyState === 1;
   res.status(200).json({
     status: 'ok',
     message: 'Spacilly API is running',
+    db: dbConnected ? 'connected' : 'pending',
     uptime: process.uptime(),
     timestamp: new Date().toISOString(),
   });
@@ -407,7 +409,7 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
   res.status(500).json({ message: 'Internal server error' });
 });
 
-// Connect to MongoDB, then start server
+// Connect to MongoDB and start background workers (HTTP server listens first — see boot()).
 const connectDB = async () => {
   try {
     if (!MONGO_URI) {
@@ -499,29 +501,41 @@ const connectDB = async () => {
     void import('./src/queues/intelligenceIndex.queue')
       .then(({ startIntelligenceIndexWorker }) => startIntelligenceIndexWorker())
       .catch((e) => console.warn('[intelligence-index] worker skipped:', e?.message));
-
-    websocketService.initialize(httpServer);
-
-    await new Promise<void>((resolve, reject) => {
-      httpServer.once('error', (listenErr: NodeJS.ErrnoException) => {
-        console.error('❌ HTTP server failed to start:', listenErr.message);
-        reject(listenErr);
-      });
-      httpServer.listen(PORT, HOST, () => {
-        console.log(`🚀 Server listening on ${HOST}:${PORT}`);
-        console.log('📡 WebSocket server ready');
-        keepAlive();
-        resolve();
-      });
-    });
   } catch (err: any) {
-    console.error('❌ Startup failed:', err?.message || err);
+    console.error('❌ MongoDB/workers startup failed (HTTP server stays up for health checks):', err?.message || err);
     if (err?.stack) console.error(err.stack);
-    process.exit(1);
   }
 };
 
-connectDB();
+const startServer = async () => {
+  websocketService.initialize(httpServer);
+
+  await new Promise<void>((resolve, reject) => {
+    httpServer.once('error', (listenErr: NodeJS.ErrnoException) => {
+      console.error('❌ HTTP server failed to start:', listenErr.message);
+      reject(listenErr);
+    });
+    httpServer.listen(PORT, HOST, () => {
+      console.log(`🚀 Server listening on ${HOST}:${PORT}`);
+      console.log('📡 WebSocket server ready');
+      keepAlive();
+      resolve();
+    });
+  });
+};
+
+const boot = async () => {
+  try {
+    await startServer();
+  } catch (err: unknown) {
+    console.error('❌ HTTP server failed to start:', err instanceof Error ? err.message : err);
+    if (err instanceof Error && err.stack) console.error(err.stack);
+    process.exit(1);
+  }
+  void connectDB();
+};
+
+boot();
 
 
 
