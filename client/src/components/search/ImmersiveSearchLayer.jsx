@@ -178,49 +178,76 @@ export default function ImmersiveSearchLayer() {
             style={{ paddingTop: 'calc(8px + env(safe-area-inset-top, 0px))' }}
             onClick={(e) => e.stopPropagation()}
           >
-            <header className="isearch-top-bar">
-              <button type="button" className="isearch-back-btn" onClick={closeSearch} aria-label="Close search">
-                <ArrowLeft size={20} />
-                <span>Cancel</span>
-              </button>
-            </header>
             <div className="isearch-bar-row">
-              <div className="isearch-field">
-                <Search size={18} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
+              <button type="button" className="isearch-back-btn" onClick={closeSearch} aria-label="Cancel search">
+                <ArrowLeft size={20} strokeWidth={2} />
+              </button>
+              <div className={`isearch-field${query.trim() ? ' has-value' : ''}`}>
+                <Search size={18} strokeWidth={2} className="isearch-leading-icon" aria-hidden />
                 <input
                   ref={inputRef}
                   type="search"
                   enterKeyHint="search"
+                  autoComplete="off"
+                  autoCorrect="off"
+                  spellCheck={false}
                   value={query}
                   onChange={(e) => {
                     setMockMode(null);
                     setMockBanner('');
                     setQuery(e.target.value);
                   }}
-                  onKeyDown={(e) => e.key === 'Enter' && submit()}
-                  placeholder="Search products, brands, stores…"
-                  className="isearch-input"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') submit();
+                    if (e.key === 'Escape') {
+                      if (query) {
+                        setQuery('');
+                        setMockMode(null);
+                        setMockBanner('');
+                      } else {
+                        closeSearch();
+                      }
+                    }
+                  }}
+                  placeholder="Search"
+                  className="isearch-input premium-input-exempt"
+                  aria-label="Search"
                 />
-                <button
-                  type="button"
-                  className={`isearch-icon-btn isearch-icon-btn--mic${listening ? ' is-listening is-active' : ''}`}
-                  onClick={startVoiceSearch}
-                  aria-label={listening ? 'Listening…' : 'Voice search'}
-                >
-                  <Mic size={18} />
-                </button>
-                <button
-                  type="button"
-                  className="isearch-icon-btn"
-                  onClick={() => setCameraOpen(true)}
-                  aria-label="Camera search"
-                >
-                  <Camera size={18} />
-                </button>
+                {query.length > 0 ? (
+                  <button
+                    type="button"
+                    className="isearch-clear-btn"
+                    onClick={() => {
+                      setQuery('');
+                      setMockMode(null);
+                      setMockBanner('');
+                      inputRef.current?.focus();
+                    }}
+                    aria-label="Clear search"
+                  >
+                    <X size={14} strokeWidth={2.5} />
+                  </button>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      className={`isearch-icon-btn isearch-icon-btn--mic${listening ? ' is-listening is-active' : ''}`}
+                      onClick={startVoiceSearch}
+                      aria-label={listening ? 'Listening…' : 'Voice search'}
+                    >
+                      <Mic size={18} strokeWidth={2} />
+                    </button>
+                    <button
+                      type="button"
+                      className="isearch-icon-btn"
+                      onClick={() => setCameraOpen(true)}
+                      aria-label="Camera search"
+                    >
+                      <Camera size={18} strokeWidth={2} />
+                    </button>
+                  </>
+                )}
               </div>
-              <button type="button" className="isearch-close" onClick={closeSearch} aria-label="Close">
-                <X size={20} />
-              </button>
             </div>
 
             <div className="isearch-body">

@@ -1,89 +1,143 @@
-/* Immersive search — 2026 */
+/* Immersive search — Instagram / Google principles */
 
 .isearch-root {
-  font-family: Inter, system-ui, sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 .isearch-panel {
   background: var(--bg-page);
 }
 
-.isearch-top-bar {
+.isearch-bar-row {
   display: flex;
   align-items: center;
-  padding: 4px 12px 0;
+  gap: 8px;
+  padding: 8px 12px 10px;
 }
 
 .isearch-back-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 12px 8px 8px;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  padding: 0;
   border: none;
-  border-radius: 12px;
-  background: var(--card-bg);
+  border-radius: 50%;
+  background: transparent;
   color: var(--text-primary);
-  font-size: 15px;
-  font-weight: 600;
-  box-shadow: 0 1px 8px color-mix(in srgb, var(--text-primary) 6%, transparent);
+  -webkit-tap-highlight-color: transparent;
 }
 
 .isearch-back-btn:active {
-  transform: scale(0.98);
-}
-
-.isearch-bar-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 16px 12px;
+  background: color-mix(in srgb, var(--text-primary) 6%, transparent);
 }
 
 .isearch-field {
   flex: 1;
   display: flex;
   align-items: center;
-  gap: 10px;
-  min-height: 50px;
-  padding: 0 12px 0 14px;
-  border-radius: 16px;
-  background: var(--card-bg);
-  border: 1px solid var(--border-card);
-  box-shadow: 0 2px 14px color-mix(in srgb, var(--text-primary) 5%, transparent);
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 8px 0 12px;
+  border-radius: 10px;
+  background: #efefef;
+  border: none;
+  box-shadow: none;
+  transition: background 0.15s ease;
+}
+
+.dark .isearch-field {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.isearch-field:focus-within {
+  background: #e8e8e8;
+}
+
+.dark .isearch-field:focus-within {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.isearch-leading-icon {
+  flex-shrink: 0;
+  color: #8e8e8e;
 }
 
 .isearch-input {
   flex: 1;
   min-width: 0;
+  height: 40px;
   border: none;
   background: transparent;
   outline: none;
   font-size: 16px;
+  line-height: 1.3;
   color: var(--text-primary);
+  box-shadow: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.isearch-input::-webkit-search-decoration,
+.isearch-input::-webkit-search-cancel-button,
+.isearch-input::-webkit-search-results-button,
+.isearch-input::-webkit-search-results-decoration {
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .isearch-input::placeholder {
-  color: var(--text-muted);
+  color: #8e8e8e;
+  opacity: 1;
+}
+
+.isearch-clear-btn {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: #c7c7c7;
+  color: #fff;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.isearch-clear-btn:active {
+  opacity: 0.85;
+}
+
+.dark .isearch-clear-btn {
+  background: rgba(255, 255, 255, 0.35);
+  color: var(--bg-page);
 }
 
 .isearch-icon-btn {
-  width: 40px;
-  height: 40px;
-  border-radius: 14px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
   border: none;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  background: color-mix(in srgb, var(--brand-primary) 10%, var(--bg-secondary));
-  color: var(--brand-primary);
-  transition: transform 0.15s ease, background 0.15s ease;
+  background: transparent;
+  color: #8e8e8e;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.isearch-icon-btn:active {
+  background: color-mix(in srgb, var(--text-primary) 6%, transparent);
 }
 
 .isearch-icon-btn.is-active {
   background: var(--brand-primary);
   color: #fff;
-  box-shadow: 0 0 20px color-mix(in srgb, var(--brand-primary) 35%, transparent);
 }
 
 .isearch-icon-btn--mic.is-listening {
@@ -100,18 +154,6 @@
   }
 }
 
-.isearch-close {
-  width: 44px;
-  height: 44px;
-  border-radius: 14px;
-  border: none;
-  background: var(--bg-secondary);
-  color: var(--text-secondary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .isearch-body {
   flex: 1;
   overflow-y: auto;
@@ -120,11 +162,11 @@
 
 .isearch-label {
   margin: 0 0 8px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text-primary);
 }
 
 .isearch-rail {
@@ -142,14 +184,18 @@
 
 .isearch-chip {
   flex-shrink: 0;
-  padding: 10px 14px;
-  border-radius: 999px;
-  font-size: 13px;
-  font-weight: 600;
-  background: var(--card-bg);
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 400;
+  background: #efefef;
   color: var(--text-primary);
   border: none;
-  box-shadow: 0 1px 8px color-mix(in srgb, var(--text-primary) 4%, transparent);
+  box-shadow: none;
+}
+
+.dark .isearch-chip {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .isearch-mock-banner {
@@ -290,9 +336,9 @@
   transform: scale(0.94);
 }
 
-/* Navbar mobile search — primary focal point */
+/* Navbar mobile search — Google / Instagram quiet bar */
 .mob-header-search-wrap {
-  padding: 2px 12px 6px;
+  padding: 2px 12px 8px;
 }
 
 .mob-search-bar {
@@ -300,24 +346,32 @@
   align-items: center;
   gap: 10px;
   min-height: 40px;
-  padding: 0 12px 0 14px;
-  border-radius: 14px;
-  border: 1px solid var(--border-card);
-  background: var(--card-bg);
-  box-shadow: 0 1px 3px color-mix(in srgb, var(--text-primary) 4%, transparent);
-  transition: box-shadow 0.2s ease, background 0.2s ease;
+  padding: 0 8px 0 14px;
+  border-radius: 10px;
+  border: none;
+  background: #efefef;
+  box-shadow: none;
+  transition: background 0.15s ease;
   -webkit-tap-highlight-color: transparent;
 }
 
+.dark .mob-search-bar {
+  background: rgba(255, 255, 255, 0.1);
+}
+
 .mob-search-bar:active {
-  box-shadow: 0 2px 10px color-mix(in srgb, var(--text-primary) 6%, transparent);
+  background: #e8e8e8;
+}
+
+.dark .mob-search-bar:active {
+  background: rgba(255, 255, 255, 0.14);
 }
 
 .mob-search-bar__icon {
   width: 18px;
   height: 18px;
   flex-shrink: 0;
-  color: var(--text-muted);
+  color: #8e8e8e;
 }
 
 .mob-search-bar__placeholder {
@@ -325,9 +379,9 @@
   min-width: 0;
   font-size: 15px;
   font-weight: 400;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
   line-height: 1.3;
-  color: var(--text-muted);
+  color: #8e8e8e;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -336,7 +390,7 @@
 
 .mob-search-bar.has-value .mob-search-bar__placeholder {
   color: var(--text-primary);
-  font-weight: 500;
+  font-weight: 400;
 }
 
 .mob-search-filter-btn {
@@ -346,17 +400,16 @@
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  border-radius: 11px;
-  border: 1px solid var(--border-card);
-  background: var(--bg-secondary);
-  color: var(--text-secondary);
-  transition: transform 0.15s ease, background 0.15s ease;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: #8e8e8e;
+  transition: background 0.15s ease;
   -webkit-tap-highlight-color: transparent;
 }
 
 .mob-search-filter-btn:active {
-  transform: scale(0.96);
-  background: color-mix(in srgb, var(--brand-primary) 10%, var(--bg-secondary));
+  background: color-mix(in srgb, var(--text-primary) 6%, transparent);
 }
 
 .mob-search-bar--2026 {

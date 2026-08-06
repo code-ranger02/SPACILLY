@@ -1,6 +1,6 @@
 import { useEffect, useId } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { Check, AlertCircle, ArrowRight } from 'lucide-react';
+import { Check, AlertCircle, X } from 'lucide-react';
 
 export function authFieldId(label: string) {
   return `auth-field-${label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`;
@@ -109,8 +109,9 @@ export function AuthInput({
           aria-required={required || undefined}
           className={[
             'agf-input',
+            'premium-input-exempt',
             !LeftIcon ? 'agf-input--no-icon' : '',
-            rightEl ? 'agf-input--has-right' : '',
+            rightEl || value.length > 0 || valid ? 'agf-input--has-right' : '',
             error ? 'is-error' : '',
             valid ? 'is-valid' : '',
             focused && !error ? 'is-focused' : '',
@@ -118,12 +119,25 @@ export function AuthInput({
             .filter(Boolean)
             .join(' ')}
         />
-        {rightEl && <span className="agf-field__icon agf-field__icon--right">{rightEl}</span>}
-        {valid && !rightEl && (
+        {rightEl ? (
+          <span className="agf-field__icon agf-field__icon--right">{rightEl}</span>
+        ) : value.length > 0 ? (
+          <span className="agf-field__icon agf-field__icon--right">
+            <button
+              type="button"
+              className="agf-clear-btn"
+              onClick={() => onChange('')}
+              aria-label={`Clear ${label}`}
+              tabIndex={-1}
+            >
+              <X size={12} strokeWidth={2.5} aria-hidden />
+            </button>
+          </span>
+        ) : valid ? (
           <span className="agf-field__icon agf-field__icon--right" aria-hidden>
             <Check size={16} style={{ color: 'var(--badge-success-text)' }} />
           </span>
-        )}
+        ) : null}
       </div>
       {error && (
         <motion.p id={errorId} role="alert" className="agf-field__error" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>

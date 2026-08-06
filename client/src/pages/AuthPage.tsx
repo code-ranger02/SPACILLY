@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import {
-  Eye, EyeOff, User, Mail, Lock, Check, ArrowRight, Sun, Moon, ShieldCheck,
+  Eye, EyeOff, User, Mail, Lock, Check, ArrowRight, Sun, Moon, ShieldCheck, ChevronLeft,
 } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
 import { useToastStore } from '../stores/toastStore';
@@ -68,6 +68,21 @@ function formatCountdown(s: number) {
   return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')}`;
 }
 
+/** Phone-width adaptive layout (Instagram / Google mobile auth breakpoints). */
+function useIsPhoneAuth() {
+  const [isPhone, setIsPhone] = useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia('(max-width: 639px)').matches : false,
+  );
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 639px)');
+    const onChange = () => setIsPhone(mq.matches);
+    mq.addEventListener('change', onChange);
+    setIsPhone(mq.matches);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+  return isPhone;
+}
+
 const panelMotion = (reduceMotion: boolean) =>
   reduceMotion
     ? { initial: false as const, animate: false as const, exit: false as const, transition: { duration: 0 } }
@@ -100,6 +115,7 @@ function LoginFormContent({
   const { login }       = useAuthStore();
   const { showToast }   = useToastStore();
   const reduceMotion    = useReducedMotion();
+  const isPhone         = useIsPhoneAuth();
   const loginDraft      = getAuthDraftInitial(storageScope, 'login', { email: '', password: '', remember: false });
   const [email,    setEmail]    = useState(loginDraft.email || '');
   const [password, setPassword] = useState(loginDraft.password || '');
@@ -171,11 +187,31 @@ function LoginFormContent({
       className={`agf-form${shake && !reduceMotion ? ' agf-form--shake' : ''}`}
     >
       <div>
-        <h2 className="agf-heading">Welcome back 👋</h2>
-        <p className="agf-subheading">Sign in to your Spacilly account</p>
+        <h2 className="agf-heading">{isPhone ? 'Log in' : 'Welcome back '}</h2>
+        <p className="agf-subheading">
+          {isPhone ? 'Enter your email and password to continue' : 'Sign in to your Spacilly account'}
+        </p>
       </div>
 
       <ErrorBanner message={error} />
+
+      {isPhone && (
+        <>
+          <div className="agf-social-row">
+            <GoogleBtn
+              label="Continue with Google"
+              onClick={() => {
+                onOAuthBegin?.();
+                setError('');
+                setFieldErrors({});
+                sessionStorage.setItem('auth_oauth_role', role);
+                window.location.href = `${API_BASE}/auth/google?role=${role}`;
+              }}
+            />
+          </div>
+          <OrDivider />
+        </>
+      )}
 
       <AuthInput
         label="Email or Phone"
@@ -188,14 +224,14 @@ function LoginFormContent({
           setFieldErrors((prev) => stripFieldError(prev, 'Email or Phone'));
         }}
         error={fieldErrors['Email or Phone']}
-        placeholder="you@example.com"
+        placeholder="Email or phone"
         leftIcon={Mail}
         valid={email.length > 0 && emailValid && !fieldErrors['Email or Phone']}
         focused={focused === 'email'}
         onFocus={() => setFocused('email')}
         onBlur={() => setFocused(null)}
         required
-        autoFocus
+        autoFocus={!isPhone}
       />
 
       <div className="flex flex-col gap-1.5">
@@ -210,7 +246,7 @@ function LoginFormContent({
             setFieldErrors((prev) => stripFieldError(prev, 'Password'));
           }}
           error={fieldErrors.Password}
-          placeholder="Your password"
+          placeholder="Password"
           leftIcon={Lock}
           focused={focused === 'pw'}
           onFocus={() => setFocused('pw')}
@@ -251,31 +287,32 @@ function LoginFormContent({
       </div>
 
       <PrimaryBtn loading={loading} success={success}>
-        {success ? <><Check size={17} /> Signed In</> : <>Sign In <ArrowRight size={16} /></>}
+        {success ? <><Check size={17} /> Signed In</> : isPhone ? 'Log in' : <>Sign In <ArrowRight size={16} /></>}
       </PrimaryBtn>
 
-      <OrDivider />
+      {!isPhone && (
+        <>
+          <OrDivider />
+          <div className="agf-social-row">
+            <GoogleBtn
+              onClick={() => {
+                onOAuthBegin?.();
+                setError('');
+                setFieldErrors({});
+                sessionStorage.setItem('auth_oauth_role', role);
+                window.location.href = `${API_BASE}/auth/google?role=${role}`;
+              }}
+            />
+          </div>
+        </>
+      )}
 
-      <div className="agf-social-row">
-        <GoogleBtn
-          onClick={() => {
-            onOAuthBegin?.();
-            setError('');
-            setFieldErrors({});
-            sessionStorage.setItem('auth_oauth_role', role);
-            window.location.href = `${API_BASE}/auth/google?role=${role}`;
-          }}
-        />
-      </div>
-
-      <p className="text-center text-[13px]" style={{ color: 'var(--agf-text-muted)' }}>
+      <p className="agf-caption agf-caption--link">
         No account?{' '}
         <Link to="/auth?tab=signup" className="agf-link">
-          Create one free →
+          Sign up
         </Link>
       </p>
-
-      {/* Security note */}
     </motion.form>
   );
 }
@@ -296,6 +333,7 @@ function SignupFormContent({
   const referralFromUrl      = searchParams.get('ref')?.trim() || '';
   const { showToast }        = useToastStore();
   const reduceMotion         = useReducedMotion();
+  const isPhone              = useIsPhoneAuth();
   const signupDraft          = getAuthDraftInitial(storageScope, 'signup', {
     fullName: '',
     email: '',
@@ -325,6 +363,8 @@ function SignupFormContent({
   const [shake, setShake]     = useState(false);
   const [referralProgramEnabled, setReferralProgramEnabled] = useState(true);
   const [referralCode, setReferralCode] = useState(signupDraft.referralCode || '');
+  /** Instagram-style progressive signup on phone: 1 identity → 2 password → 3 finish */
+  const [step, setStep] = useState<1 | 2 | 3>(1);
 
   useSaveAuthDraft(
     storageScope,
@@ -336,10 +376,12 @@ function SignupFormContent({
   const strength  = getPasswordStrength(fd.password);
   const reqs      = checkPasswordReqs(fd.password);
   const emailValid= /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fd.email);
-  const pwMatch   = fd.confirmPassword.length ? fd.password === fd.confirmPassword : null;
-  const canSubmit = fd.fullName.trim().length >= 2 && emailValid && fd.password.length >= 8
-    && reqs.upper && reqs.number && reqs.special
-    && fd.password === fd.confirmPassword && agreed
+  const pwMatch   = isPhone
+    ? true
+    : (fd.confirmPassword.length ? fd.password === fd.confirmPassword : null);
+  const passwordReady = fd.password.length >= 8 && reqs.upper && reqs.number && reqs.special;
+  const canSubmit = fd.fullName.trim().length >= 2 && emailValid && passwordReady
+    && (isPhone || fd.password === fd.confirmPassword) && agreed
     && (role !== 'seller' || fd.storeName.trim().length > 0);
 
   useEffect(() => {
@@ -354,6 +396,10 @@ function SignupFormContent({
     if (referralProgramEnabled && referralFromUrl) setReferralCode(referralFromUrl.toUpperCase());
   }, [referralProgramEnabled, referralFromUrl]);
 
+  useEffect(() => {
+    if (!isPhone) setStep(1);
+  }, [isPhone]);
+
   const doShake = () => {
     setShake(true);
     if (!reduceMotion) setTimeout(() => setShake(false), 500);
@@ -362,11 +408,29 @@ function SignupFormContent({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault(); setError('');
+
+    if (isPhone && step < 3) {
+      if (step === 1) {
+        if (fd.fullName.trim().length < 2) { setError('Enter your full name.'); focusAuthField('Full Name'); doShake(); return; }
+        if (!emailValid) { setError('Enter a valid email address.'); focusAuthField('Email Address'); doShake(); return; }
+        setError('');
+        setStep(2);
+        return;
+      }
+      if (step === 2) {
+        if (!passwordReady) { setError('Password needs 8+ chars, uppercase, number & special char.'); focusAuthField('Password'); doShake(); return; }
+        setFd((prev) => ({ ...prev, confirmPassword: prev.password }));
+        setError('');
+        setStep(3);
+        return;
+      }
+    }
+
     if (fd.fullName.trim().length < 2)        { setError('Full name must be ≥ 2 characters.'); focusAuthField('Full Name'); doShake(); return; }
     if (!emailValid)                          { setError('Enter a valid email address.'); focusAuthField('Email Address'); doShake(); return; }
     if (fd.password.length < 8)               { setError('Password must be ≥ 8 characters.'); focusAuthField('Password'); doShake(); return; }
     if (!reqs.upper || !reqs.number || !reqs.special) { setError('Password needs uppercase, number & special char.'); focusAuthField('Password'); doShake(); return; }
-    if (fd.password !== fd.confirmPassword)   { setError('Passwords do not match.'); focusAuthField('Confirm Password'); doShake(); return; }
+    if (!isPhone && fd.password !== fd.confirmPassword)   { setError('Passwords do not match.'); focusAuthField('Confirm Password'); doShake(); return; }
     if (!agreed)                              { setError('Please agree to the Terms of Service.'); focusAuthErrorSummary(); doShake(); return; }
     if (role === 'seller' && !fd.storeName.trim()) { setError('Store name is required for sellers.'); focusAuthField('Store Name'); doShake(); return; }
     if (hasSQLRisk(fd.fullName) || hasSQLRisk(fd.email) || hasSQLRisk(fd.password)) { setError('Invalid characters detected.'); focusAuthErrorSummary(); doShake(); return; }
@@ -437,193 +501,260 @@ function SignupFormContent({
 
   const motionProps = panelMotion(!!reduceMotion);
 
+  const stepMeta = [
+    { title: "What's your email?", sub: 'Enter the email where we can reach you' },
+    { title: 'Create a password', sub: 'Choose a strong password you can remember' },
+    { title: 'Almost done', sub: "Pick how you'll use Spacilly" },
+  ] as const;
+
+  const showIdentity = !isPhone || step === 1;
+  const showPassword = !isPhone || step === 2;
+  const showFinish = !isPhone || step === 3;
+
   return (
     <motion.form
       onSubmit={handleSubmit}
       {...motionProps}
-      className={`agf-form${shake && !reduceMotion ? ' agf-form--shake' : ''}`}
+      className={`agf-form${shake && !reduceMotion ? ' agf-form--shake' : ''}${isPhone ? ' agf-form--phone-steps' : ''}`}
     >
+      {isPhone && step > 1 && (
+        <button
+          type="button"
+          className="agf-step-back"
+          onClick={() => { setError(''); setStep((s) => (s === 3 ? 2 : 1)); }}
+          aria-label="Back"
+        >
+          <ChevronLeft size={22} strokeWidth={2} />
+        </button>
+      )}
+
+      {isPhone && (
+        <div className="agf-step-progress" role="status" aria-label={`Step ${step} of 3`}>
+          {[1, 2, 3].map((n) => (
+            <span key={n} className={`agf-step-progress__dot${step >= n ? ' is-active' : ''}`} />
+          ))}
+        </div>
+      )}
+
       <div>
-        <h2 className="agf-heading">Create your account</h2>
-        <p className="agf-subheading">Join buyers and sellers on Spacilly</p>
+        <h2 className="agf-heading">
+          {isPhone ? stepMeta[step - 1].title : 'Create your account'}
+        </h2>
+        <p className="agf-subheading">
+          {isPhone ? stepMeta[step - 1].sub : 'Join buyers and sellers on Spacilly'}
+        </p>
       </div>
 
       <ErrorBanner message={error} />
 
-      {/* Name + Email */}
-      <div className="agf-field-grid grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-        <AuthInput label="Full Name" name="name" autoComplete="name" value={fd.fullName} onChange={f('fullName')} placeholder="Your full name"
-          error={fieldErrors['Full Name']}
-          leftIcon={User} valid={fd.fullName.trim().length >= 2 && !fieldErrors['Full Name']}
-          focused={focused === 'name'} onFocus={() => setFocused('name')} onBlur={() => setFocused(null)} required autoFocus />
-        <AuthInput label="Email Address" name="email" type="email" autoComplete="email" value={fd.email} onChange={f('email')} placeholder="you@example.com"
-          leftIcon={Mail}
-          error={fieldErrors['Email Address'] || (fd.email.length > 0 && !emailValid ? 'Enter a valid email' : undefined)}
-          valid={emailValid && !fieldErrors['Email Address']}
-          focused={focused === 'email'} onFocus={() => setFocused('email')} onBlur={() => setFocused(null)} required />
-      </div>
-
-      {/* Password */}
-      <div className="flex flex-col gap-1.5 sm:gap-2">
-        <AuthInput label="Password" name="new-password" type={showPw ? 'text' : 'password'} autoComplete="new-password" value={fd.password} onChange={f('password')}
-          error={fieldErrors.Password}
-          placeholder="At least 8 characters" leftIcon={Lock}
-          focused={focused === 'pw'} onFocus={() => setFocused('pw')} onBlur={() => setFocused(null)}
-          rightEl={
-            <button type="button" onClick={() => setShowPw(!showPw)}
-              className="agf-icon-btn"
-              aria-label={showPw ? 'Hide password' : 'Show password'}>
-              {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
-            </button>
-          }
-          required />
-        {/* Strength bar */}
-        {fd.password.length > 0 && (
-          <div className="agf-pw-strength flex items-center gap-2" aria-live="polite" aria-atomic="true">
-            <div className="agf-pw-strength__bar flex gap-0.5 flex-1 rounded-full overflow-hidden" style={{ background: 'var(--bg-tertiary)' }}>
-              {[0,1,2,3].map((i) => (
-                <div key={i} className="flex-1 transition-all duration-300" style={{
-                  background: [ERROR, 'var(--brand-primary)', 'var(--notif-type-review)', SUCCESS][i],
-                  opacity: strength.level > i ? 1 : 0.2,
-                }} />
-              ))}
-            </div>
-            <span className="agf-pw-strength__label font-semibold text-right"
-              style={{ color: strength.level <= 1 ? ERROR : strength.level === 2 ? 'var(--notif-type-review)' : SUCCESS }}>
-              {strength.label}
-            </span>
-          </div>
-        )}
-        {fd.password.length > 0 && (
-          <div className="agf-pw-reqs grid grid-cols-2">
-            {[
-              { ok: reqs.length,  label: '8+ chars'    },
-              { ok: reqs.upper,   label: 'Uppercase'   },
-              { ok: reqs.number,  label: 'Number'      },
-              { ok: reqs.special, label: 'Special char'},
-            ].map((r) => (
-              <div key={r.label} className={`agf-pw-req flex items-center${r.ok ? ' is-met' : ''}`}>
-                <span className="agf-pw-req__dot rounded-full flex items-center justify-center flex-shrink-0"
-                  style={{ background: r.ok ? 'var(--badge-success-bg)' : 'var(--bg-secondary)' }}>
-                  {r.ok && <Check size={9} style={{ color: SUCCESS }} />}
-                </span>
-                <span style={{ color: r.ok ? SUCCESS : undefined }}>{r.label}</span>
+      {showIdentity && (
+        <>
+          {isPhone && (
+            <>
+              <div className="agf-social-row">
+                <GoogleBtn
+                  label="Continue with Google"
+                  onClick={() => {
+                    onOAuthBegin?.();
+                    setError('');
+                    setFieldErrors({});
+                    sessionStorage.setItem('auth_oauth_role', role);
+                    window.location.href = `${API_BASE}/auth/google?role=${role}`;
+                  }}
+                />
               </div>
-            ))}
+              <OrDivider />
+            </>
+          )}
+
+          <div className="agf-field-grid grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <AuthInput label="Full Name" name="name" autoComplete="name" value={fd.fullName} onChange={f('fullName')} placeholder="Your full name"
+              error={fieldErrors['Full Name']}
+              leftIcon={User} valid={fd.fullName.trim().length >= 2 && !fieldErrors['Full Name']}
+              focused={focused === 'name'} onFocus={() => setFocused('name')} onBlur={() => setFocused(null)} required autoFocus={showIdentity} />
+            <AuthInput label="Email Address" name="email" type="email" autoComplete="email" value={fd.email} onChange={f('email')} placeholder="Email"
+              leftIcon={Mail}
+              error={fieldErrors['Email Address'] || (fd.email.length > 0 && !emailValid ? 'Enter a valid email' : undefined)}
+              valid={emailValid && !fieldErrors['Email Address']}
+              focused={focused === 'email'} onFocus={() => setFocused('email')} onBlur={() => setFocused(null)} required />
           </div>
-        )}
-      </div>
-
-      {/* Confirm password */}
-      <AuthInput label="Confirm Password" name="confirm-password" type={showCPw ? 'text' : 'password'} autoComplete="new-password" value={fd.confirmPassword} onChange={f('confirmPassword')}
-        placeholder="Repeat your password" leftIcon={Lock}
-        focused={focused === 'cpw'} onFocus={() => setFocused('cpw')} onBlur={() => setFocused(null)}
-        valid={pwMatch === true}
-        error={fieldErrors['Confirm Password'] || (pwMatch === false ? "Passwords don't match" : undefined)}
-        rightEl={
-          pwMatch !== true
-            ? <button type="button" onClick={() => setShowCPw(!showCPw)}
-                className="agf-icon-btn" aria-label={showCPw ? 'Hide password' : 'Show password'}>
-                {showCPw ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
-            : undefined
-        }
-        required />
-
-      {/* Role selector */}
-      <div>
-        <p className="agf-field__label mb-2" id="auth-role-label">
-          Account type
-        </p>
-        <div
-          className="agf-role-segment"
-          role="group"
-          aria-labelledby="auth-role-label"
-          onKeyDown={(e) => {
-            if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
-            e.preventDefault();
-            selectRole(role === 'buyer' ? 'seller' : 'buyer');
-          }}
-        >
-          {(['buyer', 'seller'] as const).map((r) => (
-            <button
-              key={r}
-              type="button"
-              onClick={() => selectRole(r)}
-              className={`agf-role-segment__btn${role === r ? ' is-active' : ''}`}
-              aria-pressed={role === r}
-            >
-              {r === 'buyer' ? 'Buyer' : 'Seller'}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Seller store name */}
-      <AnimatePresence>
-        {role === 'seller' && (
-          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
-            <AuthInput label="Store Name" name="organization" autoComplete="organization" value={fd.storeName} onChange={f('storeName')} placeholder="Your store name"
-              error={fieldErrors['Store Name']}
-              leftIcon={User}
-              focused={focused === 'store'} onFocus={() => setFocused('store')} onBlur={() => setFocused(null)} required />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Referral code */}
-      {referralProgramEnabled && (
-        <AuthInput label="Referral Code (optional)" value={referralCode} onChange={setReferralCode}
-          placeholder="e.g. RX-xxxxxxxx" leftIcon={User}
-          focused={focused === 'ref'} onFocus={() => setFocused('ref')} onBlur={() => setFocused(null)} />
+        </>
       )}
 
-      {/* Terms */}
-      <div className="agf-checkbox-row">
-        <button
-          type="button"
-          role="checkbox"
-          aria-checked={agreed}
-          aria-label="Agree to Terms of Service and Privacy Policy"
-          onClick={() => setAgreed(!agreed)}
-          onKeyDown={(e) => {
-            if (e.key === ' ' || e.key === 'Enter') {
-              e.preventDefault();
-              setAgreed((a) => !a);
+      {showPassword && (
+        <div className="flex flex-col gap-1.5 sm:gap-2">
+          <AuthInput label="Password" name="new-password" type={showPw ? 'text' : 'password'} autoComplete="new-password" value={fd.password} onChange={f('password')}
+            error={fieldErrors.Password}
+            placeholder="At least 8 characters" leftIcon={Lock}
+            focused={focused === 'pw'} onFocus={() => setFocused('pw')} onBlur={() => setFocused(null)}
+            autoFocus={isPhone && step === 2}
+            rightEl={
+              <button type="button" onClick={() => setShowPw(!showPw)}
+                className="agf-icon-btn"
+                aria-label={showPw ? 'Hide password' : 'Show password'}>
+                {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
             }
-          }}
-          className="agf-checkbox"
-        >
-          {agreed && <Check size={11} className="text-white" aria-hidden />}
-        </button>
-        <span className="agf-checkbox__text">
-          I agree to the{' '}
-          <a href="/terms">Terms of Service</a>
-          {' '}&amp;{' '}
-          <a href="/privacy">Privacy Policy</a>
-        </span>
-      </div>
+            required />
+          {fd.password.length > 0 && (
+            <div className="agf-pw-strength flex items-center gap-2" aria-live="polite" aria-atomic="true">
+              <div className="agf-pw-strength__bar flex gap-0.5 flex-1 rounded-full overflow-hidden" style={{ background: 'var(--bg-tertiary)' }}>
+                {[0,1,2,3].map((i) => (
+                  <div key={i} className="flex-1 transition-all duration-300" style={{
+                    background: [ERROR, 'var(--brand-primary)', 'var(--notif-type-review)', SUCCESS][i],
+                    opacity: strength.level > i ? 1 : 0.2,
+                  }} />
+                ))}
+              </div>
+              <span className="agf-pw-strength__label font-semibold text-right"
+                style={{ color: strength.level <= 1 ? ERROR : strength.level === 2 ? 'var(--notif-type-review)' : SUCCESS }}>
+                {strength.label}
+              </span>
+            </div>
+          )}
+          {fd.password.length > 0 && (
+            <div className="agf-pw-reqs grid grid-cols-2">
+              {[
+                { ok: reqs.length,  label: '8+ chars'    },
+                { ok: reqs.upper,   label: 'Uppercase'   },
+                { ok: reqs.number,  label: 'Number'      },
+                { ok: reqs.special, label: 'Special char'},
+              ].map((r) => (
+                <div key={r.label} className={`agf-pw-req flex items-center${r.ok ? ' is-met' : ''}`}>
+                  <span className="agf-pw-req__dot rounded-full flex items-center justify-center flex-shrink-0"
+                    style={{ background: r.ok ? 'var(--badge-success-bg)' : 'var(--bg-secondary)' }}>
+                    {r.ok && <Check size={9} style={{ color: SUCCESS }} />}
+                  </span>
+                  <span style={{ color: r.ok ? SUCCESS : undefined }}>{r.label}</span>
+                </div>
+              ))}
+            </div>
+          )}
 
-      <PrimaryBtn disabled={!canSubmit} loading={loading}>
-        {loading ? 'Creating account…' : 'Create Account →'}
+          {!isPhone && (
+            <AuthInput label="Confirm Password" name="confirm-password" type={showCPw ? 'text' : 'password'} autoComplete="new-password" value={fd.confirmPassword} onChange={f('confirmPassword')}
+              placeholder="Repeat your password" leftIcon={Lock}
+              focused={focused === 'cpw'} onFocus={() => setFocused('cpw')} onBlur={() => setFocused(null)}
+              valid={pwMatch === true}
+              error={fieldErrors['Confirm Password'] || (pwMatch === false ? "Passwords don't match" : undefined)}
+              rightEl={
+                pwMatch !== true
+                  ? <button type="button" onClick={() => setShowCPw(!showCPw)}
+                      className="agf-icon-btn" aria-label={showCPw ? 'Hide password' : 'Show password'}>
+                      {showCPw ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  : undefined
+              }
+              required />
+          )}
+        </div>
+      )}
+
+      {showFinish && (
+        <>
+          <div>
+            <p className="agf-field__label mb-2" id="auth-role-label">
+              Account type
+            </p>
+            <div
+              className="agf-role-segment"
+              role="group"
+              aria-labelledby="auth-role-label"
+              onKeyDown={(e) => {
+                if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+                e.preventDefault();
+                selectRole(role === 'buyer' ? 'seller' : 'buyer');
+              }}
+            >
+              {(['buyer', 'seller'] as const).map((r) => (
+                <button
+                  key={r}
+                  type="button"
+                  onClick={() => selectRole(r)}
+                  className={`agf-role-segment__btn${role === r ? ' is-active' : ''}`}
+                  aria-pressed={role === r}
+                >
+                  {r === 'buyer' ? 'Buyer' : 'Seller'}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <AnimatePresence>
+            {role === 'seller' && (
+              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
+                <AuthInput label="Store Name" name="organization" autoComplete="organization" value={fd.storeName} onChange={f('storeName')} placeholder="Your store name"
+                  error={fieldErrors['Store Name']}
+                  leftIcon={User}
+                  focused={focused === 'store'} onFocus={() => setFocused('store')} onBlur={() => setFocused(null)} required />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {referralProgramEnabled && (
+            <AuthInput label="Referral Code (optional)" value={referralCode} onChange={setReferralCode}
+              placeholder="e.g. RX-xxxxxxxx" leftIcon={User}
+              focused={focused === 'ref'} onFocus={() => setFocused('ref')} onBlur={() => setFocused(null)} />
+          )}
+
+          <div className="agf-checkbox-row">
+            <button
+              type="button"
+              role="checkbox"
+              aria-checked={agreed}
+              aria-label="Agree to Terms of Service and Privacy Policy"
+              onClick={() => setAgreed(!agreed)}
+              onKeyDown={(e) => {
+                if (e.key === ' ' || e.key === 'Enter') {
+                  e.preventDefault();
+                  setAgreed((a) => !a);
+                }
+              }}
+              className="agf-checkbox"
+            >
+              {agreed && <Check size={11} className="text-white" aria-hidden />}
+            </button>
+            <span className="agf-checkbox__text">
+              I agree to the{' '}
+              <a href="/terms">Terms of Service</a>
+              {' '}&amp;{' '}
+              <a href="/privacy">Privacy Policy</a>
+            </span>
+          </div>
+        </>
+      )}
+
+      <PrimaryBtn
+        disabled={isPhone ? (step === 3 && !canSubmit) : !canSubmit}
+        loading={loading}
+      >
+        {loading
+          ? 'Creating account…'
+          : isPhone
+            ? (step < 3 ? 'Next' : 'Sign up')
+            : 'Create Account →'}
       </PrimaryBtn>
 
-      <OrDivider />
-      <div className="agf-social-row">
-        <GoogleBtn
-          onClick={() => {
-            onOAuthBegin?.();
-            setError('');
-            setFieldErrors({});
-            sessionStorage.setItem('auth_oauth_role', role);
-            window.location.href = `${API_BASE}/auth/google?role=${role}`;
-          }}
-        />
-      </div>
+      {!isPhone && (
+        <>
+          <OrDivider />
+          <div className="agf-social-row">
+            <GoogleBtn
+              onClick={() => {
+                onOAuthBegin?.();
+                setError('');
+                setFieldErrors({});
+                sessionStorage.setItem('auth_oauth_role', role);
+                window.location.href = `${API_BASE}/auth/google?role=${role}`;
+              }}
+            />
+          </div>
+        </>
+      )}
 
-      <p className="text-center text-[13px]" style={{ color: 'var(--agf-text-muted)' }}>
+      <p className="agf-caption agf-caption--link">
         Already have an account?{' '}
-        <Link to="/auth?tab=login" className="agf-link">Sign In</Link>
+        <Link to="/auth?tab=login" className="agf-link">Log in</Link>
       </p>
     </motion.form>
   );

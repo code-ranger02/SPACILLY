@@ -95,8 +95,10 @@ export default function AuthPremiumLayout({ children }: AuthPremiumLayoutProps) 
         <div className="auth-fusion__main-bg" />
         <AuthCircuitPattern className="auth-fusion__main-circuit" />
 
-        <div className="auth-fusion__mobile-brand" aria-hidden>
-          <div className="auth-fusion__logo-mark">S</div>
+        <div className="auth-fusion__mobile-brand">
+          <div className="auth-fusion__logo-mark" aria-hidden>
+            S
+          </div>
           <p className="auth-fusion__logo-word">SPACILLY</p>
         </div>
 

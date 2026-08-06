@@ -1,26 +1,28 @@
 /**
- * Premium SaaS inputs — Linear / Stripe / Raycast inspired.
- * Applied via `.premium-input` and global text-like form controls.
+ * Global inputs — Instagram / Google principles:
+ * soft fill, quiet border, 44px touch target, clear focus without glow theatre.
  */
 
 :root {
-  --premium-input-height: 60px;
-  --premium-input-radius: 20px;
-  --premium-input-bg: rgba(255, 255, 255, 0.9);
-  --premium-input-border: #eaeaea;
-  --premium-input-padding-x: 20px;
-  --premium-input-focus-border: #ff7a00;
-  --premium-input-focus-ring: 0 0 0 4px rgba(255, 122, 0, 0.12);
-  --premium-input-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 16px rgba(15, 23, 42, 0.04);
-  --premium-input-icon-opacity: 0.6;
-  --premium-input-icon-offset: 20px;
-  --premium-input-transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  --premium-input-height: 44px;
+  --premium-input-radius: 12px;
+  --premium-input-bg: #f5f5f5;
+  --premium-input-border: #dbdbdb;
+  --premium-input-padding-x: 14px;
+  --premium-input-focus-border: #a8a8a8;
+  --premium-input-focus-ring: 0 0 0 1px #a8a8a8;
+  --premium-input-shadow: none;
+  --premium-input-icon-opacity: 0.55;
+  --premium-input-icon-offset: 14px;
+  --premium-input-transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
 }
 
 .dark {
-  --premium-input-bg: rgba(28, 28, 32, 0.88);
-  --premium-input-border: rgba(255, 255, 255, 0.12);
-  --premium-input-shadow: 0 1px 2px rgba(0, 0, 0, 0.2), 0 6px 20px rgba(0, 0, 0, 0.25);
+  --premium-input-bg: rgba(255, 255, 255, 0.08);
+  --premium-input-border: rgba(255, 255, 255, 0.14);
+  --premium-input-focus-border: rgba(255, 255, 255, 0.35);
+  --premium-input-focus-ring: 0 0 0 1px rgba(255, 255, 255, 0.28);
+  --premium-input-shadow: none;
 }
 
 /* ── Base field ─────────────────────────────────────────────────────────── */
@@ -42,32 +44,40 @@ select:not(.premium-input-exempt):not(.sr-only) {
   background: var(--premium-input-bg);
   border: 1px solid var(--premium-input-border);
   padding: 0 var(--premium-input-padding-x);
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  font-size: 15px;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 16px;
   line-height: 1.35;
   color: var(--text-primary, #111111);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
   box-shadow: var(--premium-input-shadow);
   outline: none;
   transition: var(--premium-input-transition);
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+/* Hide native search clear — custom clear controls own the UX */
+input[type='search']:not(.premium-input-exempt)::-webkit-search-decoration,
+input[type='search']:not(.premium-input-exempt)::-webkit-search-cancel-button,
+input[type='search']:not(.premium-input-exempt)::-webkit-search-results-button,
+input[type='search']:not(.premium-input-exempt)::-webkit-search-results-decoration {
+  -webkit-appearance: none;
   appearance: none;
 }
 
 textarea:not(.premium-input-exempt) {
   height: auto;
-  min-height: calc(var(--premium-input-height) * 1.6);
-  padding-top: 16px;
-  padding-bottom: 16px;
+  min-height: calc(var(--premium-input-height) * 1.8);
+  padding-top: 12px;
+  padding-bottom: 12px;
   resize: vertical;
 }
 
 select:not(.premium-input-exempt) {
-  padding-right: 44px;
+  padding-right: 40px;
   cursor: pointer;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 18px center;
+  background-position: right 14px center;
 }
 
 .premium-input::placeholder,
@@ -75,8 +85,10 @@ input[type='text']:not(.premium-input-exempt)::placeholder,
 input[type='email']:not(.premium-input-exempt)::placeholder,
 input[type='password']:not(.premium-input-exempt)::placeholder,
 input[type='search']:not(.premium-input-exempt)::placeholder,
+input[type='tel']:not(.premium-input-exempt)::placeholder,
+input[type='url']:not(.premium-input-exempt)::placeholder,
 textarea:not(.premium-input-exempt)::placeholder {
-  color: var(--input-placeholder, #9ca3af);
+  color: var(--input-placeholder, #8e8e8e);
   opacity: 1;
 }
 
@@ -87,7 +99,7 @@ input[type='password']:not(.premium-input-exempt):hover:not(:disabled):not(:focu
 input[type='search']:not(.premium-input-exempt):hover:not(:disabled):not(:focus),
 textarea:not(.premium-input-exempt):hover:not(:disabled):not(:focus),
 select:not(.premium-input-exempt):hover:not(:disabled):not(:focus) {
-  border-color: color-mix(in srgb, var(--premium-input-focus-border) 35%, var(--premium-input-border));
+  border-color: color-mix(in srgb, var(--premium-input-focus-border) 55%, var(--premium-input-border));
 }
 
 .premium-input:focus,
@@ -101,15 +113,30 @@ input[type='url']:not(.premium-input-exempt):focus,
 input[type='number']:not(.premium-input-exempt):focus,
 textarea:not(.premium-input-exempt):focus,
 select:not(.premium-input-exempt):focus {
+  background: #ffffff;
   border-color: var(--premium-input-focus-border);
-  box-shadow: var(--premium-input-focus-ring), var(--premium-input-shadow);
+  box-shadow: var(--premium-input-focus-ring);
+}
+
+.dark .premium-input:focus,
+.dark .premium-input:focus-visible,
+.dark input[type='text']:not(.premium-input-exempt):focus,
+.dark input[type='email']:not(.premium-input-exempt):focus,
+.dark input[type='password']:not(.premium-input-exempt):focus,
+.dark input[type='search']:not(.premium-input-exempt):focus,
+.dark input[type='tel']:not(.premium-input-exempt):focus,
+.dark input[type='url']:not(.premium-input-exempt):focus,
+.dark input[type='number']:not(.premium-input-exempt):focus,
+.dark textarea:not(.premium-input-exempt):focus,
+.dark select:not(.premium-input-exempt):focus {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .premium-input:disabled,
 input:not(.premium-input-exempt):disabled,
 textarea:not(.premium-input-exempt):disabled,
 select:not(.premium-input-exempt):disabled {
-  opacity: 0.55;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
@@ -128,7 +155,7 @@ select:not(.premium-input-exempt):disabled {
   justify-content: center;
   opacity: var(--premium-input-icon-opacity);
   pointer-events: none;
-  color: var(--text-muted, #6b7280);
+  color: var(--text-muted, #8e8e8e);
   line-height: 0;
   z-index: 1;
 }
@@ -145,63 +172,63 @@ select:not(.premium-input-exempt):disabled {
 .premium-input-icon--interactive {
   pointer-events: auto;
   cursor: pointer;
-  transition: opacity 0.2s ease, color 0.2s ease;
+  transition: opacity 0.15s ease, color 0.15s ease;
 }
 
 .premium-input-icon--interactive:hover {
-  opacity: 0.85;
+  opacity: 0.9;
 }
 
 .premium-input--has-left-icon,
 .premium-input-wrap .premium-input--has-left-icon {
-  padding-left: calc(var(--premium-input-padding-x) + 28px);
+  padding-left: calc(var(--premium-input-padding-x) + 26px);
 }
 
 .premium-input--has-right-icon,
 .premium-input-wrap .premium-input--has-right-icon {
-  padding-right: calc(var(--premium-input-padding-x) + 28px);
+  padding-right: calc(var(--premium-input-padding-x) + 26px);
 }
 
 .premium-input-label {
   display: block;
-  margin-bottom: 8px;
-  font-family: 'Inter', system-ui, sans-serif;
+  margin-bottom: 6px;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.02em;
-  color: var(--text-muted, #6b7280);
+  letter-spacing: 0.01em;
+  color: var(--text-muted, #8e8e8e);
 }
 
 /* Auth / form states */
 .premium-input--error,
 .premium-input.premium-input--error {
-  border-color: #ef4444;
-  background: color-mix(in srgb, #ef4444 6%, var(--premium-input-bg));
+  border-color: #ed4956;
+  background: color-mix(in srgb, #ed4956 4%, var(--premium-input-bg));
 }
 
 .premium-input--error:focus {
-  border-color: #ef4444;
-  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.12);
+  border-color: #ed4956;
+  box-shadow: 0 0 0 1px #ed4956;
 }
 
 .premium-input--valid,
 .premium-input.premium-input--valid {
-  border-color: #10b981;
+  border-color: #2ecc71;
 }
 
 .premium-input--valid:focus {
   border-color: var(--premium-input-focus-border);
-  box-shadow: var(--premium-input-focus-ring), var(--premium-input-shadow);
+  box-shadow: var(--premium-input-focus-ring);
 }
 
 .premium-input-wrap:focus-within .premium-input-icon {
-  opacity: calc(var(--premium-input-icon-opacity) + 0.15);
-  color: var(--premium-input-focus-border);
+  opacity: calc(var(--premium-input-icon-opacity) + 0.2);
+  color: var(--text-secondary, #262626);
 }
 
 .premium-input-wrap:has(.premium-input--error) .premium-input-icon {
-  color: #ef4444;
-  opacity: 0.75;
+  color: #ed4956;
+  opacity: 0.85;
 }
 
 /* Compact search bars (navbar) — keep height but allow exempt */
@@ -211,7 +238,7 @@ input.search-input.premium-input-exempt {
   border-radius: 14px;
 }
 
-/* OTP / compact controls — exempt from 60px full-width treatment */
+/* OTP / compact controls — exempt from full-width treatment */
 input.otp-digit,
 input.premium-input-exempt:not([type='checkbox']):not([type='radio']) {
   width: auto;

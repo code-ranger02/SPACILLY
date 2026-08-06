@@ -1,16 +1,17 @@
 /**
- * Auth fusion — compact mobile / small-phone layout (native app feel).
+ * Auth fusion — mobile adaptive (Instagram / Google principles)
+ * Sparse full-screen, soft fields, safe areas, progressive signup chrome.
  * Scoped to max-width: 639px (phones). Tablet+ uses base auth-fusion.css.
  */
 
 @media (max-width: 639px) {
   .auth-fusion[data-auth-layout='fusion'] {
     --agf-input-h: 44px;
-    --agf-btn-h: 44px;
-    --agf-gap: 0.625rem;
-    --agf-field-gap: 0.3rem;
-    --agf-card-pad-y: 1rem;
-    --agf-card-pad-x: 1rem;
+    --agf-btn-h: 46px;
+    --agf-gap: 0.75rem;
+    --agf-field-gap: 0.35rem;
+    --agf-card-pad-y: 1.25rem;
+    --agf-card-pad-x: 1.125rem;
     --agf-text-muted: rgba(248, 250, 252, 0.78);
     --agf-text-faint: rgba(248, 250, 252, 0.52);
   }
@@ -28,84 +29,138 @@
   }
 
   .auth-fusion__main-circuit {
-    opacity: 0.22;
+    opacity: 0.08;
+  }
+
+  .auth-fusion__main-bg {
+    background: var(--agf-page-bg) !important;
   }
 
   .auth-fusion__main-inner {
     justify-content: flex-start;
-    padding-top: max(0.5rem, env(safe-area-inset-top));
-    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
-    padding-left: max(0.625rem, env(safe-area-inset-left));
-    padding-right: max(0.625rem, env(safe-area-inset-right));
-    gap: 0.5rem;
+    padding-top: max(0.35rem, env(safe-area-inset-top));
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    padding-left: max(0.75rem, env(safe-area-inset-left));
+    padding-right: max(0.75rem, env(safe-area-inset-right));
+    gap: 0.35rem;
     overflow-x: hidden;
     max-width: 100%;
   }
 
   .auth-fusion__mobile-brand {
-    padding: 0.35rem 0.25rem 0.15rem;
-    gap: 0.5rem;
+    padding: 0.75rem 0.5rem 0.35rem;
+    gap: 0.4rem;
   }
 
   .auth-fusion__mobile-brand .auth-fusion__logo-mark {
-    width: 1.75rem;
-    height: 1.75rem;
-    font-size: 1.1rem;
+    width: 3.5rem;
+    height: 3.5rem;
+    font-size: 1.85rem;
+    border-radius: 0.9rem;
   }
 
   .auth-fusion__mobile-brand .auth-fusion__logo-word {
-    font-size: 0.95rem;
-    letter-spacing: 0.12em;
+    font-size: 1.25rem;
+    letter-spacing: 0.18em;
   }
 
   .auth-fusion__toolbar {
     max-width: 100%;
-    margin-bottom: 0.35rem;
+    margin-bottom: 0.15rem;
   }
 
+  /* Flat card — Instagram/Google: quiet surface, not heavy glass */
   .auth-fusion__card {
     max-width: 100%;
     width: 100%;
     padding: var(--agf-card-pad-y) var(--agf-card-pad-x);
-    border-radius: 1.125rem;
-    box-shadow:
-      0 12px 40px rgba(0, 0, 0, 0.35),
-      0 0 0 1px var(--agf-card-border);
+    border-radius: 0;
+    border: none;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
 
   [data-theme='light'] .auth-fusion__card {
-    box-shadow:
-      0 10px 32px rgba(15, 23, 42, 0.1),
-      0 0 0 1px var(--agf-card-border);
+    box-shadow: none;
   }
 
   /* Tabs */
   .auth-fusion .agf-tabs {
-    gap: 0.75rem;
-    margin-bottom: 0.875rem;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    border-bottom-color: color-mix(in srgb, var(--agf-input-border) 70%, transparent);
   }
 
   .auth-fusion .agf-tabs__tab {
-    padding: 0.5rem 0 0.65rem;
-    font-size: 0.875rem;
-    min-height: 40px;
+    padding: 0.55rem 0 0.7rem;
+    font-size: 0.9375rem;
+    min-height: 44px;
   }
 
-  /* Headings */
+  /* Headings — question-style like IG signup */
   .auth-fusion .agf-heading {
-    font-size: 1.2rem;
-    margin-bottom: 0.2rem;
-    line-height: 1.22;
+    font-size: 1.375rem;
+    margin-bottom: 0.35rem;
+    line-height: 1.25;
+    font-weight: 700;
+    letter-spacing: -0.02em;
   }
 
   .auth-fusion .agf-subheading {
-    font-size: 0.8125rem;
-    margin-bottom: 0.75rem;
-    line-height: 1.4;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+    line-height: 1.45;
+    color: var(--agf-text-muted);
   }
 
   .auth-fusion .agf-form {
     gap: var(--agf-gap);
+  }
+
+  .auth-fusion .agf-form--phone-steps {
+    position: relative;
+  }
+
+  .auth-fusion .agf-step-back {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    margin: -0.25rem 0 0.15rem -0.35rem;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--text-primary, #111);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .auth-fusion .agf-step-back:active {
+    background: color-mix(in srgb, var(--text-primary) 6%, transparent);
+  }
+
+  .auth-fusion .agf-step-progress {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 0.35rem;
+  }
+
+  .auth-fusion .agf-step-progress__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--agf-text-faint) 55%, transparent);
+    transition: background 0.2s ease, width 0.2s ease;
+  }
+
+  .auth-fusion .agf-step-progress__dot.is-active {
+    width: 18px;
+    border-radius: 999px;
+    background: var(--agf-brand, #ff7a00);
   }
 
   .auth-fusion .agf-field {
@@ -113,8 +168,11 @@
   }
 
   .auth-fusion .agf-field__label {
-    font-size: 0.625rem;
-    letter-spacing: 0.07em;
+    font-size: 0.75rem;
+    letter-spacing: 0.01em;
+    text-transform: none;
+    font-weight: 600;
+    color: var(--agf-text-muted);
   }
 
   .auth-fusion .agf-field__icon {
@@ -127,26 +185,66 @@
   }
 
   .auth-fusion .agf-field__icon--right {
-    right: 0.5rem;
+    right: 0.4rem;
   }
 
+  /* Soft fill inputs — IG #efefef / Google filled */
   .auth-fusion .agf-input {
     min-height: var(--agf-input-h);
     height: var(--agf-input-h);
     padding-left: 2.35rem;
     padding-right: 0.75rem;
     font-size: 16px;
-    border-radius: 0.625rem;
+    border-radius: 10px;
     border-width: 1px;
+    border-color: #dbdbdb;
+    background: #f5f5f5;
+    box-shadow: none;
+  }
+
+  [data-theme='dark'] .auth-fusion .agf-input,
+  .auth-fusion:not(.auth-fusion--light) .agf-input {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.14);
+  }
+
+  .auth-fusion .agf-input:focus,
+  .auth-fusion .agf-input.is-focused {
+    background: #fff;
+    border-color: #a8a8a8;
+    box-shadow: 0 0 0 1px #a8a8a8;
+  }
+
+  [data-theme='dark'] .auth-fusion .agf-input:focus,
+  [data-theme='dark'] .auth-fusion .agf-input.is-focused,
+  .auth-fusion:not(.auth-fusion--light) .agf-input:focus,
+  .auth-fusion:not(.auth-fusion--light) .agf-input.is-focused {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.35);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.28);
   }
 
   .auth-fusion .agf-input--has-right,
   .auth-fusion .agf-input.agf-input--has-right {
-    padding-right: 2.35rem;
+    padding-right: 2.5rem;
   }
 
   .auth-fusion .agf-input.agf-input--no-icon {
-    padding-left: 0.75rem;
+    padding-left: 0.875rem;
+  }
+
+  .auth-fusion .agf-clear-btn {
+    width: 22px;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 50%;
+    background: #c7c7c7;
+    color: #fff;
+    padding: 0;
+    cursor: pointer;
   }
 
   .auth-fusion .agf-subheading--center {
@@ -156,23 +254,22 @@
   }
 
   .auth-fusion .agf-field__error {
-    font-size: 0.6875rem;
+    font-size: 0.75rem;
   }
 
   .auth-fusion .agf-error-banner {
-    padding: 0.55rem 0.75rem;
-    font-size: 0.75rem;
-    border-radius: 0.625rem;
+    padding: 0.65rem 0.85rem;
+    font-size: 0.8125rem;
+    border-radius: 10px;
   }
 
-  /* Remember + row */
   .auth-fusion .agf-row {
     gap: 0.5rem;
     align-items: center;
   }
 
   .auth-fusion .agf-remember {
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
     gap: 0.4rem;
     min-height: 44px;
     padding-right: 0.25rem;
@@ -196,34 +293,48 @@
   }
 
   .auth-fusion .agf-link {
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
     min-height: 44px;
     display: inline-flex;
     align-items: center;
+    font-weight: 600;
   }
 
-  /* CTA */
   .auth-fusion .agf-btn-primary {
     min-height: var(--agf-btn-h);
     height: var(--agf-btn-h);
     font-size: 0.9375rem;
-    border-radius: 0.625rem;
-    box-shadow: 0 6px 20px var(--agf-brand-glow);
+    font-weight: 700;
+    border-radius: 10px;
+    box-shadow: none;
     touch-action: manipulation;
   }
 
   .auth-fusion .agf-divider {
-    margin: 0.125rem 0;
-    font-size: 0.6875rem;
-    gap: 0.5rem;
+    margin: 0.15rem 0;
+    font-size: 0.75rem;
+    gap: 0.65rem;
+    text-transform: lowercase;
+    letter-spacing: 0;
   }
 
   .auth-fusion .agf-social-btn {
     min-height: var(--agf-btn-h);
     height: var(--agf-btn-h);
-    font-size: 0.75rem;
-    border-radius: 0.625rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border-radius: 10px;
     touch-action: manipulation;
+    background: #fff;
+    border: 1px solid #dbdbdb;
+    color: #262626;
+  }
+
+  [data-theme='dark'] .auth-fusion .agf-social-btn,
+  .auth-fusion:not(.auth-fusion--light) .agf-social-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.16);
+    color: var(--text-primary);
   }
 
   .auth-fusion .agf-card-footer {
@@ -237,7 +348,6 @@
     font-size: 0.625rem;
   }
 
-  /* Checkbox (signup terms) */
   .auth-fusion .agf-checkbox-row {
     display: flex;
     align-items: flex-start;
@@ -268,7 +378,7 @@
   }
 
   .auth-fusion .agf-checkbox__text {
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
     line-height: 1.4;
     color: var(--agf-text-muted);
   }
@@ -278,18 +388,17 @@
     font-weight: 600;
   }
 
-  /* Role segment */
   .auth-fusion .agf-role-segment {
     gap: 0.35rem;
-    padding: 0.2rem;
-    border-radius: 0.625rem;
+    padding: 0.25rem;
+    border-radius: 10px;
   }
 
   .auth-fusion .agf-role-segment__btn {
-    min-height: 40px;
-    padding: 0.35rem 0.5rem;
-    font-size: 0.75rem;
-    border-radius: 0.45rem;
+    min-height: 44px;
+    padding: 0.4rem 0.5rem;
+    font-size: 0.875rem;
+    border-radius: 8px;
     touch-action: manipulation;
   }
 
@@ -297,7 +406,6 @@
     gap: var(--agf-gap) !important;
   }
 
-  /* Password strength (signup) */
   .auth-fusion .agf-pw-strength {
     gap: 0.35rem;
   }
@@ -307,7 +415,7 @@
   }
 
   .auth-fusion .agf-pw-strength__label {
-    font-size: 0.625rem;
+    font-size: 0.6875rem;
     width: auto;
     min-width: 3rem;
   }
@@ -318,7 +426,7 @@
 
   .auth-fusion .agf-pw-req {
     gap: 0.35rem;
-    font-size: 0.625rem;
+    font-size: 0.6875rem;
     color: var(--agf-text-faint);
   }
 
@@ -331,7 +439,6 @@
     color: var(--agf-text-muted);
   }
 
-  /* OTP */
   .auth-fusion .agf-otp-wrap {
     padding-top: 0.15rem;
   }
@@ -416,19 +523,20 @@
   }
 
   .auth-fusion .agf-caption {
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
     text-align: center;
     color: var(--agf-text-muted);
   }
 
   .auth-fusion .agf-caption--link {
-    margin-top: 0.75rem;
+    margin-top: 0.5rem;
+    padding-bottom: 0.25rem;
   }
 
   .auth-fusion .agf-btn-outline {
     min-height: 44px;
     font-size: 0.8125rem;
-    border-radius: 0.625rem;
+    border-radius: 10px;
   }
 
   .auth-fusion .agf-email-chip {
@@ -483,6 +591,10 @@
   .auth-fusion .agf-tabs__tab {
     font-size: 0.8125rem;
   }
+
+  .auth-fusion .agf-heading {
+    font-size: 1.25rem;
+  }
 }
 
 /* Auth modal — compact on phones (same touch targets as fusion forms) */
@@ -520,18 +632,21 @@
   }
 }
 
-/* Slightly compact on small tablets in portrait */
+/* Flexible mid breakpoint — small tablets */
 @media (min-width: 640px) and (max-width: 767px) {
   .auth-fusion__card {
-    padding: 1.25rem 1.35rem;
+    padding: 1.35rem 1.5rem;
+    max-width: 420px;
   }
 
   .auth-fusion .agf-input {
     min-height: 48px;
+    border-radius: 12px;
   }
 
   .auth-fusion .agf-btn-primary,
   .auth-fusion .agf-social-btn {
     min-height: 48px;
+    border-radius: 12px;
   }
 }
