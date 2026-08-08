@@ -1,6 +1,6 @@
 import { useEffect, useId } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { Check, AlertCircle, X } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 
 export function authFieldId(label: string) {
   return `auth-field-${label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`;
@@ -76,8 +76,23 @@ export function AuthInput({
   return (
     <div className={['agf-field', error ? 'is-error' : '', valid ? 'is-valid' : ''].filter(Boolean).join(' ')}>
       {!hideLabel && (
-        <label htmlFor={fieldId} className="agf-field__label">
-          {label}
+        <label
+          htmlFor={fieldId}
+          className={[
+            'agf-field__label',
+            LeftIcon ? 'agf-field__label--with-icon' : '',
+            error ? 'is-error' : '',
+            valid && !error ? 'is-valid' : '',
+          ]
+            .filter(Boolean)
+            .join(' ')}
+        >
+          {LeftIcon && (
+            <span className="agf-field__label-icon" aria-hidden>
+              <LeftIcon size={16} />
+            </span>
+          )}
+          <span className="agf-field__label-text">{label}</span>
           {required ? <span className="sr-only"> (required)</span> : null}
         </label>
       )}
@@ -87,11 +102,6 @@ export function AuthInput({
         </p>
       )}
       <div className="agf-field__wrap">
-        {LeftIcon && (
-          <span className="agf-field__icon" aria-hidden>
-            <LeftIcon size={20} />
-          </span>
-        )}
         <input
           id={fieldId}
           name={name || fieldId}
@@ -110,8 +120,7 @@ export function AuthInput({
           className={[
             'agf-input',
             'premium-input-exempt',
-            !LeftIcon ? 'agf-input--no-icon' : '',
-            rightEl || value.length > 0 || valid ? 'agf-input--has-right' : '',
+            rightEl ? 'agf-input--has-right' : '',
             error ? 'is-error' : '',
             valid ? 'is-valid' : '',
             focused && !error ? 'is-focused' : '',
@@ -121,26 +130,6 @@ export function AuthInput({
         />
         {rightEl ? (
           <span className="agf-field__icon agf-field__icon--right agf-field__icon--action">{rightEl}</span>
-        ) : error ? (
-          <span className="agf-field__icon agf-field__icon--right agf-field__icon--error" aria-hidden>
-            <AlertCircle size={18} />
-          </span>
-        ) : value.length > 0 ? (
-          <span className="agf-field__icon agf-field__icon--right">
-            <button
-              type="button"
-              className="agf-clear-btn"
-              onClick={() => onChange('')}
-              aria-label={`Clear ${label}`}
-              tabIndex={-1}
-            >
-              <X size={12} strokeWidth={2.5} aria-hidden />
-            </button>
-          </span>
-        ) : valid ? (
-          <span className="agf-field__icon agf-field__icon--right" aria-hidden>
-            <Check size={16} style={{ color: 'var(--badge-success-text)' }} />
-          </span>
         ) : null}
       </div>
       {error && (

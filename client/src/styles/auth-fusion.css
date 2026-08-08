@@ -24,8 +24,8 @@
   --agf-text: var(--inverse-on-surface, #f1f1f1);
   --agf-text-muted: rgba(241, 241, 241, 0.68);
   --agf-text-faint: rgba(241, 241, 241, 0.45);
-  --agf-input-bg: rgba(255, 255, 255, 0.04);
-  --agf-input-border: rgba(255, 255, 255, 0.12);
+  --agf-input-bg: rgba(255, 255, 255, 0.1);
+  --agf-input-border: rgba(255, 255, 255, 0.24);
   --agf-input-focus: var(--agf-brand-bright);
   --agf-line: color-mix(in srgb, var(--agf-brand-bright) 35%, transparent);
   --agf-glass-blur: var(--sp-glass-blur, 12px);
@@ -59,8 +59,8 @@
   --agf-text: var(--sp-on-surface, #1a1c1c);
   --agf-text-muted: var(--text-muted, #777777);
   --agf-text-faint: var(--text-faint, #999999);
-  --agf-input-bg: var(--bg-input, #f9f9f9);
-  --agf-input-border: var(--sp-outline-variant, #e8e8e8);
+  --agf-input-bg: #ffffff;
+  --agf-input-border: #b8b8b8;
   --agf-line: color-mix(in srgb, var(--agf-brand) 55%, transparent);
 }
 
@@ -80,8 +80,8 @@
   --agf-text: var(--sp-on-surface, #f1f1f1);
   --agf-text-muted: rgba(241, 241, 241, 0.68);
   --agf-text-faint: rgba(241, 241, 241, 0.45);
-  --agf-input-bg: var(--bg-input, #242626);
-  --agf-input-border: var(--sp-outline-variant, rgba(255, 255, 255, 0.12));
+  --agf-input-bg: #2a2c2c;
+  --agf-input-border: rgba(255, 255, 255, 0.24);
   --agf-brand-bright: var(--sp-primary-container, #d7193f);
 }
 
@@ -489,11 +489,35 @@
 }
 
 .auth-fusion .agf-field__label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 0;
   text-transform: none;
   color: var(--agf-text);
+}
+
+.auth-fusion .agf-field__label-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--agf-brand, var(--agf-text-muted));
+}
+
+.auth-fusion .agf-field__label-icon svg {
+  width: 15px;
+  height: 15px;
+}
+
+.auth-fusion .agf-field__label.is-error .agf-field__label-icon {
+  color: var(--badge-error-text, #ef4444);
+}
+
+.auth-fusion .agf-field__label.is-valid .agf-field__label-icon {
+  color: var(--badge-success-text, #22c55e);
 }
 
 .auth-fusion .agf-field.is-error .agf-field__label {
@@ -508,15 +532,13 @@
 
 .auth-fusion .agf-field__icon {
   position: absolute;
-  left: 1rem;
   display: flex;
   color: var(--agf-text-faint);
   pointer-events: none;
 }
 
 .auth-fusion .agf-field__icon--right {
-  left: auto;
-  right: 0.85rem;
+  right: 0.75rem;
   pointer-events: auto;
 }
 
@@ -524,59 +546,24 @@
   pointer-events: auto;
 }
 
-.auth-fusion .agf-field__icon--error {
-  color: var(--badge-error-text, #ef4444);
-  pointer-events: none;
-}
-
-.auth-fusion .agf-input.is-error {
-  padding-right: 2.85rem;
-}
-
-.auth-fusion .agf-input.is-error.agf-input--has-right {
-  padding-right: 4.5rem;
-}
-
-.auth-fusion .agf-input.is-error.agf-input--has-right ~ .agf-field__icon--error {
-  right: 2.85rem;
-}
-
 .auth-fusion .agf-input {
   width: 100%;
   min-height: 52px;
   height: 52px;
-  padding: 0 1rem 0 2.85rem;
+  padding: 0 1rem;
   border-radius: var(--agf-input-radius);
   font-size: 1rem;
   font-family: inherit;
   color: var(--agf-text);
   background: var(--agf-input-bg);
-  border: 1.5px solid var(--agf-input-border);
+  border: 2px solid var(--agf-input-border);
   outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
   box-sizing: border-box;
 }
 
 .auth-fusion .agf-input--has-right {
-  padding-right: 2.75rem;
-}
-
-.auth-fusion .agf-clear-btn {
-  width: 20px;
-  height: 20px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  border-radius: 50%;
-  background: #c7c7c7;
-  color: #fff;
-  padding: 0;
-  cursor: pointer;
-}
-
-.auth-fusion .agf-input--no-icon {
-  padding-left: 1rem;
+  padding-right: 2.85rem;
 }
 
 .auth-fusion .agf-field__helper {
@@ -714,17 +701,20 @@
 }
 
 .auth-fusion .agf-input::placeholder {
-  color: var(--agf-text-faint);
+  color: var(--agf-text-muted);
+  opacity: 0.85;
 }
 
 .auth-fusion .agf-input:hover {
-  border-color: color-mix(in srgb, var(--agf-brand) 35%, var(--agf-input-border));
+  border-color: color-mix(in srgb, var(--agf-brand) 45%, var(--agf-input-border));
+  background: color-mix(in srgb, var(--agf-brand) 3%, var(--agf-input-bg));
 }
 
 .auth-fusion .agf-input:focus,
 .auth-fusion .agf-input.is-focused {
   border-color: var(--agf-input-focus);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--agf-brand) 22%, transparent);
+  background: var(--agf-input-bg);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--agf-brand) 24%, transparent);
 }
 
 .auth-fusion .agf-input.is-error {
