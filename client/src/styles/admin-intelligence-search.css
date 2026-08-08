@@ -348,7 +348,7 @@
   border-radius: 6px;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  font-family: ui-monospace, monospace;
+  font-family: var(--font-body);
   font-size: 0.62rem;
 }
 

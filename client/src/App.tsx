@@ -57,7 +57,7 @@ import { websocketService } from './services/websocketService';
 import { useBuyerCart } from './stores/buyerCartStore';
 import CartCloudSyncBridge from './components/cart/CartCloudSyncBridge';
 // @ts-ignore JS module without TS typings
-import { isBuyerChromeHidden, isBuyerHeaderHidden } from './config/buyerNavVisibility';
+import { isBuyerBottomNavHidden, isBuyerNavbarHiddenOnViewport } from './config/buyerNavVisibility';
 import { SiteWideSchemas } from './components/seo/SiteWideSchemas';
 import { ClientOnly } from './components/ClientOnly';
 
@@ -73,11 +73,9 @@ function GlobalNavbar() {
   const user = useAuthStore((s) => s.user);
   const isMobile = useIsMobile();
   const isSellerPending = pathname === '/seller/pending';
-  if (pathname === '/' && isMobile) return null;
   if (isSellerPending) return <Navbar />;
   if (user && !canAccessBuyerUi(user)) return null;
-  if (isBuyerChromeHidden(pathname, search)) return null;
-  if (isBuyerHeaderHidden(pathname)) return null;
+  if (isBuyerNavbarHiddenOnViewport(pathname, search, isMobile)) return null;
   return <Navbar />;
 }
 
@@ -85,7 +83,7 @@ function GlobalMobileBottomNav() {
   const user = useAuthStore((s) => s.user);
   const { pathname, search } = useLocation();
   if (user && !canAccessBuyerUi(user)) return null;
-  if (isBuyerChromeHidden(pathname, search)) return null;
+  if (isBuyerBottomNavHidden(pathname, search)) return null;
   return <MobileBottomNav />;
 }
 
@@ -93,7 +91,7 @@ function GlobalMobileMenuOverlay() {
   const user = useAuthStore((s) => s.user);
   const { pathname, search } = useLocation();
   if (user && !canAccessBuyerUi(user)) return null;
-  if (isBuyerChromeHidden(pathname, search)) return null;
+  if (isBuyerBottomNavHidden(pathname, search)) return null;
   return <MobileMenuOverlay />;
 }
 

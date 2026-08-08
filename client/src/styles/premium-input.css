@@ -44,7 +44,7 @@ select:not(.premium-input-exempt):not(.sr-only) {
   background: var(--premium-input-bg);
   border: 1px solid var(--premium-input-border);
   padding: 0 var(--premium-input-padding-x);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-body);
   font-size: 16px;
   line-height: 1.35;
   color: var(--text-primary, #111111);
@@ -192,7 +192,7 @@ select:not(.premium-input-exempt):disabled {
 .premium-input-label {
   display: block;
   margin-bottom: 6px;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-body);
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.01em;

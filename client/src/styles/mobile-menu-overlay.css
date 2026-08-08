@@ -15,7 +15,7 @@ html.rx-menu-open [data-buyer-page-root] {
   inset: 0;
   z-index: 10250;
   pointer-events: none;
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: var(--font-body);
 }
 
 .mmo-backdrop {

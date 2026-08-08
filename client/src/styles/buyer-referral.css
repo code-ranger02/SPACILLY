@@ -132,7 +132,7 @@
   border: 1px solid var(--card-border);
   background: var(--bg-secondary);
   font-size: 13px;
-  font-family: ui-monospace, monospace;
+  font-family: var(--font-body);
   color: var(--text-primary);
 }
 

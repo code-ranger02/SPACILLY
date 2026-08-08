@@ -133,7 +133,7 @@ html[data-theme='dark'] .ud-featured-title {
 .ud-countdown-num {
   font-size: 22px;
   font-weight: 800;
-  font-family: ui-monospace, Menlo, monospace;
+  font-family: var(--font-body);
   color: var(--text-primary);
   letter-spacing: 0.04em;
 }
@@ -324,7 +324,7 @@ html[data-theme='dark'] .ud-btn--ghost {
   margin-top: 6px;
   font-size: 10px;
   font-weight: 600;
-  font-family: ui-monospace, Menlo, monospace;
+  font-family: var(--font-body);
   color: var(--text-muted);
 }
 

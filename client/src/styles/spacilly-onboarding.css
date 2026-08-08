@@ -9,7 +9,7 @@
   min-height: 100vh;
   background: var(--bg-page);
   color: var(--text-primary);
-  font-family: var(--font-body, 'Inter', system-ui, sans-serif);
+  font-family: var(--font-body);
   font-size: 16px;
   font-weight: 400;
   line-height: 1.6;

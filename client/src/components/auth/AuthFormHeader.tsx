@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 
 type AuthFormHeaderProps = {
@@ -7,8 +7,10 @@ type AuthFormHeaderProps = {
   /** In-app route for the back control */
   backTo?: string;
   backLabel?: string;
-  /** Use history back instead of a fixed route */
+  /** Custom back handler (runs before default navigation) */
   onBack?: () => void;
+  /** Fallback when history is empty and no backTo (default `/`) */
+  fallbackTo?: string;
 };
 
 export default function AuthFormHeader({
@@ -17,27 +19,37 @@ export default function AuthFormHeader({
   backTo,
   backLabel = 'Go back',
   onBack,
+  fallbackTo = '/',
 }: AuthFormHeaderProps) {
   const navigate = useNavigate();
 
-  const backControl = backTo ? (
-    <Link to={backTo} className="agf-form-header__back" aria-label={backLabel}>
-      <ArrowLeft size={20} strokeWidth={2.25} aria-hidden />
-    </Link>
-  ) : (
-    <button
-      type="button"
-      className="agf-form-header__back"
-      aria-label={backLabel}
-      onClick={() => (onBack ? onBack() : navigate(-1))}
-    >
-      <ArrowLeft size={20} strokeWidth={2.25} aria-hidden />
-    </button>
-  );
+  const handleBack = () => {
+    if (onBack) {
+      onBack();
+      return;
+    }
+    if (backTo) {
+      navigate(backTo);
+      return;
+    }
+    const canGoBack = typeof window !== 'undefined' && window.history.length > 1;
+    if (canGoBack) {
+      navigate(-1);
+      return;
+    }
+    navigate(fallbackTo);
+  };
 
   return (
     <header className="agf-form-header">
-      {backControl}
+      <button
+        type="button"
+        className="agf-form-header__back"
+        aria-label={backLabel}
+        onClick={handleBack}
+      >
+        <ArrowLeft size={20} strokeWidth={2.25} aria-hidden />
+      </button>
       <div className="agf-form-header__body">
         <h2 className="agf-heading">{title}</h2>
         {subtitle ? (

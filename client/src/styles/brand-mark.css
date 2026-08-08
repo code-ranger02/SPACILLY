@@ -38,7 +38,7 @@
 }
 
 .brand-mark-s__letter {
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: var(--font-body);
   font-size: 1.125rem;
   font-weight: 800;
   line-height: 1;

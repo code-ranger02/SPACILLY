@@ -1,7 +1,7 @@
 /* Immersive search — Instagram / Google principles */
 
 .isearch-root {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-body);
 }
 
 .isearch-panel {

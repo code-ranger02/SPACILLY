@@ -2,8 +2,10 @@ import type { ReactNode } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Shield } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
-import { useHeroCatalogProducts } from '../hooks/useHeroCatalogProducts';
-import { getProductHeroImage } from '../lib/productImage';
+import { useLocation } from 'react-router-dom';
+import { useIsMobile } from '../hooks/useIsMobile';
+import { isBuyerNavbarHiddenOnViewport } from '../config/buyerNavVisibility';
+import AuthVisualHero from './auth/AuthVisualHero';
 import '../styles/auth-fusion.css';
 
 interface AuthPremiumLayoutProps {
@@ -41,12 +43,13 @@ export default function AuthPremiumLayout({ children }: AuthPremiumLayoutProps) 
   const { theme } = useTheme();
   const isLight = theme === 'light';
   const reduceMotion = useReducedMotion();
-  const { data: products = [] } = useHeroCatalogProducts(3);
-  const heroImg = products.map((p) => getProductHeroImage(p)).find(Boolean) || '/auth-3d.png';
+  const { pathname, search } = useLocation();
+  const isMobile = useIsMobile();
+  const withSiteNav = !isBuyerNavbarHiddenOnViewport(pathname, search, isMobile);
 
   return (
     <div
-      className={`auth-fusion${isLight ? ' auth-fusion--light' : ''}`}
+      className={`auth-fusion${isLight ? ' auth-fusion--light' : ''}${withSiteNav ? ' auth-fusion--with-site-nav' : ''}`}
       data-auth-layout="fusion"
     >
       <a href="#auth-form-panel" className="auth-fusion__skip">
@@ -54,18 +57,7 @@ export default function AuthPremiumLayout({ children }: AuthPremiumLayoutProps) 
       </a>
 
       <aside className="auth-fusion__visual" aria-hidden={false}>
-        <div className="auth-fusion__visual-bg">
-          <img
-            src={heroImg}
-            alt=""
-            className="auth-fusion__visual-img"
-            draggable={false}
-            onError={(e) => {
-              e.currentTarget.onerror = null;
-              e.currentTarget.src = '/auth-3d.png';
-            }}
-          />
-        </div>
+        <AuthVisualHero />
         <div className="auth-fusion__visual-overlay" />
         <AuthCircuitPattern className="auth-fusion__circuit" />
         <div className="auth-fusion__horizon" />
@@ -94,13 +86,6 @@ export default function AuthPremiumLayout({ children }: AuthPremiumLayoutProps) 
       <main id="auth-form-panel" tabIndex={-1} className="auth-fusion__main">
         <div className="auth-fusion__main-bg" />
         <AuthCircuitPattern className="auth-fusion__main-circuit" />
-
-        <div className="auth-fusion__mobile-brand">
-          <div className="auth-fusion__logo-mark" aria-hidden>
-            S
-          </div>
-          <p className="auth-fusion__logo-word">SPACILLY</p>
-        </div>
 
         <div className="auth-fusion__main-inner">{children}</div>
       </main>

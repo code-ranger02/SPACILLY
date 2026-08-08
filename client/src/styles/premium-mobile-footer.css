@@ -3,7 +3,7 @@
 .rx-mfooter {
   position: relative;
   width: 100%;
-  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-family: var(--font-body);
   color: var(--text-muted, #a1a1aa);
   overflow: hidden;
   isolation: isolate;

@@ -49,7 +49,7 @@
 
 .ot-topbar__title {
   margin: 0;
-  font-family: var(--font-display, 'Archivo Narrow', sans-serif);
+  font-family: var(--font-display);
   font-size: 18px;
   font-weight: 600;
   letter-spacing: -0.01em;
@@ -65,7 +65,7 @@
 
 .ot-status-hero__title {
   margin: 0 0 6px;
-  font-family: var(--font-display, 'Archivo Narrow', sans-serif);
+  font-family: var(--font-display);
   font-size: clamp(1.5rem, 5vw, 1.75rem);
   font-weight: 700;
   line-height: 1.08;
@@ -75,7 +75,7 @@
 
 .ot-status-hero__eta {
   margin: 0;
-  font-family: var(--font-body, Inter, sans-serif);
+  font-family: var(--font-body);
   font-size: 14px;
   line-height: 1.5;
   color: var(--text-muted, #777777);
@@ -120,7 +120,7 @@
 
 .ot-product__name {
   margin: 0 0 4px;
-  font-family: var(--font-body, Inter, sans-serif);
+  font-family: var(--font-body);
   font-size: 15px;
   font-weight: 600;
   line-height: 1.3;
@@ -149,7 +149,7 @@
   min-height: 26px;
   padding: 0 10px;
   border-radius: 9999px;
-  font-family: var(--font-body, Inter, sans-serif);
+  font-family: var(--font-body);
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.02em;
@@ -187,7 +187,7 @@
 .ot-id-row__label {
   display: block;
   margin-bottom: 4px;
-  font-family: var(--font-body, Inter, sans-serif);
+  font-family: var(--font-body);
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.1em;
@@ -283,7 +283,7 @@
 
 .ot-section-title {
   margin: 0 0 16px;
-  font-family: var(--font-display, 'Archivo Narrow', sans-serif);
+  font-family: var(--font-display);
   font-size: 18px;
   font-weight: 600;
   letter-spacing: -0.01em;
@@ -478,7 +478,7 @@
   width: 100%;
   padding: 0 20px;
   border-radius: 8px;
-  font-family: var(--font-body, Inter, sans-serif);
+  font-family: var(--font-body);
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.08em;
@@ -530,7 +530,7 @@
 
 .ot-guest__title {
   margin: 16px 0 8px;
-  font-family: var(--font-display, 'Archivo Narrow', sans-serif);
+  font-family: var(--font-display);
   font-size: 1.75rem;
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -610,7 +610,7 @@
 
 .ot-modal__title {
   margin: 0 0 8px;
-  font-family: var(--font-display, 'Archivo Narrow', sans-serif);
+  font-family: var(--font-display);
   font-size: 1.25rem;
   font-weight: 700;
 }

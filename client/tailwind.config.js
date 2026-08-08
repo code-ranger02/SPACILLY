@@ -8,7 +8,7 @@ export default {
         sans: ['"Times New Roman"', 'Times', 'serif'],
         serif: ['"Times New Roman"', 'Times', 'serif'],
         mono: ['"Times New Roman"', 'Times', 'serif'],
-        logo: ['"Mea Culpa"', 'serif'],
+        logo: ['"Mea Culpa"', '"Times New Roman"', 'Times', 'serif'],
       },
       colors: {
         /* Buyer dark surfaces — resolve from theme.css tokens (light: same vars, different values) */

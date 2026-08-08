@@ -4,10 +4,11 @@
    ══════════════════════════════════════════════════════════════════════════════ */
 
 :root {
-  /* ── Typography — Crimson Editorial ───────────────────────────────────────── */
-  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-display: 'Archivo Narrow', 'Inter', system-ui, sans-serif;
-  --font-logo: 'Mea Culpa', serif;
+  /* ── Typography — Times New Roman (site-wide) ─────────────────────────────── */
+  --font-serif: 'Times New Roman', Times, 'Liberation Serif', serif;
+  --font-body: var(--font-serif);
+  --font-display: var(--font-serif);
+  --font-logo: 'Mea Culpa', 'Times New Roman', Times, serif;
   --font-label-caps-spacing: 0.1em;
 
   /* ── Crimson Editorial — raw tokens (light) ───────────────────────────────── */

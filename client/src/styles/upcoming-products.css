@@ -45,7 +45,7 @@ html[data-theme='dark'] .up-section {
 
 .up-title {
   margin: 0;
-  font-family: 'Inter', 'SF Pro Display', system-ui, sans-serif;
+  font-family: var(--font-body);
   font-size: 16px;
   font-weight: 700;
   line-height: 1.1;
@@ -219,7 +219,7 @@ html[data-theme='dark'] .up-section {
   letter-spacing: 0.3px;
   color: var(--up-card-title);
   font-variant-numeric: tabular-nums;
-  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-family: var(--font-body);
   width: fit-content;
 }
 
@@ -402,7 +402,7 @@ html[data-theme='dark'] .up-hero-slide,
   border-radius: 999px;
   font-size: 11px;
   font-weight: 600;
-  font-family: ui-monospace, Menlo, monospace;
+  font-family: var(--font-body);
   color: var(--up-hero-title);
   background: color-mix(in srgb, var(--text-primary) 6%, var(--card-bg));
   border: 1px solid color-mix(in srgb, var(--text-primary) 10%, transparent);

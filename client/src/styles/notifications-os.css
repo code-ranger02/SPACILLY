@@ -59,7 +59,7 @@ html.rx-notif-sheet-open [data-buyer-page-root] {
   border: 1px solid var(--border-card);
   border-bottom: none;
   box-shadow: 0 -24px 60px color-mix(in srgb, var(--text-primary) 14%, transparent);
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: var(--font-body);
   overflow: hidden;
   box-sizing: border-box;
 }
@@ -599,7 +599,7 @@ html.rx-notif-sheet-open [data-buyer-page-root] {
   min-height: 100%;
   background: var(--bg-page);
   color: var(--text-primary);
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: var(--font-body);
 }
 
 .rxn-page-header {
@@ -812,7 +812,7 @@ html.rx-notif-sheet-open [data-buyer-page-root] {
   border-radius: 10px;
   font-size: 11px;
   font-weight: 700;
-  font-family: ui-monospace, Menlo, monospace;
+  font-family: var(--font-body);
   color: var(--brand-primary);
   background: color-mix(in srgb, var(--brand-primary) 10%, var(--card-bg));
   border: 1px solid var(--brand-border-subtle);
@@ -1282,7 +1282,7 @@ html.rx-notif-sheet-open [data-buyer-page-root] {
 }
 
 .rxn-detail-deal-timer {
-  font-family: ui-monospace, Menlo, monospace;
+  font-family: var(--font-body);
   font-size: 18px;
   font-weight: 700;
   color: var(--brand-primary);

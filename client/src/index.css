@@ -1586,7 +1586,7 @@ html.pwa-standalone {
   min-height: 48px;
   border-radius: 14px;
   touch-action: manipulation;
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: var(--font-body);
 }
 
 .auth-form-shell .auth-form-modern button[type='submit'] {

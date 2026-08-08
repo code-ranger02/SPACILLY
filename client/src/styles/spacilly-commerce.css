@@ -14,7 +14,7 @@
 
 .sp-mob-brand-header__logo {
   display: inline-block;
-  font-family: var(--font-display, 'Archivo Narrow', sans-serif);
+  font-family: var(--font-display);
   font-size: 28px;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -119,7 +119,7 @@
   border: 1px solid var(--sp-outline-variant, #e8e8e8);
   background: var(--sp-surface-container-low, #f3f3f3);
   color: var(--text-muted, #777777);
-  font-family: var(--font-body, Inter, sans-serif);
+  font-family: var(--font-body);
   font-size: 14px;
   font-weight: 400;
   text-align: left;
@@ -173,7 +173,7 @@
 
 .sp-mob-promo__title {
   margin: 0 0 12px;
-  font-family: var(--font-display, 'Archivo Narrow', sans-serif);
+  font-family: var(--font-display);
   font-size: 24px;
   font-weight: 700;
   line-height: 1.05;
@@ -191,7 +191,7 @@
   border-radius: 9999px;
   background: #ffffff;
   color: var(--sp-primary-container, #d7193f);
-  font-family: var(--font-body, Inter, sans-serif);
+  font-family: var(--font-body);
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.04em;
@@ -262,7 +262,7 @@
   margin: 0 0 16px;
   font-size: 20px;
   font-weight: 600;
-  font-family: var(--font-display, 'Archivo Narrow', sans-serif);
+  font-family: var(--font-display);
   letter-spacing: -0.01em;
   line-height: 1.2;
   color: var(--text-primary, #1a1c1c);
@@ -320,7 +320,7 @@
 
 .sp-mob-cat-circle__label {
   display: block;
-  font-family: var(--font-body, Inter, sans-serif);
+  font-family: var(--font-body);
   font-size: 12px;
   font-weight: 500;
   text-align: center;
@@ -457,7 +457,7 @@
 
 .sp-shop-categories__eyebrow {
   margin: 0 0 8px;
-  font-family: var(--font-body, Inter, sans-serif);
+  font-family: var(--font-body);
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.1em;
@@ -467,7 +467,7 @@
 
 .sp-shop-categories__title {
   margin: 0;
-  font-family: var(--font-display, 'Archivo Narrow', sans-serif);
+  font-family: var(--font-display);
   font-size: clamp(1.5rem, 2.5vw, 2rem);
   font-weight: 700;
   line-height: 1.1;
@@ -477,7 +477,7 @@
 
 .sp-shop-categories__link {
   flex-shrink: 0;
-  font-family: var(--font-body, Inter, sans-serif);
+  font-family: var(--font-body);
   font-size: 14px;
   font-weight: 500;
   color: var(--brand-orange-text, var(--sp-primary-container, #d7193f));
@@ -562,7 +562,7 @@
 .sp-shop-cat-circle__label {
   display: block;
   max-width: 84px;
-  font-family: var(--font-body, Inter, sans-serif);
+  font-family: var(--font-body);
   font-size: 12px;
   font-weight: 500;
   line-height: 1.3;

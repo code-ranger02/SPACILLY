@@ -256,7 +256,7 @@ export default function PremiumCasualHero({ isDark, className = '', compact = fa
                           className="mt-1 font-bold leading-[1.08] tracking-tight"
                           style={{
                             color: textPrimary,
-                            fontFamily: "'Inter', system-ui, sans-serif",
+                            fontFamily: 'var(--font-body)',
                             fontSize: 'clamp(1.75rem, 7vw, 2.15rem)',
                           }}
                         >

@@ -21,7 +21,7 @@
   --ex-meta: var(--text-muted);
   --ex-sponsored-bg: color-mix(in srgb, var(--brand-primary) 8%, var(--card-bg));
   --ex-ai-hero-bg: color-mix(in srgb, var(--card-bg) 96%, var(--brand-tint));
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-body);
   color: var(--text-primary);
   min-height: 100%;
   padding-bottom: 16px;
@@ -874,7 +874,7 @@
   font-size: 10px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-family: var(--font-body);
   color: var(--text-primary);
   background: color-mix(in srgb, var(--text-primary) 6%, var(--card-bg));
   border: 1px solid var(--ex-border-subtle);
