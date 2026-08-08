@@ -1,5 +1,5 @@
 /**
- * Auth fusion — mobile tweaks (same header/footer/card as desktop).
+ * Auth fusion — mobile tweaks (form-only, no site chrome).
  * Scoped to max-width: 639px (phones).
  */
 
@@ -11,11 +11,6 @@
     --agf-field-gap: 0.5rem;
     --agf-card-pad-y: 1.35rem;
     --agf-card-pad-x: 1.25rem;
-  }
-
-  .auth-fusion__visual {
-    min-height: clamp(200px, 32vh, 280px);
-    max-height: 34vh;
   }
 
   .auth-fusion__main {

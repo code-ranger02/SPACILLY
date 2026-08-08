@@ -1005,7 +1005,7 @@ export default function ProductDetail() {
             style={{ background: 'radial-gradient(circle, color-mix(in srgb, var(--brand-primary) 5%, transparent) 0%, transparent 65%)' }} />
         </div>
 
-        <div className="relative z-10 w-full pd2-fluid-wrap pd2-fluid-wrap--cart pt-0 sm:pt-4 pb-[calc(6rem+env(safe-area-inset-bottom,0px))] md:pb-12 lg:pb-12 max-w-[100vw] lg:max-w-none lg:mx-auto">
+        <div className="relative z-10 w-full pd2-fluid-wrap pd2-fluid-wrap--cart pt-0 sm:pt-4 pb-[calc(6rem+env(safe-area-inset-bottom,0px))] md:pb-12 lg:pb-12">
 
           {/* Mobile — cart-style top bar */}
           <motion.div
@@ -1064,7 +1064,7 @@ export default function ProductDetail() {
           {/* ════════════════════════════════════════════════
               HERO: Gallery + Purchase Panel
           ════════════════════════════════════════════════ */}
-          <div className="pd2-hero-grid gap-4 md:gap-6 lg:gap-8 mb-6 md:mb-10 min-w-0 max-w-6xl mx-auto w-full">
+          <div className="pd2-hero-grid gap-4 md:gap-6 lg:gap-8 mb-6 md:mb-10 min-w-0 w-full">
 
             {/* ── Gallery ── */}
             <motion.div

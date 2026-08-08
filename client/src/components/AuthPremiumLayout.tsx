@@ -1,11 +1,5 @@
 import type { ReactNode } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
-import { Shield } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
-import { useLocation } from 'react-router-dom';
-import { useIsMobile } from '../hooks/useIsMobile';
-import { isBuyerNavbarHiddenOnViewport } from '../config/buyerNavVisibility';
-import AuthVisualHero from './auth/AuthVisualHero';
 import '../styles/auth-fusion.css';
 
 interface AuthPremiumLayoutProps {
@@ -39,49 +33,19 @@ function AuthCircuitPattern({ className = '' }: { className?: string }) {
   );
 }
 
+/** Auth shell — centered form only; no site header, footer, or hero carousel. */
 export default function AuthPremiumLayout({ children }: AuthPremiumLayoutProps) {
   const { theme } = useTheme();
   const isLight = theme === 'light';
-  const reduceMotion = useReducedMotion();
-  const { pathname, search } = useLocation();
-  const isMobile = useIsMobile();
-  const withSiteNav = !isBuyerNavbarHiddenOnViewport(pathname, search, isMobile);
 
   return (
     <div
-      className={`auth-fusion${isLight ? ' auth-fusion--light' : ''}${withSiteNav ? ' auth-fusion--with-site-nav' : ''}`}
+      className={`auth-fusion${isLight ? ' auth-fusion--light' : ''} auth-fusion--form-only`}
       data-auth-layout="fusion"
     >
       <a href="#auth-form-panel" className="auth-fusion__skip">
         Skip to form
       </a>
-
-      <aside className="auth-fusion__visual" aria-hidden={false}>
-        <AuthVisualHero />
-        <div className="auth-fusion__visual-overlay" />
-        <AuthCircuitPattern className="auth-fusion__circuit" />
-        <div className="auth-fusion__horizon" />
-
-        <motion.div
-          className="auth-fusion__brand"
-          initial={reduceMotion ? false : { opacity: 0, y: 20 }}
-          animate={reduceMotion ? false : { opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <div className="auth-fusion__logo-mark" aria-hidden>
-            S
-          </div>
-          <p className="auth-fusion__logo-word">SPACILLY</p>
-          <p className="auth-fusion__logo-tag">TRADE · TRUST · GROW</p>
-          <span className="auth-fusion__brand-shield">
-            <Shield size={18} strokeWidth={2.25} aria-hidden />
-          </span>
-          <p className="auth-fusion__brand-desc">
-            Spacilly is the next-generation marketplace built for secure transactions and real
-            connections.
-          </p>
-        </motion.div>
-      </aside>
 
       <main id="auth-form-panel" tabIndex={-1} className="auth-fusion__main">
         <div className="auth-fusion__main-bg" />

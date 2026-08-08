@@ -1,9 +1,9 @@
 import { motion } from 'framer-motion';
+import FuturisticHero from '../FuturisticHero';
 import { useHomeFeedBundle } from '../../hooks/useHomeFeedSections';
 import { HOME_PRODUCT_LIMIT } from './mobile/HomeExploreSection';
 import HomeExploreSection from './mobile/HomeExploreSection';
 import SpacillyMobileHomeHeader, { SpacillyMobileSearchBar } from './mobile/SpacillyMobileHomeHeader';
-import SpacillyMobilePromoHero from './mobile/SpacillyMobilePromoHero';
 import SpacillyCategoryCircles from './mobile/SpacillyCategoryCircles';
 import { explorePath } from '../explore/exploreConfig';
 import '../../styles/spacilly-commerce.css';
@@ -31,7 +31,7 @@ export default function PremiumMobileHome() {
       transition={{ duration: 0.28 }}
     >
       <SpacillyMobileHomeHeader />
-      <SpacillyMobilePromoHero />
+      <FuturisticHero compact className="fx-hero--mobile-home" />
       <SpacillyMobileSearchBar />
       <SpacillyCategoryCircles />
 

@@ -114,11 +114,11 @@
 }
 @media (min-width: 1024px) {
   .pd2-fluid-wrap {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-    max-width: 72rem;
-    margin-left: auto;
-    margin-right: auto;
+    padding-left: clamp(1.25rem, 3vw, 3rem);
+    padding-right: clamp(1.25rem, 3vw, 3rem);
+    max-width: 100%;
+    margin-left: 0;
+    margin-right: 0;
   }
 
   .pd2-hero-grid {

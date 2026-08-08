@@ -16,6 +16,29 @@
   --fx-hero-height: clamp(380px, 58vh, 540px);
 }
 
+.fx-hero--mobile-home {
+  --fx-hero-height: clamp(260px, 38vh, 360px);
+}
+
+.fx-hero--mobile-home .fx-hero-slide__title {
+  font-size: clamp(1.65rem, 7vw, 2.25rem);
+}
+
+.fx-hero--mobile-home .fx-hero-slide__content {
+  padding: 1.25rem 1rem 2.5rem;
+  gap: 0.55rem;
+}
+
+.fx-hero--mobile-home .fx-hero-slide__detail {
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.fx-hero--mobile-home .fx-hero-slide__cta {
+  min-height: 44px;
+  font-size: 11px;
+}
+
 .fx-hero__swiper,
 .fx-hero__swiper .swiper-wrapper,
 .fx-hero-slide,

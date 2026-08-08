@@ -44,14 +44,7 @@
 }
 
 .auth-fusion[data-auth-layout='fusion'].auth-fusion--with-site-nav {
-  /* Desktop only — mobile auth stays full-bleed without site header offset */
-}
-
-@media (min-width: 768px) {
-  .auth-fusion[data-auth-layout='fusion'].auth-fusion--with-site-nav {
-    padding-top: 70px;
-    min-height: calc(100dvh - 70px);
-  }
+  /* Deprecated — auth routes no longer show site header */
 }
 
 [data-theme='light'] .auth-fusion[data-auth-layout='fusion'],
@@ -96,8 +89,18 @@
   --agf-brand-bright: var(--sp-primary-container, #d7193f);
 }
 
+.auth-fusion[data-auth-layout='fusion'].auth-fusion--form-only {
+  flex-direction: column;
+}
+
+.auth-fusion[data-auth-layout='fusion'].auth-fusion--form-only .auth-fusion__main {
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 100dvh;
+}
+
 @media (min-width: 768px) {
-  .auth-fusion[data-auth-layout='fusion'] {
+  .auth-fusion[data-auth-layout='fusion']:not(.auth-fusion--form-only) {
     flex-direction: row;
   }
 }

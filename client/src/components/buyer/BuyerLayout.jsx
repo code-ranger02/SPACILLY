@@ -1,5 +1,4 @@
 import Footer from '../Footer';
-import PremiumMobileFooter from '../footer/PremiumMobileFooter';
 
 /*
  * Navbar renders from App.tsx (<GlobalNavbar />) outside the cart-push wrapper so
@@ -28,16 +27,7 @@ export default function BuyerLayout({ children, className = '', focused = false,
       >
         {children}
       </div>
-      {!focused && (
-        <>
-          <div className="md:hidden">
-            <PremiumMobileFooter />
-          </div>
-          <div className="hidden md:block">
-            <Footer />
-          </div>
-        </>
-      )}
+      {!focused && <Footer />}
     </div>
   );
 }

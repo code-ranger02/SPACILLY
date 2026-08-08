@@ -3,17 +3,18 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Facebook, Twitter, Instagram, Linkedin, Youtube, Music2, Mail, Phone, Clock,
-  ChevronRight, Lock, CheckCircle, Building2, Send,
+  ChevronRight, ChevronDown, Lock, CheckCircle, Building2, Send,
 } from 'lucide-react';
 import { useSellerAccess, useHandleSellerLink } from '../hooks/useSellerAccess';
 import { useTranslation } from '../i18n/useTranslation';
 import { API_BASE_URL } from '../lib/config';
 import { useToastStore } from '../stores/toastStore';
+import '../styles/footer.css';
 
 // Column heading with animated brand underline
-function ColumnHeading({ children }) {
+function ColumnHeading({ children, compact = false }) {
   return (
-    <div className="mb-6">
+    <div className={compact ? 'mb-0' : 'mb-6'}>
       <h4
         className="footer-heading font-bold uppercase tracking-[0.24em] mb-2"
         style={{ color: 'var(--footer-on-dark-heading)', fontSize: 12 }}
@@ -142,6 +143,31 @@ function TrustBadge({ icon: Icon, label }) {
       <Icon className="footer-badge-icon w-3.5 h-3.5 flex-shrink-0" style={{ color: 'var(--brand-primary)' }} />
       {label}
     </span>
+  );
+}
+
+/** Collapsible link column on mobile; always expanded from md up. */
+function FooterColumn({ title, children, defaultOpen = false }) {
+  const [open, setOpen] = useState(defaultOpen);
+
+  return (
+    <div className="footer-col">
+      <button
+        type="button"
+        className="footer-col__toggle md:hidden"
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
+      >
+        <ColumnHeading compact>{title}</ColumnHeading>
+        <ChevronDown className={`footer-col__chev${open ? ' is-open' : ''}`} aria-hidden />
+      </button>
+      <div className="hidden md:block">
+        <ColumnHeading>{title}</ColumnHeading>
+      </div>
+      <div className="footer-col__panel" hidden={!open}>
+        {children}
+      </div>
+    </div>
   );
 }
 
@@ -296,8 +322,8 @@ export default function Footer() {
           borderBottom: `1px solid var(--footer-newsletter-edge)`,
           paddingLeft: 'clamp(1rem, 5vw, 80px)',
           paddingRight: 'clamp(1rem, 5vw, 80px)',
-          paddingTop: 40,
-          paddingBottom: 40,
+          paddingTop: 'clamp(1.75rem, 5vw, 2.5rem)',
+          paddingBottom: 'clamp(1.75rem, 5vw, 2.5rem)',
         }}
       >
         <div className="pointer-events-none absolute inset-0 overflow-hidden opacity-[0.08]">
@@ -312,7 +338,7 @@ export default function Footer() {
         </div>
 
         <div>
-          <h3 className="font-bold text-2xl mb-1" style={{ color: 'var(--footer-newsletter-title)' }}>
+          <h3 className="footer-newsletter-title font-bold mb-1" style={{ color: 'var(--footer-newsletter-title)' }}>
             {t('footer.newsletterTitle')} 🔥
           </h3>
           <p className="text-sm" style={{ color: 'var(--footer-newsletter-muted)' }}>
@@ -373,8 +399,8 @@ export default function Footer() {
         className="footer-main w-full px-4 sm:px-6 lg:px-20"
         style={{
           background: 'var(--footer-main-bg)',
-          paddingTop: 72,
-          paddingBottom: 48,
+          paddingTop: 'clamp(2.5rem, 8vw, 4.5rem)',
+          paddingBottom: 'clamp(2rem, 5vw, 3rem)',
           paddingLeft: 'clamp(1rem, 5vw, 80px)',
           paddingRight: 'clamp(1rem, 5vw, 80px)',
           boxShadow: 'inset 0 -1px 0 var(--footer-inset-line)',
@@ -399,7 +425,7 @@ export default function Footer() {
               <p className="text-sm font-medium mb-1" style={{ color: 'var(--footer-on-dark-body)' }}>
                 {t('footer.brandTagline')}
               </p>
-              <p className="text-sm mb-4 leading-relaxed" style={{ color: 'var(--footer-on-dark-body)', maxWidth: 280 }}>
+              <p className="text-sm mb-4 leading-relaxed max-w-full md:max-w-[280px]" style={{ color: 'var(--footer-on-dark-body)' }}>
                 {t('footer.brandDescription')}
               </p>
               <div className="flex flex-wrap gap-2 mb-5">
@@ -440,26 +466,23 @@ export default function Footer() {
               </div>
             </div>
 
-            <div>
-              <ColumnHeading>{t('nav.shop')}</ColumnHeading>
+            <FooterColumn title={t('nav.shop')}>
               <nav className="flex flex-col">
                 {SHOP_LINKS.map(({ labelKey, href }) => (
                   <FooterLink key={labelKey} to={href}>{t(labelKey)}</FooterLink>
                 ))}
               </nav>
-            </div>
+            </FooterColumn>
 
-            <div>
-              <ColumnHeading>{t('nav.account')}</ColumnHeading>
+            <FooterColumn title={t('nav.account')}>
               <nav className="flex flex-col">
                 {ACCOUNT_LINKS.map(({ labelKey, href }) => (
                   <FooterLink key={labelKey} to={href}>{t(labelKey)}</FooterLink>
                 ))}
               </nav>
-            </div>
+            </FooterColumn>
 
-            <div>
-              <ColumnHeading>{t('footer.sellWithUs')}</ColumnHeading>
+            <FooterColumn title={t('footer.sellWithUs')}>
               <nav className="flex flex-col mb-4">
                 {SELL_LINKS.map(({ labelKey, href, protected: protectedLink }) => (
                   <SellerFooterLink
@@ -489,10 +512,9 @@ export default function Footer() {
                 {t('footer.startSellingToday')}
                 <ChevronRight className="w-4 h-4 footer-cta-icon" />
               </Link>
-            </div>
+            </FooterColumn>
 
-            <div>
-              <ColumnHeading>{t('nav.help')}</ColumnHeading>
+            <FooterColumn title={t('nav.help')}>
               <nav className="flex flex-col mb-6">
                 {SUPPORT_LINKS.map(({ labelKey, href }) => {
                   if (href === '/help') {
@@ -529,27 +551,8 @@ export default function Footer() {
                   {t('footer.supportHours')}
                 </p>
               </div>
-            </div>
+            </FooterColumn>
           </div>
-
-        <style>{`
-          .footer-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 40px;
-          }
-          @media (min-width: 768px) {
-            .footer-grid {
-              grid-template-columns: repeat(2, 1fr);
-            }
-          }
-          @media (min-width: 1024px) {
-            .footer-grid {
-              grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr;
-            }
-            .footer-brand-col { grid-column: span 1; }
-          }
-        `}</style>
       </div>
 
       {/* ═══ TIER 3: Bottom bar ═══ */}
@@ -593,7 +596,7 @@ export default function Footer() {
             </span>
           ))}
         </div>
-        <div className="flex flex-wrap items-center justify-center gap-1 sm:gap-2 order-3 text-[13px]" style={{ color: 'var(--footer-on-dark-body)' }}>
+        <div className="flex flex-wrap items-center justify-center gap-1 sm:gap-2 order-3 text-[13px] footer-bottom-links" style={{ color: 'var(--footer-on-dark-body)' }}>
           {BOTTOM_LINKS.map(({ labelKey, href }, i) => (
             <span key={labelKey} className="flex items-center gap-2">
               {i > 0 && <span className="opacity-50">·</span>}

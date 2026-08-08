@@ -96,17 +96,18 @@ export function isBuyerBottomNavHidden(pathname, search = '') {
   return NO_BUYER_BOTTOM_NAV_PREFIXES.some((p) => matchesChromeHidePrefix(pathname, p));
 }
 
-/** Hide GlobalNavbar on these routes. Auth routes show navbar on desktop only (see App.tsx). */
+/** Hide GlobalNavbar on these routes (auth flows are fully chrome-free). */
 export function isBuyerNavbarHidden(pathname, search = '') {
+  if (isAuthRoute(pathname)) return true;
   if (isSellerPathWithBuyerNav(pathname)) return false;
   if (isBuyerHeaderHidden(pathname)) return true;
   if (isAccountSettingsRoute(pathname, search)) return true;
   return NO_BUYER_NAVBAR_PREFIXES.some((p) => matchesChromeHidePrefix(pathname, p));
 }
 
-/** Site header visible on auth pages only at md+ breakpoints. */
+/** Viewport-aware navbar visibility (auth always hidden). */
 export function isBuyerNavbarHiddenOnViewport(pathname, search = '', isMobile = false) {
-  if (isAuthRoute(pathname) && isMobile) return true;
+  void isMobile;
   return isBuyerNavbarHidden(pathname, search);
 }
 
