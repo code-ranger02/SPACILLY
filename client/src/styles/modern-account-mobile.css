@@ -59,7 +59,7 @@
     font-size: 16px;
     font-weight: 800;
     color: #fff;
-    background: linear-gradient(135deg, var(--brand-primary), #fb923c);
+    background: linear-gradient(135deg, var(--brand-primary), var(--sp-primary-container, #d7193f));
   }
 
   .rx-acc-name {

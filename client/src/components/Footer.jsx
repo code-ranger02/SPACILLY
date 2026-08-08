@@ -353,10 +353,10 @@ export default function Footer() {
               aria-busy={newsletterSubmitting}
               whileHover={newsletterSubmitting ? undefined : { scale: 1.02 }}
               whileTap={newsletterSubmitting ? undefined : { scale: 0.98 }}
-              className="flex w-full shrink-0 items-center justify-center gap-2 rounded-b-2xl px-6 py-3 text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:rounded-b-none sm:rounded-r-full sm:border-l"
+              className="flex w-full shrink-0 items-center justify-center gap-2 min-h-[48px] rounded-b-2xl px-6 py-3.5 text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:rounded-b-none sm:rounded-r-full sm:border-l"
               style={{
-                background: 'var(--footer-newsletter-btn-bg)',
-                color: 'var(--footer-newsletter-btn-text)',
+                background: 'var(--footer-newsletter-btn-bg, var(--sp-primary-container, #d7193f))',
+                color: 'var(--footer-newsletter-btn-text, #ffffff)',
                 borderLeftColor: 'var(--footer-newsletter-form-border)',
               }}
             >
@@ -478,7 +478,7 @@ export default function Footer() {
               </nav>
               <Link
                 to={isSeller ? '/seller' : '/become-seller'}
-                className="inline-flex items-center justify-center gap-2 w-full font-bold text-white text-[15px] tracking-[0.03em] footer-cta transition-all duration-200"
+                className="inline-flex items-center justify-center gap-2 w-full min-h-[52px] px-6 py-3.5 font-bold text-white text-base tracking-[0.03em] footer-cta transition-all duration-200 rounded-lg"
                 style={{
                   background: 'var(--gradient-brand-cta)',
                   boxShadow: 'var(--shadow-cta)',
@@ -516,7 +516,9 @@ export default function Footer() {
               <div className="space-y-2 text-sm" style={{ color: 'var(--footer-on-dark-body)' }}>
                 <p className="flex items-center gap-2">
                   <Mail className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--brand-primary)' }} />
-                  reaglerobust2020@gmail.com
+                  <a href="mailto:info@spacilly.com" className="hover:underline" style={{ color: 'inherit' }}>
+                    info@spacilly.com
+                  </a>
                 </p>
                 <p className="flex items-center gap-2">
                   <Phone className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--brand-primary)' }} />

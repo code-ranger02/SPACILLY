@@ -657,7 +657,7 @@ export default function HelpCenter() {
                     className="text-[11px] font-semibold mt-1"
                     style={{ color: PRIMARY }}
                   >
-                    reaglerobust2020@gmail.com
+                    info@spacilly.com
                   </button>
                 </div>
                 <button

@@ -1,98 +1,126 @@
 /* ══════════════════════════════════════════════════════════════════════════════
-   SPACILLY — Centralized Theme System
-   All semantic CSS variables for light and dark modes.
-   Every buyer-facing UI element should draw from these tokens.
+   SPACILLY — Centralized Theme System (Crimson Editorial)
+   Buyer, seller, auth, and onboarding share these tokens in light + dark modes.
    ══════════════════════════════════════════════════════════════════════════════ */
 
 :root {
-  /* ── Typography ─────────────────────────────────────────────────────────────── */
-  --font-body: 'Times New Roman', Times, serif;
+  /* ── Typography — Crimson Editorial ───────────────────────────────────────── */
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Archivo Narrow', 'Inter', system-ui, sans-serif;
   --font-logo: 'Mea Culpa', serif;
+  --font-label-caps-spacing: 0.1em;
 
-  /* ── Page & surface backgrounds — premium light storefront ──────────────────── */
-  --bg-page:        #f7f7f8;
-  --bg-secondary:   #ffffff;
-  --bg-tertiary:    #f0f1f3;
+  /* ── Crimson Editorial — raw tokens (light) ───────────────────────────────── */
+  --sp-surface: #f9f9f9;
+  --sp-surface-dim: #dadada;
+  --sp-surface-container: #eeeeee;
+  --sp-surface-container-high: #e8e8e8;
+  --sp-surface-container-highest: #e2e2e2;
+  --sp-on-surface: #1a1c1c;
+  --sp-on-surface-variant: #5c3f40;
+  --sp-outline: #906f6f;
+  --sp-outline-variant: #e8e8e8;
+  --sp-primary: #ae002d;
+  --sp-primary-container: #d7193f;
+  --sp-on-primary: #ffffff;
+  --sp-on-primary-container: #ffeded;
+  --sp-inverse-primary: #ffb3b4;
+  --sp-inverse-surface: #2f3131;
+  --sp-inverse-on-surface: #f1f1f1;
+  --inverse-on-surface: var(--sp-inverse-on-surface);
+  --sp-success: #22c55e;
+  --sp-error: #ba1a1a;
+  --sp-card-radius: 1rem;
+  --sp-input-radius: 0.5rem;
+  --sp-btn-radius: 0.5rem;
+  --sp-container-max: 1440px;
+  --sp-glass-blur: 12px;
+  --sp-shadow-ambient: none;
+
+  /* ── Page & surface backgrounds — editorial gray canvas + white cards ───── */
+  --bg-page:        var(--sp-surface);
+  --bg-secondary:   #f3f3f3;
+  --bg-tertiary:    var(--sp-surface-container);
   --bg-elevated:    #ffffff;
   --card-bg:        #ffffff;
   --dropdown-bg:    #ffffff;
-  --dropdown-border: #e5e7eb;
-  --dropdown-shadow: 0 12px 40px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04);
-  --bg-hover:       #f1f5f9;  /* hover on list rows / menu items */
-  --bg-active:      #fef3ea;  /* selected / active state */
-  --bg-input:       #ffffff;  /* input / textarea / select */
-  --bg-skeleton:    #e5e7eb;  /* skeleton loading shimmer base */
-  --bg-badge:       #f3f4f6;  /* neutral badge fill */
-  --bg-tag:         #eff6ff;  /* light tag / pill fill */
-  --bg-overlay:     rgba(0,0,0,0.45); /* modal backdrop */
+  --dropdown-border: var(--sp-surface-container-high);
+  --dropdown-shadow: 0 4px 16px rgba(26, 28, 28, 0.06);
+  --bg-hover:       var(--sp-surface-container-high);
+  --bg-active:      var(--sp-surface-container);
+  --bg-input:       var(--sp-surface);
+  --bg-skeleton:    var(--sp-surface-container-highest);
+  --bg-badge:       #f3f3f3;
+  --bg-tag:         rgba(174, 0, 45, 0.08);
+  --bg-overlay:     rgba(26, 28, 28, 0.55);
 
   /* ── Header / Navbar ───────────────────────────────────────────────────────── */
-  --header-bg:      #ffffff;
-  --navbar-bg:      #ffffff;
-  --topbar-bg:      #f9fafb;
-  --topbar-text:    #64748b;
-  --announcement-bg: #f9fafb;
-  --announcement-text: #64748b;
-  --header-border:  rgba(0,0,0,0.06);
-  --search-bg:      #f3f4f6;
-  --search-border:  transparent;
-  --shadow-header:  0 1px 0 rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04);
+  --header-bg:      color-mix(in srgb, #ffffff 92%, transparent);
+  --navbar-bg:      color-mix(in srgb, #ffffff 92%, transparent);
+  --topbar-bg:      #f3f3f3;
+  --topbar-text:    var(--sp-on-surface-variant);
+  --announcement-bg: #f3f3f3;
+  --announcement-text: var(--sp-on-surface-variant);
+  --header-border:  var(--sp-surface-container-high);
+  --search-bg:      #ffffff;
+  --search-border:  var(--sp-surface-container-high);
+  --shadow-header:  0 1px 0 var(--sp-surface-container-high);
 
-  /* ── Text — storefront hierarchy ───────────────────────────────────────────── */
-  --text-primary:     #111111;
-  --text-secondary:   #777777;
+  /* ── Text — editorial hierarchy ───────────────────────────────────────────── */
+  --text-primary:     var(--sp-on-surface);
+  --text-secondary:   var(--sp-on-surface-variant);
   --text-muted:       #777777;
-  --text-faint:       #9ca3af;  /* placeholders, very subtle */
-  --text-disabled:    #94a3b8;
-  --text-emphasis:    #0f172a;  /* pricing / key emphasis (light) */
-  --text-on-accent:   #ffffff;  /* text sitting on colored background */
-  --dropdown-text:    #111827;
-  --input-text:       #0f172a;
-  --input-placeholder: #9ca3af;
-  --link-color:       #ff7a1a;
-  --link-hover:       #e86812;
+  --text-faint:       #999999;
+  --text-disabled:    #b0b0b0;
+  --text-emphasis:    var(--sp-on-surface);
+  --text-on-accent:   var(--sp-on-primary);
+  --dropdown-text:    var(--sp-on-surface);
+  --input-text:       var(--sp-on-surface);
+  --input-placeholder: #777777;
+  --link-color:       var(--sp-primary);
+  --link-hover:       var(--sp-primary-container);
 
-  /* ── Brand accent — use sparingly (CTA, active, price emphasis) ─────────────── */
-  --brand-primary:       #ff7a1a;
-  --brand-primary-hover: #e86812;
-  --brand-orange-text:   #e86812;
-  --brand-tint:          rgba(255,122,26,0.1);
-  --brand-tint-strong:   rgba(255,122,26,0.18);
-  --brand-border-subtle: rgba(255,122,26,0.28);
-  --gradient-brand-cta:  linear-gradient(135deg, var(--brand-primary), var(--brand-primary-hover));
-  --gradient-brand-bar:  linear-gradient(90deg, var(--brand-primary), var(--brand-primary-hover));
-  --shadow-cta:          0 8px 24px rgba(255, 122, 26, 0.22);
-  --shadow-cta-hover:    0 14px 40px rgba(255, 122, 26, 0.28);
+  /* ── Brand accent — crimson red CTAs ─────────────────────────────────────── */
+  --brand-primary:       var(--sp-primary);
+  --brand-primary-hover: #920024;
+  --brand-orange-text:   var(--sp-primary-container);
+  --brand-tint:          rgba(174, 0, 45, 0.08);
+  --brand-tint-strong:   rgba(215, 25, 63, 0.14);
+  --brand-border-subtle: rgba(174, 0, 45, 0.22);
+  --gradient-brand-cta:  var(--sp-primary-container);
+  --gradient-brand-bar:  linear-gradient(90deg, #ae002d, #d7193f);
+  --shadow-cta:          none;
+  --shadow-cta-hover:    0 4px 14px rgba(215, 25, 63, 0.22);
 
-  --commerce-brand-primary:       #ff7a1a;
-  --commerce-brand-primary-hover: #e86812;
-  --commerce-brand-tint:          rgba(255, 122, 26, 0.1);
-  --commerce-brand-tint-strong:   rgba(255, 122, 26, 0.18);
-  --commerce-brand-border-subtle: rgba(255, 122, 26, 0.28);
-  --commerce-gradient-cta:        linear-gradient(135deg, #ff7a1a, #e86812);
-  --commerce-shadow-cta:          0 8px 24px rgba(255, 122, 26, 0.22);
-  --commerce-shadow-cta-hover:    0 14px 40px rgba(255, 122, 26, 0.28);
+  --commerce-brand-primary:       var(--sp-primary);
+  --commerce-brand-primary-hover: #920024;
+  --commerce-brand-tint:          rgba(174, 0, 45, 0.08);
+  --commerce-brand-tint-strong:   rgba(215, 25, 63, 0.14);
+  --commerce-brand-border-subtle: rgba(174, 0, 45, 0.22);
+  --commerce-gradient-cta:        var(--sp-primary-container);
+  --commerce-shadow-cta:          none;
+  --commerce-shadow-cta-hover:    0 4px 14px rgba(215, 25, 63, 0.22);
 
   /* ── Product / browse specifics ───────────────────────────────────────────── */
-  --text-price:          #111111;
+  --text-price:          var(--sp-primary-container);
   --text-in-stock:       #16a34a;
-  --text-breadcrumb:     #64748b;
-  --text-breadcrumb-active: #334155;
-  --size-selector-bg:    #f1f5f9;
-  --size-selector-selected: #ff7a1a;
+  --text-breadcrumb:     #777777;
+  --text-breadcrumb-active: var(--sp-on-surface);
+  --size-selector-bg:    var(--sp-surface-container);
+  --size-selector-selected: var(--sp-primary-container);
 
   /* ── Panel tabs ────────────────────────────────────────────────────────────── */
-  --tab-active-bg:       rgba(255,122,26,0.12);
-  --tab-active-text:     #ff7a1a;
-  --tab-inactive-text:   #64748b;
+  --tab-active-bg:       rgba(215, 25, 63, 0.1);
+  --tab-active-text:     var(--sp-primary-container);
+  --tab-inactive-text:   #777777;
 
   /* ── Semantic badges (light — slightly muted) ─────────────────────────────── */
   --badge-success-bg:    rgba(34,197,94,0.12);
   --badge-success-border: rgba(34,197,94,0.25);
   --badge-success-text:  #15803d;
-  --badge-warning-bg:    rgba(251,146,60,0.12);
-  --badge-warning-border: rgba(251,146,60,0.25);
-  --badge-warning-text:  #c2410c;
+  --badge-warning-bg:    rgba(215, 25, 63, 0.12);
+  --badge-warning-border: rgba(174, 0, 45, 0.25);
+  --badge-warning-text:  #920024;
   /* Slate-tinted info (avoids bright “electric blue” panels in light mode) */
   --badge-info-bg:       rgba(51,65,85,0.09);
   --badge-info-border:   rgba(51,65,85,0.18);
@@ -107,10 +135,10 @@
   --shadow-modal:        0 24px 48px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04);
 
   /* ── Loading (buyer shell) ───────────────────────────────────────────────── */
-  --buyer-page-loader-bg: linear-gradient(135deg, #f5f7fa, #e4e7eb);
-  --loading-spinner:         #ff7a1a;
-  --loading-spinner-track:   rgba(255,122,26,0.2);
-  --loading-text:            #64748b;
+  --buyer-page-loader-bg: linear-gradient(135deg, #f9f9f9, #eeeeee);
+  --loading-spinner:         var(--sp-primary-container);
+  --loading-spinner-track:   rgba(215, 25, 63, 0.15);
+  --loading-text:            var(--text-muted);
 
   /* ── Borders & Dividers ───────────────────────────────────────────────────── */
   --divider:          #e5e7eb;
@@ -118,9 +146,9 @@
   --border-subtle:    rgba(0,0,0,0.06);
   --border-visible:   rgba(0,0,0,0.1);
   --border-strong:    rgba(0,0,0,0.15);
-  --border-card:      #e5e7eb;
-  --border-input:     #d1d5db;
-  --border-focus:     #ff7a1a;
+  --border-card:      var(--sp-outline-variant);
+  --border-input:     var(--sp-outline-variant);
+  --border-focus:     var(--sp-on-surface);
 
   /* ── Secondary button (dark rules mainly; light uses neutrals) ────────────── */
   --btn-secondary-bg:        #f1f5f9;
@@ -139,7 +167,7 @@
   --shadow-lg:        0 10px 40px rgba(0,0,0,0.10);
   --shadow-xl:        0 20px 50px rgba(0,0,0,0.12);
   --shadow-hover:     0 8px 24px rgba(0,0,0,0.12);
-  --shadow-card:      0 4px 20px rgba(17,17,17,0.06), 0 0 0 1px rgba(17,17,17,0.04);
+  --shadow-card:      0 0 0 1px var(--sp-outline-variant);
   --shadow-navbar:    0 1px 0 rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04);
 
   /* Marketing / hero icon circles — warm; dark theme overrides below */
@@ -173,11 +201,11 @@
   /* Auth premium split — warm charcoal rail (white copy on aside); no blue-black */
   --auth-premium-aside-bg: linear-gradient(
     160deg,
-    color-mix(in srgb, #2c2826 95%, var(--brand-primary)) 0%,
-    color-mix(in srgb, #1f1c1a 93%, var(--brand-primary)) 52%,
-    #181615 100%
+    color-mix(in srgb, var(--sp-inverse-surface) 96%, var(--brand-primary)) 0%,
+    color-mix(in srgb, #1a1c1c 94%, var(--brand-primary)) 52%,
+    #141616 100%
   );
-  --auth-premium-mesh-fade: color-mix(in srgb, #1f1c1a 86%, var(--brand-primary) 14%);
+  --auth-premium-mesh-fade: color-mix(in srgb, #1a1c1c 88%, var(--brand-primary) 12%);
   --auth-premium-form-bg: linear-gradient(160deg, var(--bg-secondary) 0%, var(--bg-tertiary) 60%, var(--bg-page) 100%);
 
   /* Notification dropdown type accents */
@@ -207,8 +235,8 @@
   --footer-newsletter-form-shadow:  0 8px 26px rgba(0,0,0,0.08);
   --footer-newsletter-title:   #0f172a;
   --footer-newsletter-muted:   #6b7280;
-  --footer-newsletter-btn-bg:  #121212;
-  --footer-newsletter-btn-text:#f2f2f2;
+  --footer-newsletter-btn-bg:  var(--sp-primary-container, #d7193f);
+  --footer-newsletter-btn-text:#ffffff;
   --footer-newsletter-input:   #1a1a1a;
   --footer-newsletter-icon:    #9ca3af;
   --footer-on-dark-heading:    #f2f2f2;
@@ -270,89 +298,109 @@
 }
 
 /* ══════════════════════════════════════════════════════════════════════════════
-   DARK MODE — Buyer storefront + admin / seller dashboards (html.dark + data-theme)
-   • Base #121212 / text #F2F2F2 — comfortable contrast, no pure black or white
-   • Brand & semantics: accent-only, desaturated to avoid glare and “vibration”
+   DARK MODE — Buyer, seller storefronts + shared dashboards (html.dark + data-theme)
+   Crimson Editorial dark palette — mirrors light roles with crimson accent
    ══════════════════════════════════════════════════════════════════════════════ */
 .dark,
 [data-theme='dark'] {
-  /* ── Page & surfaces — charcoal storefront (#0F1115 / #171A20) ─────────────── */
-  --bg-page:        #0f1115;
-  --bg-secondary:   #171a20;
-  --bg-tertiary:    #1c2129;
-  --bg-elevated:    #222831;
-  --card-bg:        #171a20;
-  --dropdown-bg:    #1c2129;
-  --dropdown-border: rgba(255,255,255,0.07);
-  --dropdown-shadow: var(--shadow-lg);
-  --bg-hover:       #252b34;
-  --bg-active:      rgba(255,122,26,0.12);
-  --bg-input:       #1c2129;
-  --bg-skeleton:    #252b34;
-  --bg-badge:       #2E2E2E;
-  --bg-tag:         rgba(125, 160, 200, 0.12);
-  --bg-overlay:     rgba(0,0,0,0.65);
+  /* ── Crimson Editorial — dark (mirrors light roles, crimson accent) ─────── */
+  --sp-surface: #1a1c1c;
+  --sp-surface-dim: #141616;
+  --sp-surface-container: #242626;
+  --sp-surface-container-high: #2f3131;
+  --sp-surface-container-highest: #3a3c3c;
+  --sp-on-surface: #f1f1f1;
+  --sp-on-surface-variant: rgba(241, 241, 241, 0.72);
+  --sp-outline: #906f6f;
+  --sp-outline-variant: rgba(255, 255, 255, 0.12);
+  --sp-primary: #ffb3b4;
+  --sp-primary-container: #d7193f;
+  --sp-on-primary: #ffffff;
+  --sp-on-primary-container: #ffeded;
+  --sp-inverse-primary: #ffb3b4;
+  --sp-inverse-surface: #2f3131;
+  --sp-inverse-on-surface: #f1f1f1;
+  --inverse-on-surface: var(--sp-inverse-on-surface);
+  --sp-glass-bg: rgba(255, 255, 255, 0.05);
+  --sp-glass-blur: 12px;
+  --sp-shadow-ambient: none;
 
-  /* ── Header / Navbar (minimal lift from page, still near #121212 family) ─── */
-  --header-bg:      #13161c;
-  --navbar-bg:      #13161c;
-  --topbar-bg:      #0f1115;
-  --topbar-text:    #a8aeb8;
-  --announcement-bg: #0f1115;
-  --announcement-text: #a8aeb8;
-  --header-border:  rgba(255,255,255,0.06);
-  --search-bg:      rgba(255,255,255,0.06);
-  --search-border:  rgba(255,255,255,0.08);
-  --shadow-header:  0 1px 0 rgba(255,255,255,0.04), 0 12px 40px rgba(0,0,0,0.45);
+  /* ── Page & surfaces ─────────────────────────────────────────────────────── */
+  --bg-page:        var(--sp-surface);
+  --bg-secondary:   #222424;
+  --bg-tertiary:    var(--sp-surface-container);
+  --bg-elevated:    var(--sp-surface-container-high);
+  --card-bg:        var(--sp-glass-bg);
+  --dropdown-bg:    var(--sp-surface-container-high);
+  --dropdown-border: rgba(255, 255, 255, 0.08);
+  --dropdown-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --bg-hover:       rgba(255, 255, 255, 0.08);
+  --bg-active:      rgba(215, 25, 63, 0.14);
+  --bg-input:       var(--sp-surface-container);
+  --bg-skeleton:    var(--sp-surface-container-highest);
+  --bg-badge:       rgba(255, 255, 255, 0.06);
+  --bg-tag:         rgba(215, 25, 63, 0.12);
+  --bg-overlay:     rgba(0, 0, 0, 0.72);
 
-  /* ── Text — readable off-white / muted gray ─────────────────────────────── */
-  --text-primary:     #f2f3f5;
-  --text-secondary:   #a8aeb8;
-  --text-muted:       #8b929e;
-  --text-faint:       #8A8A8A;
+  /* ── Header / Navbar ─────────────────────────────────────────────────────── */
+  --header-bg:      color-mix(in srgb, var(--sp-surface) 92%, transparent);
+  --navbar-bg:      color-mix(in srgb, var(--sp-surface) 92%, transparent);
+  --topbar-bg:      var(--sp-surface);
+  --topbar-text:    rgba(241, 241, 241, 0.55);
+  --announcement-bg: var(--sp-surface);
+  --announcement-text: rgba(241, 241, 241, 0.55);
+  --header-border:  rgba(255, 255, 255, 0.08);
+  --search-bg:      var(--sp-surface-container);
+  --search-border:  rgba(255, 255, 255, 0.1);
+  --shadow-header:  0 1px 0 rgba(255, 255, 255, 0.06);
+
+  /* ── Text ────────────────────────────────────────────────────────────────── */
+  --text-primary:     var(--sp-on-surface);
+  --text-secondary:   var(--sp-on-surface-variant);
+  --text-muted:       rgba(241, 241, 241, 0.5);
+  --text-faint:       rgba(241, 241, 241, 0.38);
   --text-disabled:    #757575;
-  --text-emphasis:    #F2F2F2;
-  --text-on-accent:   #F2F2F2;
-  --dropdown-text:    #F2F2F2;
-  --input-text:       #F2F2F2;
-  --input-placeholder: #8A8A8A;
-  /* Links: muted blue — readable, not fully saturated */
-  --link-color:       #7EB0D8;
-  --link-hover:       #9BC4E5;
+  --text-emphasis:    #ffffff;
+  --text-on-accent:   var(--sp-on-primary);
+  --dropdown-text:    var(--sp-on-surface);
+  --input-text:       var(--sp-on-surface);
+  --input-placeholder: rgba(241, 241, 241, 0.38);
+  --link-color:       var(--sp-inverse-primary);
+  --link-hover:       #ffdada;
 
-  /* ── Brand — accent only (desaturated orange vs neon #FF6B00) ───────────── */
-  --brand-primary:       #ff7a1a;
-  --brand-primary-hover: #ff9640;
-  --brand-orange-text:   #ffb347;
-  --brand-tint:          rgba(255,122,26,0.14);
-  --brand-tint-strong:   rgba(255,122,26,0.22);
-  --brand-border-subtle: rgba(255,122,26,0.35);
-  --gradient-brand-cta:  linear-gradient(135deg, var(--brand-primary), var(--brand-primary-hover));
-  --gradient-brand-bar:  linear-gradient(90deg, var(--brand-primary), var(--brand-primary-hover));
-  --shadow-cta:          0 8px 28px rgba(255, 122, 26, 0.25), 0 0 40px rgba(255, 122, 26, 0.08);
-  --shadow-cta-hover:    0 14px 44px rgba(255, 122, 26, 0.32);
+  /* ── Brand — same crimson CTA in dark; soft rose for accents ─────────────── */
+  --brand-primary:       var(--sp-primary-container);
+  --brand-primary-hover: #f02550;
+  --brand-orange-text:   var(--sp-inverse-primary);
+  --brand-tint:          rgba(215, 25, 63, 0.14);
+  --brand-tint-strong:   rgba(215, 25, 63, 0.22);
+  --brand-border-subtle: rgba(215, 25, 63, 0.35);
+  --gradient-brand-cta:  var(--sp-primary-container);
+  --gradient-brand-bar:  linear-gradient(90deg, #ae002d, #d7193f);
+  --shadow-cta:          none;
+  --shadow-cta-hover:    0 4px 18px rgba(215, 25, 63, 0.35);
 
-  --commerce-brand-primary:       #ff7a1a;
-  --commerce-brand-primary-hover: #ff9640;
-  --commerce-brand-tint:          rgba(255, 122, 26, 0.14);
-  --commerce-brand-tint-strong:   rgba(255, 122, 26, 0.22);
-  --commerce-brand-border-subtle: rgba(255, 122, 26, 0.35);
-  --commerce-gradient-cta:        linear-gradient(135deg, #ff7a1a, #ff9640);
-  --commerce-shadow-cta:          0 8px 28px rgba(255, 122, 26, 0.25);
-  --commerce-shadow-cta-hover:    0 14px 44px rgba(255, 122, 26, 0.32);
+  --commerce-brand-primary:       var(--sp-primary-container);
+  --commerce-brand-primary-hover: #f02550;
+  --commerce-brand-tint:          rgba(215, 25, 63, 0.14);
+  --commerce-brand-tint-strong:   rgba(215, 25, 63, 0.22);
+  --commerce-brand-border-subtle: rgba(215, 25, 63, 0.35);
+  --commerce-gradient-cta:        var(--sp-primary-container);
+  --commerce-shadow-cta:          none;
+  --commerce-shadow-cta-hover:    0 4px 18px rgba(215, 25, 63, 0.35);
 
-  /* ── Product / browse — price uses same soft white as body (no pure white) ─ */
-  --text-price:          #f7f8fa;
+  /* ── Product / browse ────────────────────────────────────────────────────── */
+  --text-price:          var(--sp-inverse-primary);
   --text-in-stock:       #7bc99c;
-  --text-breadcrumb:     #8b929e;
-  --text-breadcrumb-active: #c9cdd4;
-  --size-selector-bg:    #1c2129;
-  --size-selector-selected: #ff7a1a;
+  --text-breadcrumb:     rgba(241, 241, 241, 0.45);
+  --text-breadcrumb-active: var(--sp-on-surface);
+  --size-selector-bg:    var(--sp-surface-container);
+  --size-selector-selected: var(--sp-primary-container);
 
   /* ── Panel tabs ────────────────────────────────────────────────────────────── */
-  --tab-active-bg:       rgba(255,122,26,0.14);
-  --tab-active-text:     #ffb347;
-  --tab-inactive-text:   #9E9E9E;
+  --tab-active-bg:       rgba(215, 25, 63, 0.16);
+  --tab-active-text:     var(--sp-inverse-primary);
+  --tab-inactive-text:   rgba(241, 241, 241, 0.45);
 
   /* ── Semantic badges — low saturation text on tinted fills ──────────────── */
   --badge-success-bg:    rgba(90,160,120,0.16);
@@ -374,10 +422,10 @@
   --shadow-modal:        0 20px 56px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
 
   /* ── Loading — page matches floor; spinner uses brand accent only ───────── */
-  --buyer-page-loader-bg: #0f1115;
-  --loading-spinner:         #ff7a1a;
-  --loading-spinner-track:   rgba(255,122,26,0.2);
-  --loading-text:            #9E9E9E;
+  --buyer-page-loader-bg: linear-gradient(135deg, #1a1c1c, #242626);
+  --loading-spinner:         var(--sp-primary-container);
+  --loading-spinner-track:   rgba(215, 25, 63, 0.2);
+  --loading-text:            var(--text-muted);
 
   /* ── Borders & Dividers — low contrast ──────────────────────────────────── */
   --divider:          rgba(255,255,255,0.05);
@@ -385,9 +433,9 @@
   --border-subtle:    rgba(255,255,255,0.05);
   --border-visible:   rgba(255,255,255,0.1);
   --border-strong:    rgba(255,255,255,0.16);
-  --border-card:      rgba(255,255,255,0.05);
-  --border-input:     rgba(255,255,255,0.09);
-  --border-focus:     rgba(217,119,54,0.45);
+  --border-card:      var(--sp-outline-variant);
+  --border-input:     var(--sp-outline-variant);
+  --border-focus:     var(--sp-on-surface);
 
   /* ── Secondary / ghost buttons ────────────────────────────────────────────── */
   --btn-secondary-bg:        #242424;
@@ -406,7 +454,7 @@
   --shadow-lg:        0 14px 40px rgba(0,0,0,0.45);
   --shadow-xl:        0 22px 56px rgba(0,0,0,0.5);
   --shadow-hover:     0 10px 32px rgba(0,0,0,0.42);
-  --shadow-card:      0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.06), 0 0 48px rgba(255,122,26,0.04);
+  --shadow-card:      0 0 0 1px var(--sp-outline-variant);
   --shadow-navbar:    0 1px 0 rgba(255,255,255,0.04), 0 6px 24px rgba(0,0,0,0.4);
 
   /* ── Scrollbar — low contrast against #121212 ───────────────────────────── */
@@ -422,8 +470,8 @@
   --footer-newsletter-form-shadow:  0 8px 26px rgba(0,0,0,0.35);
   --footer-newsletter-title:   #e8e8e8;
   --footer-newsletter-muted:   #9e9e9e;
-  --footer-newsletter-btn-bg:  #e8e8e8;
-  --footer-newsletter-btn-text:#121212;
+  --footer-newsletter-btn-bg:  var(--sp-primary-container, #d7193f);
+  --footer-newsletter-btn-text:#ffffff;
   --footer-newsletter-input:   #f2f2f2;
   --footer-newsletter-icon:    #757575;
   --footer-tooltip-bg:         #242424;
@@ -502,7 +550,7 @@
   --ai-icon-btn-bg:            rgba(255, 255, 255, 0.07);
   --ai-icon-btn-border:        rgba(255, 255, 255, 0.1);
   --ai-icon-btn-color:         rgba(226, 232, 240, 0.9);
-  --ai-chat-window-shadow:       0 28px 80px rgba(0, 0, 0, 0.38), 0 0 0 1px rgba(249, 115, 22, 0.07), 0 0 60px rgba(249, 115, 22, 0.06);
+  --ai-chat-window-shadow:       var(--shadow-xl);
   --ai-chat-header-bg:         linear-gradient(135deg, rgba(10, 10, 22, 0.98) 0%, rgba(13, 15, 28, 0.97) 100%);
   --ai-chat-header-title:      #f0f4ff;
   --ai-chat-header-online:     #4ade80;

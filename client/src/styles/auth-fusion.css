@@ -4,26 +4,33 @@
  */
 
 .auth-fusion[data-auth-layout='fusion'] {
-  --agf-brand: var(--brand-primary, #ff6b00);
-  --agf-brand-glow: color-mix(in srgb, var(--agf-brand) 45%, transparent);
-  --agf-page-bg: #0c0c0f;
-  --agf-page-bg-alt: #121218;
+  --agf-brand: var(--brand-primary, #ae002d);
+  --agf-brand-bright: var(--sp-primary-container, #d7193f);
+  --agf-brand-glow: color-mix(in srgb, var(--agf-brand-bright) 28%, transparent);
+  --agf-page-bg: var(--sp-inverse-surface, #2f3131);
+  --agf-page-bg-alt: #242626;
   --agf-visual-overlay: linear-gradient(
     180deg,
-    rgba(8, 8, 12, 0.55) 0%,
-    rgba(8, 8, 12, 0.72) 45%,
-    rgba(8, 8, 12, 0.92) 100%
+    rgba(10, 10, 10, 0.45) 0%,
+    rgba(10, 10, 10, 0.72) 45%,
+    rgba(10, 10, 10, 0.92) 100%
   );
-  --agf-card-bg: rgba(18, 18, 24, 0.72);
-  --agf-card-border: rgba(255, 255, 255, 0.1);
-  --agf-card-shadow: 0 28px 80px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.06);
-  --agf-text: #f8fafc;
-  --agf-text-muted: rgba(248, 250, 252, 0.68);
-  --agf-text-faint: rgba(248, 250, 252, 0.45);
+  --agf-card-bg: rgba(255, 255, 255, 0.05);
+  --agf-card-border: rgba(255, 255, 255, 0.08);
+  --agf-card-shadow: 0 20px 40px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  --agf-card-radius: var(--sp-card-radius, 1rem);
+  --agf-input-radius: var(--sp-input-radius, 0.5rem);
+  --agf-btn-radius: var(--sp-btn-radius, 0.5rem);
+  --agf-text: var(--inverse-on-surface, #f1f1f1);
+  --agf-text-muted: rgba(241, 241, 241, 0.68);
+  --agf-text-faint: rgba(241, 241, 241, 0.45);
   --agf-input-bg: rgba(255, 255, 255, 0.04);
   --agf-input-border: rgba(255, 255, 255, 0.12);
-  --agf-input-focus: var(--agf-brand);
-  --agf-line: rgba(255, 122, 26, 0.35);
+  --agf-input-focus: var(--agf-brand-bright);
+  --agf-line: color-mix(in srgb, var(--agf-brand-bright) 35%, transparent);
+  --agf-glass-blur: var(--sp-glass-blur, 12px);
+
+  font-family: var(--font-body, 'Inter', system-ui, sans-serif);
 
   position: relative;
   display: flex;
@@ -38,43 +45,44 @@
 
 [data-theme='light'] .auth-fusion[data-auth-layout='fusion'],
 .auth-fusion[data-auth-layout='fusion'].auth-fusion--light {
-  --agf-page-bg: #eef0f4;
-  --agf-page-bg-alt: #e2e6ee;
+  --agf-page-bg: var(--sp-surface, #f9f9f9);
+  --agf-page-bg-alt: var(--bg-secondary, #f3f3f3);
   --agf-visual-overlay: linear-gradient(
     180deg,
-    rgba(255, 255, 255, 0.35) 0%,
-    rgba(255, 255, 255, 0.55) 40%,
-    rgba(238, 240, 244, 0.92) 100%
+    rgba(249, 249, 249, 0.35) 0%,
+    rgba(249, 249, 249, 0.55) 40%,
+    rgba(243, 243, 243, 0.92) 100%
   );
-  --agf-card-bg: rgba(255, 255, 255, 0.82);
-  --agf-card-border: rgba(15, 23, 42, 0.1);
-  --agf-card-shadow: 0 24px 64px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(15, 23, 42, 0.06);
-  --agf-text: #0f172a;
-  --agf-text-muted: rgba(15, 23, 42, 0.65);
-  --agf-text-faint: rgba(15, 23, 42, 0.45);
-  --agf-input-bg: rgba(255, 255, 255, 0.95);
-  --agf-input-border: rgba(15, 23, 42, 0.14);
+  --agf-card-bg: rgba(255, 255, 255, 0.94);
+  --agf-card-border: var(--sp-outline-variant, #e8e8e8);
+  --agf-card-shadow: 0 0 0 1px var(--sp-outline-variant, #e8e8e8);
+  --agf-text: var(--sp-on-surface, #1a1c1c);
+  --agf-text-muted: var(--text-muted, #777777);
+  --agf-text-faint: var(--text-faint, #999999);
+  --agf-input-bg: var(--bg-input, #f9f9f9);
+  --agf-input-border: var(--sp-outline-variant, #e8e8e8);
   --agf-line: color-mix(in srgb, var(--agf-brand) 55%, transparent);
 }
 
 .dark .auth-fusion[data-auth-layout='fusion'],
 [data-theme='dark'] .auth-fusion[data-auth-layout='fusion'] {
-  --agf-page-bg: #0c0c0f;
-  --agf-page-bg-alt: #121218;
+  --agf-page-bg: var(--sp-surface, #1a1c1c);
+  --agf-page-bg-alt: var(--bg-secondary, #222424);
   --agf-visual-overlay: linear-gradient(
     180deg,
-    rgba(8, 8, 12, 0.55) 0%,
-    rgba(8, 8, 12, 0.72) 45%,
-    rgba(8, 8, 12, 0.92) 100%
+    rgba(26, 28, 28, 0.45) 0%,
+    rgba(26, 28, 28, 0.72) 45%,
+    rgba(26, 28, 28, 0.92) 100%
   );
-  --agf-card-bg: rgba(18, 18, 24, 0.72);
-  --agf-card-border: rgba(255, 255, 255, 0.1);
-  --agf-card-shadow: 0 28px 80px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.06);
-  --agf-text: #f8fafc;
-  --agf-text-muted: rgba(248, 250, 252, 0.68);
-  --agf-text-faint: rgba(248, 250, 252, 0.45);
-  --agf-input-bg: rgba(255, 255, 255, 0.04);
-  --agf-input-border: rgba(255, 255, 255, 0.12);
+  --agf-card-bg: rgba(255, 255, 255, 0.05);
+  --agf-card-border: var(--sp-outline-variant, rgba(255, 255, 255, 0.12));
+  --agf-card-shadow: 0 0 0 1px var(--sp-outline-variant, rgba(255, 255, 255, 0.12));
+  --agf-text: var(--sp-on-surface, #f1f1f1);
+  --agf-text-muted: rgba(241, 241, 241, 0.68);
+  --agf-text-faint: rgba(241, 241, 241, 0.45);
+  --agf-input-bg: var(--bg-input, #242626);
+  --agf-input-border: var(--sp-outline-variant, rgba(255, 255, 255, 0.12));
+  --agf-brand-bright: var(--sp-primary-container, #d7193f);
 }
 
 @media (min-width: 768px) {
@@ -278,6 +286,7 @@
   inset: 0;
   pointer-events: none;
   background:
+    radial-gradient(ellipse 70% 55% at 100% 35%, color-mix(in srgb, var(--agf-brand-bright) 22%, transparent), transparent 58%),
     radial-gradient(ellipse 80% 50% at 50% 0%, color-mix(in srgb, var(--agf-brand) 8%, transparent), transparent 55%),
     var(--agf-page-bg);
 }
@@ -315,14 +324,61 @@
 .auth-fusion__card {
   width: 100%;
   max-width: 440px;
-  padding: clamp(1.25rem, 4vw, 2rem);
-  border-radius: 1.35rem;
+  padding: clamp(1.35rem, 4vw, 2rem);
+  border-radius: var(--agf-card-radius);
   background: var(--agf-card-bg);
   border: 1px solid var(--agf-card-border);
   box-shadow: var(--agf-card-shadow);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(var(--agf-glass-blur));
+  -webkit-backdrop-filter: blur(var(--agf-glass-blur));
   box-sizing: border-box;
+}
+
+/* Form header — back + centered title (Create Account mockup) */
+.auth-fusion .agf-form-header {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 1.25rem;
+  min-height: 3.25rem;
+}
+
+.auth-fusion .agf-form-header__back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: none;
+  border-radius: 999px;
+  color: var(--agf-brand-bright);
+  background: color-mix(in srgb, var(--agf-brand-bright) 12%, transparent);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.auth-fusion .agf-form-header__back:hover {
+  background: color-mix(in srgb, var(--agf-brand-bright) 20%, transparent);
+}
+
+.auth-fusion .agf-form-header__back:focus-visible {
+  outline: 2px solid var(--agf-brand-bright);
+  outline-offset: 2px;
+}
+
+.auth-fusion .agf-form-header__body {
+  width: 100%;
+  padding-top: 0.15rem;
+  text-align: center;
+}
+
+.auth-fusion .agf-form-header .agf-subheading {
+  margin-bottom: 0;
 }
 
 /* Tabs — orange underline */
@@ -373,17 +429,33 @@
 
 /* Typography */
 .auth-fusion .agf-heading {
-  margin: 0 0 0.35rem;
-  font-size: clamp(1.35rem, 4vw, 1.65rem);
+  margin: 0 0 0.4rem;
+  font-size: clamp(1.5rem, 4.5vw, 1.75rem);
   font-weight: 700;
-  line-height: 1.2;
-  color: var(--agf-text);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-family: var(--font-display, var(--font-body));
+  color: var(--agf-brand-bright);
+  text-align: center;
 }
 
 .auth-fusion .agf-subheading {
   margin: 0 0 1.25rem;
-  font-size: 0.9rem;
+  font-size: 0.9375rem;
+  line-height: 1.5;
   color: var(--agf-text-muted);
+}
+
+.auth-fusion .agf-form-footer {
+  margin: 0;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--agf-text-muted);
+}
+
+.auth-fusion .agf-form-footer .agf-link {
+  font-weight: 700;
+  color: var(--agf-brand-bright);
 }
 
 /* Form stack */
@@ -417,11 +489,15 @@
 }
 
 .auth-fusion .agf-field__label {
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--agf-text-muted);
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--agf-text);
+}
+
+.auth-fusion .agf-field.is-error .agf-field__label {
+  color: var(--badge-error-text, #ef4444);
 }
 
 .auth-fusion .agf-field__wrap {
@@ -440,16 +516,39 @@
 
 .auth-fusion .agf-field__icon--right {
   left: auto;
-  right: 0.75rem;
+  right: 0.85rem;
   pointer-events: auto;
+}
+
+.auth-fusion .agf-field__icon--action {
+  pointer-events: auto;
+}
+
+.auth-fusion .agf-field__icon--error {
+  color: var(--badge-error-text, #ef4444);
+  pointer-events: none;
+}
+
+.auth-fusion .agf-input.is-error {
+  padding-right: 2.85rem;
+}
+
+.auth-fusion .agf-input.is-error.agf-input--has-right {
+  padding-right: 4.5rem;
+}
+
+.auth-fusion .agf-input.is-error.agf-input--has-right ~ .agf-field__icon--error {
+  right: 2.85rem;
 }
 
 .auth-fusion .agf-input {
   width: 100%;
   min-height: 52px;
-  padding: 0 1rem 0 2.75rem;
-  border-radius: 0.75rem;
+  height: 52px;
+  padding: 0 1rem 0 2.85rem;
+  border-radius: var(--agf-input-radius);
   font-size: 1rem;
+  font-family: inherit;
   color: var(--agf-text);
   background: var(--agf-input-bg);
   border: 1.5px solid var(--agf-input-border);
@@ -633,7 +732,7 @@
 }
 
 .auth-fusion .agf-input.is-valid {
-  border-color: color-mix(in srgb, var(--badge-success-text, #10b981) 65%, var(--agf-input-border));
+  border-color: var(--sp-success, #22c55e);
 }
 
 .auth-fusion .agf-field__error {
@@ -653,9 +752,9 @@
 }
 
 .auth-fusion .agf-link {
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   font-weight: 600;
-  color: var(--agf-brand);
+  color: var(--agf-brand-bright);
   text-decoration: none;
 }
 
@@ -713,15 +812,18 @@
   min-height: 52px;
   padding: 0 1.25rem;
   border: none;
-  border-radius: 0.75rem;
-  font-size: 1rem;
+  border-radius: var(--agf-btn-radius);
+  font-size: 0.9375rem;
   font-weight: 700;
-  color: #fff;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--agf-brand) 95%, #fff) 0%, var(--agf-brand) 100%);
-  box-shadow: 0 8px 28px var(--agf-brand-glow);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-family: inherit;
+  color: var(--sp-on-primary, #ffffff);
+  background: var(--gradient-brand-cta, #d7193f);
+  box-shadow: var(--shadow-cta, none);
   cursor: pointer;
   text-decoration: none;
-  transition: transform 0.2s ease, opacity 0.2s ease;
+  transition: transform 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
 }
 
 .auth-fusion .agf-btn-primary:hover:not(:disabled) {
@@ -756,31 +858,49 @@
   background: var(--agf-input-border);
 }
 
-/* Social */
+/* Social — circular icon row */
 .auth-fusion .agf-social-row {
-  display: flex;
-  gap: 0.65rem;
-}
-
-.auth-fusion .agf-social-btn {
-  flex: 1;
-  min-height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  border-radius: 0.75rem;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: var(--agf-text);
-  background: var(--agf-input-bg);
-  border: 1px solid var(--agf-input-border);
-  cursor: pointer;
-  transition: border-color 0.2s ease, background 0.2s ease;
+  gap: 1rem;
 }
 
-.auth-fusion .agf-social-btn:hover {
-  border-color: color-mix(in srgb, var(--agf-brand) 40%, var(--agf-input-border));
+.auth-fusion .agf-social-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--agf-input-border);
+  background: var(--agf-input-bg);
+  color: var(--agf-text);
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+
+.auth-fusion .agf-social-btn--circle {
+  width: 3.25rem;
+  height: 3.25rem;
+  min-height: 3.25rem;
+  border-radius: 999px;
+  flex: 0 0 auto;
+}
+
+.auth-fusion .agf-social-icon {
+  width: 1.35rem;
+  height: 1.35rem;
+  flex-shrink: 0;
+}
+
+.auth-fusion .agf-social-btn:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--agf-brand-bright) 45%, var(--agf-input-border));
+  transform: translateY(-1px);
+}
+
+.auth-fusion .agf-social-btn.is-disabled,
+.auth-fusion .agf-social-btn:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .auth-fusion .agf-social-btn:focus-visible {

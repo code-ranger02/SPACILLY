@@ -1354,7 +1354,7 @@ function renderSectionContent(sectionId: string) {
                     className="flex h-10 w-10 items-center justify-center rounded-full text-lg"
                     style={{
                       background: 'color-mix(in srgb, var(--brand-primary) 18%, transparent)',
-                      color: '#fed7aa',
+                      color: 'var(--brand-orange-text, #ffb3b4)',
                     }}
                   >
                     {item.icon}
@@ -1864,7 +1864,7 @@ function renderSectionContent(sectionId: string) {
                 <div className="space-y-1 text-center">
                   <p
                     className="text-xs font-semibold"
-                    style={{ color: '#fed7aa' }}
+                    style={{ color: 'var(--brand-orange-text, #ffb3b4)' }}
                   >
                     SPACILLY ESCROW 🔒
                   </p>
@@ -1879,7 +1879,7 @@ function renderSectionContent(sectionId: string) {
                     style={{
                       background: 'transparent',
                       boxShadow: 'inset 0 0 0 1px var(--divider)',
-                      color: '#fed7aa',
+                      color: 'var(--brand-orange-text, #ffb3b4)',
                     }}
                   >
                     On confirmation → Payout | On dispute → Refund
@@ -2676,7 +2676,7 @@ function renderSectionContent(sectionId: string) {
                   >
                     <div
                       className="flex h-7 w-7 items-center justify-center rounded-full text-xs"
-                      style={{ background: 'color-mix(in srgb, var(--brand-primary) 18%, transparent)', color: '#fed7aa' }}
+                      style={{ background: 'color-mix(in srgb, var(--brand-primary) 18%, transparent)', color: 'var(--brand-orange-text, #ffb3b4)' }}
                     >
                       {step.icon}
                     </div>

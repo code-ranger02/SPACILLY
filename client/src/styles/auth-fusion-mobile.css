@@ -190,9 +190,9 @@
 
   /* Soft fill inputs — IG #efefef / Google filled */
   .auth-fusion .agf-input {
-    min-height: var(--agf-input-h);
-    height: var(--agf-input-h);
-    padding-left: 2.35rem;
+    min-height: 48px;
+    height: 48px;
+    padding-left: 2.5rem;
     padding-right: 0.75rem;
     font-size: 16px;
     border-radius: 10px;
@@ -306,7 +306,7 @@
     font-size: 0.9375rem;
     font-weight: 700;
     border-radius: 10px;
-    box-shadow: none;
+    box-shadow: var(--shadow-cta, 0 8px 24px rgba(220, 20, 60, 0.25));
     touch-action: manipulation;
   }
 
@@ -335,6 +335,12 @@
     background: rgba(255, 255, 255, 0.08);
     border-color: rgba(255, 255, 255, 0.16);
     color: var(--text-primary);
+  }
+
+  .auth-fusion .agf-social-btn--circle {
+    width: 3rem;
+    height: 3rem;
+    min-height: 3rem;
   }
 
   .auth-fusion .agf-card-footer {

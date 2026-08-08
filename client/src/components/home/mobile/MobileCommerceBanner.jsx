@@ -6,11 +6,11 @@ const ICONS = { sparkles: Sparkles, zap: Zap, truck: Truck, tag: Tag };
 
 const PRESETS = {
   flash: {
-    gradient: 'linear-gradient(115deg, #ff7a1a 0%, #ff9f4a 42%, #1a1a2e 100%)',
+    gradient: 'linear-gradient(115deg, #ae002d 0%, #d7193f 42%, #1a1a2e 100%)',
     icon: 'zap',
   },
   ai: {
-    gradient: 'linear-gradient(115deg, #6366f1 0%, #8b5cf6 48%, #ff7a1a 100%)',
+    gradient: 'linear-gradient(115deg, #6366f1 0%, #8b5cf6 48%, #d7193f 100%)',
     icon: 'sparkles',
   },
   shipping: {
@@ -18,7 +18,7 @@ const PRESETS = {
     icon: 'truck',
   },
   deals: {
-    gradient: 'linear-gradient(115deg, #ef4444 0%, #f97316 50%, #1e293b 100%)',
+    gradient: 'linear-gradient(115deg, #ef4444 0%, #d7193f 50%, #1e293b 100%)',
     icon: 'tag',
   },
   fashion: {

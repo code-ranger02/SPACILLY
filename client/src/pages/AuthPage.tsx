@@ -2,19 +2,20 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import {
-  Eye, EyeOff, User, Mail, Lock, Check, ArrowRight, Sun, Moon, ShieldCheck, ChevronLeft,
+  Eye, EyeOff, User, Mail, Lock, Check, Sun, Moon, ShieldCheck, ChevronLeft,
 } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
 import { useToastStore } from '../stores/toastStore';
 import { useTheme } from '../contexts/ThemeContext';
 import AuthPremiumLayout from '../components/AuthPremiumLayout';
-import AuthFusionTabs from '../components/auth/AuthFusionTabs';
+import AuthFormHeader from '../components/auth/AuthFormHeader';
 import {
   AuthInput,
   ErrorBanner,
   PrimaryBtn,
   OrDivider,
   GoogleBtn,
+  SocialAuthRow,
   OtpInputs,
   applyOtpInput,
   focusAuthErrorSummary,
@@ -186,12 +187,21 @@ function LoginFormContent({
       {...motionProps}
       className={`agf-form${shake && !reduceMotion ? ' agf-form--shake' : ''}`}
     >
-      <div>
-        <h2 className="agf-heading">{isPhone ? 'Log in' : 'Welcome back '}</h2>
-        <p className="agf-subheading">
-          {isPhone ? 'Enter your email and password to continue' : 'Sign in to your Spacilly account'}
-        </p>
-      </div>
+      {isPhone ? (
+        <div>
+          <h2 className="agf-heading">Log in</h2>
+          <p className="agf-subheading">
+            Enter your email and password to continue
+          </p>
+        </div>
+      ) : (
+        <AuthFormHeader
+          title="Log In"
+          subtitle="Sign in to your Spacilly account"
+          backTo="/"
+          backLabel="Back to home"
+        />
+      )}
 
       <ErrorBanner message={error} />
 
@@ -287,30 +297,24 @@ function LoginFormContent({
       </div>
 
       <PrimaryBtn loading={loading} success={success}>
-        {success ? <><Check size={17} /> Signed In</> : isPhone ? 'Log in' : <>Sign In <ArrowRight size={16} /></>}
+        {success ? <><Check size={17} /> Signed In</> : isPhone ? 'Log in' : 'Sign In'}
       </PrimaryBtn>
 
-      {!isPhone && (
-        <>
-          <OrDivider />
-          <div className="agf-social-row">
-            <GoogleBtn
-              onClick={() => {
-                onOAuthBegin?.();
-                setError('');
-                setFieldErrors({});
-                sessionStorage.setItem('auth_oauth_role', role);
-                window.location.href = `${API_BASE}/auth/google?role=${role}`;
-              }}
-            />
-          </div>
-        </>
-      )}
+      <OrDivider mode="login" />
+      <SocialAuthRow
+        onGoogle={() => {
+          onOAuthBegin?.();
+          setError('');
+          setFieldErrors({});
+          sessionStorage.setItem('auth_oauth_role', role);
+          window.location.href = `${API_BASE}/auth/google?role=${role}`;
+        }}
+      />
 
-      <p className="agf-caption agf-caption--link">
+      <p className={isPhone ? 'agf-caption agf-caption--link' : 'agf-form-footer'}>
         No account?{' '}
         <Link to="/auth?tab=signup" className="agf-link">
-          Sign up
+          {isPhone ? 'Sign up' : 'Create Account'}
         </Link>
       </p>
     </motion.form>
@@ -536,14 +540,19 @@ function SignupFormContent({
         </div>
       )}
 
-      <div>
-        <h2 className="agf-heading">
-          {isPhone ? stepMeta[step - 1].title : 'Create your account'}
-        </h2>
-        <p className="agf-subheading">
-          {isPhone ? stepMeta[step - 1].sub : 'Join buyers and sellers on Spacilly'}
-        </p>
-      </div>
+      {!isPhone ? (
+        <AuthFormHeader
+          title="Create Account"
+          subtitle="Enter your details to create an account"
+          backTo="/auth?tab=login"
+          backLabel="Back to sign in"
+        />
+      ) : (
+        <div>
+          <h2 className="agf-heading">{stepMeta[step - 1].title}</h2>
+          <p className="agf-subheading">{stepMeta[step - 1].sub}</p>
+        </div>
+      )}
 
       <ErrorBanner message={error} />
 
@@ -737,24 +746,22 @@ function SignupFormContent({
 
       {!isPhone && (
         <>
-          <OrDivider />
-          <div className="agf-social-row">
-            <GoogleBtn
-              onClick={() => {
-                onOAuthBegin?.();
-                setError('');
-                setFieldErrors({});
-                sessionStorage.setItem('auth_oauth_role', role);
-                window.location.href = `${API_BASE}/auth/google?role=${role}`;
-              }}
-            />
-          </div>
+          <OrDivider mode="signup" />
+          <SocialAuthRow
+            onGoogle={() => {
+              onOAuthBegin?.();
+              setError('');
+              setFieldErrors({});
+              sessionStorage.setItem('auth_oauth_role', role);
+              window.location.href = `${API_BASE}/auth/google?role=${role}`;
+            }}
+          />
         </>
       )}
 
-      <p className="agf-caption agf-caption--link">
+      <p className={isPhone ? 'agf-caption agf-caption--link' : 'agf-form-footer'}>
         Already have an account?{' '}
-        <Link to="/auth?tab=login" className="agf-link">Log in</Link>
+        <Link to="/auth?tab=login" className="agf-link">{isPhone ? 'Log in' : 'Log In'}</Link>
       </p>
     </motion.form>
   );
@@ -813,13 +820,12 @@ function ForgotFormContent({
       {...motionProps}
       className="agf-form"
     >
-      <div>
-        <Link to="/auth?tab=login" className="agf-link flex items-center gap-1 mb-4 w-fit">
-          ← Back to Sign In
-        </Link>
-        <h2 className="agf-heading">Reset password</h2>
-        <p className="agf-subheading">Enter your email and we&apos;ll send a 6-digit reset code.</p>
-      </div>
+      <AuthFormHeader
+        title="Reset Password"
+        subtitle="Enter your email and we'll send a 6-digit reset code."
+        backTo="/auth?tab=login"
+        backLabel="Back to sign in"
+      />
       <ErrorBanner message={error} />
       <AuthInput
         label="Email Address"
@@ -841,7 +847,7 @@ function ForgotFormContent({
         autoFocus
       />
       <PrimaryBtn loading={loading}>
-        {loading ? 'Sending…' : <>Send Reset Code <ArrowRight size={15} /></>}
+        {loading ? 'Sending…' : 'Send Reset Code'}
       </PrimaryBtn>
     </motion.form>
   );
@@ -1227,7 +1233,7 @@ export default function AuthPage() {
     ? { initial: false as const, animate: false as const }
     : { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.45 } };
 
-  const showTabs = panel === 'auth' && validTab !== 'forgot';
+  const showTabs = false;
   const showCardFooter = panel === 'auth' || panel === 'otp' || panel === 'reset';
 
   return (
@@ -1237,7 +1243,7 @@ export default function AuthPage() {
       </div>
 
       <motion.div className="auth-fusion__card" {...cardFade}>
-        {showTabs && <AuthFusionTabs activeTab={validTab} />}
+        {showTabs && null}
 
         <AnimatePresence mode="wait">
                 {panel === 'auth' && (
@@ -1295,16 +1301,12 @@ export default function AuthPage() {
                 {/* ── OTP PANEL ── */}
                 {panel === 'otp' && (
                   <motion.div key="otp" {...panelSlide} className="agf-otp-wrap">
-                    <div className="agf-otp-icon">
-                      <Mail size={28} aria-hidden />
-                    </div>
-
-                    <h2 className="agf-heading">Verify email</h2>
-                    <p className="agf-subheading agf-subheading--center">
-                      We sent a 6-digit code to{' '}
-                      <strong style={{ color: 'var(--agf-brand)' }}>{otpEmail}</strong>.
-                      Check your inbox and spam folder.
-                    </p>
+                    <AuthFormHeader
+                      title="Verify Email"
+                      subtitle={`We sent a 6-digit code to ${otpEmail}. Check your inbox and spam folder.`}
+                      backTo="/auth?tab=login"
+                      backLabel="Back to sign in"
+                    />
 
                     <div className="agf-center-narrow">
                       <OtpInputs
@@ -1341,7 +1343,7 @@ export default function AuthPage() {
                       </div>
 
                       <PrimaryBtn type="button" onClick={verifyOtp} loading={verifying || sending} disabled={otpLocked}>
-                        {verifying ? 'Verifying…' : 'Verify Email →'}
+                        {verifying ? 'Verifying…' : 'Verify Email'}
                       </PrimaryBtn>
 
                       <button
@@ -1362,14 +1364,12 @@ export default function AuthPage() {
 
                 {panel === 'reset' && (
                   <motion.div key="reset" {...panelSlide} className="agf-otp-wrap">
-                    <div className="agf-otp-icon">
-                      <Lock size={28} aria-hidden />
-                    </div>
-                    <h2 className="agf-heading">Reset password</h2>
-                    <p className="agf-subheading agf-subheading--center">
-                      Enter the 6-digit code sent to{' '}
-                      <strong style={{ color: 'var(--agf-brand)' }}>{resetEmail}</strong>, then set a new password.
-                    </p>
+                    <AuthFormHeader
+                      title="Reset Password"
+                      subtitle={`Enter the 6-digit code sent to ${resetEmail}, then set a new password.`}
+                      backTo="/auth?tab=login"
+                      backLabel="Back to sign in"
+                    />
 
                     <div className="agf-center-narrow">
                       <OtpInputs

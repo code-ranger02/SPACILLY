@@ -5,6 +5,7 @@ import { useToastStore } from '../stores/toastStore';
 import { ShoppingBag, Briefcase, Loader2 } from 'lucide-react';
 import AuthPremiumLayout from '../components/AuthPremiumLayout';
 import AuthFusionCard from '../components/auth/AuthFusionCard';
+import AuthFormHeader from '../components/auth/AuthFormHeader';
 import { API_BASE_URL } from '../lib/config';
 import { getDashboardPathForRole } from '../lib/authRouting';
 
@@ -134,17 +135,16 @@ export function SelectRole() {
   return (
     <AuthPremiumLayout>
       <AuthFusionCard>
-        <h2 className="agf-heading text-center">Choose Your Account Type</h2>
-        {googleName && (
-          <p className="agf-subheading text-center">
-            Welcome, <strong style={{ color: 'var(--agf-brand)' }}>{googleName}</strong>!
-          </p>
-        )}
-        <p className="agf-subheading agf-subheading--center">
-          {googleName
-            ? `Your account will be created with the name "${googleName}" from your Google account.`
-            : 'Select how you want to use Spacilly'}
-        </p>
+        <AuthFormHeader
+          title="Choose Account Type"
+          subtitle={
+            googleName
+              ? `Welcome, ${googleName}! Select how you want to use Spacilly.`
+              : 'Select how you want to use Spacilly'
+          }
+          backTo="/auth?tab=login"
+          backLabel="Back to sign in"
+        />
 
         <div className="agf-role-picker">
           <button

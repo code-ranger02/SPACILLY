@@ -1,11 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Mail, Loader2, ArrowRight, RefreshCw } from 'lucide-react';
+import { ArrowRight, RefreshCw, Loader2 } from 'lucide-react';
 import { useToastStore } from '../stores/toastStore';
 import { useAuthStore } from '../stores/authStore';
 import { authAPI } from '../lib/api';
 import AuthPremiumLayout from '../components/AuthPremiumLayout';
 import AuthFusionCard from '../components/auth/AuthFusionCard';
+import AuthFormHeader from '../components/auth/AuthFormHeader';
+
 export function VerifyEmailPending() {
   const [searchParams] = useSearchParams();
   const emailFromUrl = searchParams.get('email') || '';
@@ -72,16 +74,16 @@ export function VerifyEmailPending() {
   return (
     <AuthPremiumLayout>
       <AuthFusionCard>
-        <div className="agf-otp-icon mx-auto">
-          <Mail size={28} aria-hidden />
-        </div>
-
-        <h1 className="agf-heading text-center">Check your email</h1>
-        <p className="agf-subheading agf-subheading--center">
-          {source === 'google'
-            ? "We've sent a verification link to your Google account email. Click the link to verify and sign in."
-            : "We've sent a verification link to your email. Click the link in the message to verify your account and sign in."}
-        </p>
+        <AuthFormHeader
+          title="Check Your Email"
+          subtitle={
+            source === 'google'
+              ? "We've sent a verification link to your Google account email. Click the link to verify and sign in."
+              : "We've sent a verification link to your email. Click the link in the message to verify your account and sign in."
+          }
+          backTo="/auth?tab=login"
+          backLabel="Back to sign in"
+        />
 
         {email && <p className="agf-email-chip">{email}</p>}
 

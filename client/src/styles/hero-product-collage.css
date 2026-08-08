@@ -90,7 +90,7 @@
 }
 
 .hpc-slide-tile__link:focus-visible {
-  outline: 2px solid var(--brand-primary, #ff7a1a);
+  outline: 2px solid var(--brand-primary, #d7193f);
   outline-offset: 2px;
 }
 
@@ -124,7 +124,7 @@
 .hpc-slide-tile__price {
   font-size: 0.68rem;
   font-weight: 800;
-  color: var(--brand-primary, #ff7a1a);
+  color: var(--brand-primary, #d7193f);
 }
 
 @media (prefers-reduced-motion: reduce) {

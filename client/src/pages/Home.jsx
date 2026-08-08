@@ -4,6 +4,8 @@ import { getPreferredSiteOrigin } from '../lib/siteOrigin';
 import BuyerLayout from '../components/buyer/BuyerLayout';
 import PremiumMobileHome from '../components/home/PremiumMobileHome';
 import FuturisticHero from '../components/home/FuturisticHero';
+import { useIsMobile } from '../hooks/useIsMobile';
+
 const FeaturedCategories = lazy(() => import('../components/home/FeaturedCategories'));
 const TrendingProducts = lazy(() => import('../components/home/TrendingProducts'));
 const PromoBanner = lazy(() => import('../components/home/PromoBanner'));
@@ -15,12 +17,8 @@ function HomeSectionSkeleton({ height = 420 }) {
   return (
     <div className="w-full px-4 sm:px-6 lg:px-10 xl:px-16 py-12">
       <div
-        className="rounded-2xl overflow-hidden animate-pulse"
-        style={{
-          minHeight: height,
-          background: 'var(--bg-card, #eef0f5)',
-          border: '1px solid var(--card-border, rgba(0,0,0,0.08))',
-        }}
+        className="sp-glass-card rounded-2xl overflow-hidden animate-pulse"
+        style={{ minHeight: height }}
       />
     </div>
   );
@@ -56,9 +54,10 @@ function DeferredSection({ children, fallbackHeight = 420, rootMargin = '400px 0
 
 export default function Home() {
   const origin = getPreferredSiteOrigin();
+  const isMobile = useIsMobile();
 
   return (
-    <BuyerLayout>
+    <BuyerLayout noHeaderPad={isMobile}>
       <PageSeo
         title="Spacilly – Shop with escrow protection"
         description="Discover premium products from verified sellers. Secure payments, fast delivery, and buyer protection built in."

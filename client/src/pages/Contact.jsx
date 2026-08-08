@@ -439,7 +439,7 @@ export default function Contact() {
                     padding: 0,
                   }}
                   onClick={() => {
-                    window.location.href = 'mailto:reaglerobust2020@gmail.com';
+                    window.location.href = 'mailto:info@spacilly.com';
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.color = 'var(--link-hover)';
@@ -448,7 +448,7 @@ export default function Contact() {
                     e.currentTarget.style.color = 'var(--link-color)';
                   }}
                 >
-                  reaglerobust2020@gmail.com
+                  info@spacilly.com
                 </button>
                 <motion.button
                   type="button"
@@ -464,7 +464,7 @@ export default function Contact() {
                     boxShadow: 'var(--shadow-cta)',
                   }}
                   onClick={() => {
-                    window.location.href = 'mailto:reaglerobust2020@gmail.com';
+                    window.location.href = 'mailto:info@spacilly.com';
                   }}
                 >
                   Send Email →
@@ -1171,7 +1171,7 @@ export default function Contact() {
                         className="text-sm font-semibold"
                         style={{ color: 'var(--text-primary)' }}
                       >
-                        reaglerobust2020@gmail.com
+                        info@spacilly.com
                       </p>
                       <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
                         General inquiries

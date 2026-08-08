@@ -12,7 +12,7 @@ const FALLBACK = {
   sub: 'Super Deals',
   cta: 'Grab Now',
   href: '/search?sort=discount',
-  bg: 'linear-gradient(135deg, #ff7a1a 0%, #ff9a4a 45%, #c2410c 100%)',
+  bg: 'linear-gradient(135deg, #ae002d 0%, #d7193f 45%, #920024 100%)',
 };
 
 export default function SuperDealsBanner() {

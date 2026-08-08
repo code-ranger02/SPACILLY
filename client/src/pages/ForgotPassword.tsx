@@ -4,6 +4,7 @@ import { Mail } from 'lucide-react';
 import { useToastStore } from '../stores/toastStore';
 import AuthPremiumLayout from '../components/AuthPremiumLayout';
 import AuthFusionCard from '../components/auth/AuthFusionCard';
+import AuthFormHeader from '../components/auth/AuthFormHeader';
 import { AuthInput, ErrorBanner, PrimaryBtn } from '../components/auth/AuthFormControls';
 import { API_BASE_URL } from '../lib/config';
 
@@ -62,25 +63,27 @@ export function ForgotPassword() {
             </div>
             <h2 className="agf-heading">Check your inbox</h2>
             <p className="agf-subheading agf-subheading--center">
-              We sent a 6-digit code to <strong style={{ color: 'var(--agf-brand)' }}>{email}</strong>.
+              We sent a 6-digit code to <strong style={{ color: 'var(--agf-brand-bright)' }}>{email}</strong>.
               It expires in 15 minutes.
             </p>
             <PrimaryBtn
               type="button"
               onClick={() => navigate('/reset-password')}
             >
-              Enter Code →
+              Enter Code
             </PrimaryBtn>
             <Link to="/auth?tab=login" className="agf-link block mx-auto mt-4">
-              Back to Sign In
+              Back to Log In
             </Link>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="agf-form">
-            <h2 className="agf-heading">Reset Password</h2>
-            <p className="agf-subheading">
-              Enter your email and we&apos;ll send a 6-digit reset code.
-            </p>
+            <AuthFormHeader
+              title="Reset Password"
+              subtitle="Enter your email and we'll send a 6-digit reset code."
+              backTo="/auth?tab=login"
+              backLabel="Back to sign in"
+            />
 
             <ErrorBanner message={error} />
 
@@ -101,13 +104,13 @@ export function ForgotPassword() {
             />
 
             <PrimaryBtn loading={loading} disabled={loading}>
-              {loading ? 'Sending…' : 'Send Reset Code →'}
+              {loading ? 'Sending…' : 'Send Reset Code'}
             </PrimaryBtn>
 
-            <p className="agf-caption agf-caption--link">
+            <p className="agf-form-footer">
               Remember your password?{' '}
               <Link to="/auth?tab=login" className="agf-link">
-                Sign In
+                Log In
               </Link>
             </p>
           </form>

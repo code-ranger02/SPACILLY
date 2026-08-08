@@ -30,6 +30,7 @@ export const NO_BUYER_CHROME_PREFIXES = [
   '/select-role',
   '/auth/google',
   '/approve-device-success',
+  '/onboarding',
   '/seller',
   '/admin',
   '/dashboard',

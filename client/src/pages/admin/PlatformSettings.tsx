@@ -9,7 +9,7 @@ export default function PlatformSettings() {
   const [settings, setSettings] = useState({
     // General
     platformName: 'SPACILLY',
-    platformEmail: 'reaglerobust2020@gmail.com',
+    platformEmail: 'info@spacilly.com',
     platformPhone: '+250787057751',
     timezone: 'UTC',
     currency: 'USD',

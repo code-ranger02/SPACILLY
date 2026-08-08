@@ -80,7 +80,7 @@ html[data-theme='light'] .mmo-panel,
   font-weight: 800;
   font-size: 16px;
   color: #fff;
-  background: linear-gradient(135deg, #f97316, #fb923c);
+  background: var(--gradient-brand-cta, linear-gradient(135deg, #ae002d, #d7193f));
   box-shadow: 0 6px 18px color-mix(in srgb, var(--brand-primary) 35%, transparent);
 }
 

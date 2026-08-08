@@ -45,7 +45,7 @@ export default function HeroCanvas3D({ theme = 'dark' }) {
     rendererRef.current = renderer;
 
     // Particles
-    const accentColor = new THREE.Color('#d97736');
+    const accentColor = new THREE.Color('#d7193f');
     const purpleColor = new THREE.Color('#8b7cb8');
     const whiteColor = new THREE.Color(isDark ? '#f2f2f2' : '#0f172a');
     const particles = [];
@@ -101,7 +101,7 @@ export default function HeroCanvas3D({ theme = 'dark' }) {
     // Ambient glow orbs
     const glowGeo = new THREE.SphereGeometry(60, 16, 16);
     const glowMat1 = new THREE.MeshBasicMaterial({
-      color: isDark ? '#d97736' : '#fdba74',
+      color: isDark ? '#d7193f' : '#ffb3b4',
       transparent: true,
       opacity: isDark ? 0.04 : 0.03,
     });

@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Lock, Check, Eye, EyeOff } from 'lucide-react';
 import AuthPremiumLayout from '../components/AuthPremiumLayout';
 import AuthFusionCard from '../components/auth/AuthFusionCard';
+import AuthFormHeader from '../components/auth/AuthFormHeader';
 import { AuthInput, ErrorBanner, PrimaryBtn } from '../components/auth/AuthFormControls';
 
 import { API_BASE_URL } from '../lib/config';
@@ -93,10 +94,6 @@ export function ResetPassword() {
   return (
     <AuthPremiumLayout>
       <AuthFusionCard>
-        <Link to="/auth?tab=login" className="agf-link inline-flex mb-3">
-          ← Back to Sign In
-        </Link>
-
         {success ? (
           <div className="text-center py-2">
             <div className="agf-otp-icon mx-auto">
@@ -109,10 +106,12 @@ export function ResetPassword() {
           </div>
         ) : (
           <>
-            <h2 className="agf-heading">Set New Password</h2>
-            <p className="agf-subheading">
-              Use the link from your reset email to set a new password. If your link expired, request a new one.
-            </p>
+            <AuthFormHeader
+              title="Set New Password"
+              subtitle="Use the link from your reset email to set a new password."
+              backTo="/auth?tab=login"
+              backLabel="Back to sign in"
+            />
 
             {!tokenFromUrl?.trim() && (
               <div
@@ -211,17 +210,17 @@ export function ResetPassword() {
                   !tokenFromUrl?.trim()
                 }
               >
-                {loading ? 'Resetting…' : 'Reset Password →'}
+                {loading ? 'Resetting…' : 'Reset Password'}
               </PrimaryBtn>
             </form>
           </>
         )}
       </AuthFusionCard>
 
-      <p className="agf-caption agf-caption--link">
+      <p className="agf-form-footer agf-caption--link">
         Remember your password?{' '}
         <Link to="/auth?tab=login" className="agf-link">
-          Sign In
+          Log In
         </Link>
       </p>
     </AuthPremiumLayout>

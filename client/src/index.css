@@ -1,5 +1,6 @@
 /* Import CSS variable theme system (must be first) */
 @import './styles/theme.css';
+@import './styles/spacilly-commerce.css';
 @import './styles/mobile-commerce.css';
 @import './styles/mobile-assistant.css';
 @import './styles/notifications-os.css';
@@ -125,11 +126,28 @@
 
   .dark .dark\:ring-gray-700 { --tw-ring-color: rgba(255, 255, 255, 0.1) !important; }
   .dark .dark\:ring-gray-600 { --tw-ring-color: rgba(255, 255, 255, 0.08) !important; }
+
+  /* Map legacy Tailwind orange utilities → Crimson Editorial brand tokens (buyer + seller) */
+  .text-orange-500,
+  .text-orange-600,
+  .text-orange-700,
+  .text-orange-800 {
+    color: var(--brand-orange-text) !important;
+  }
+
+  .bg-orange-50 {
+    background-color: var(--brand-tint) !important;
+  }
+
+  .border-orange-100,
+  .border-orange-200 {
+    border-color: var(--brand-border-subtle) !important;
+  }
 }
 
 @layer base {
   * {
-    font-family: 'Times New Roman', Times, serif;
+    font-family: var(--font-body);
   }
 
   html {
@@ -150,6 +168,16 @@
     overflow-x: hidden;
     min-height: 100dvh;
     -webkit-tap-highlight-color: transparent;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display, var(--font-body));
+    letter-spacing: -0.02em;
   }
 
   #root {
@@ -448,14 +476,24 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   Admin & Seller dashboards — same theme tokens as buyer (ThemeContext)
+   Buyer + Seller dashboards — shared Crimson Editorial tokens (ThemeContext)
+   Admin hub keeps its own accent via data-hub="admin" overrides below.
    ═══════════════════════════════════════════════════════════════════════════ */
 .dashboard-app {
   background: var(--bg-page);
   color: var(--text-primary);
+  font-family: var(--font-body);
 }
 
-/* Admin hub — emerald/teal accent (matches sidebar); overrides seller orange brand tokens */
+.dashboard-app h1,
+.dashboard-app h2,
+.dashboard-app h3,
+.dashboard-app .font-display {
+  font-family: var(--font-display, var(--font-body));
+  letter-spacing: -0.02em;
+}
+
+/* Admin hub — emerald accent (admin-only); buyer + seller use Crimson Editorial from theme.css */
 .dashboard-app[data-hub="admin"] {
   --brand-primary: #10b981;
   --brand-primary-hover: #059669;
@@ -548,8 +586,8 @@
 }
 
 @keyframes spacilly-pulse-glow {
-  0%, 100% { box-shadow: 0 0 18px rgba(217, 119, 54, 0.14); }
-  50%       { box-shadow: 0 0 32px rgba(217, 119, 54, 0.26), 0 0 72px rgba(217, 119, 54, 0.08); }
+  0%, 100% { box-shadow: 0 0 18px color-mix(in srgb, var(--brand-primary-container, #d7193f) 14%, transparent); }
+  50%       { box-shadow: 0 0 32px color-mix(in srgb, var(--brand-primary-container, #d7193f) 26%, transparent), 0 0 72px color-mix(in srgb, var(--brand-primary-container, #d7193f) 8%, transparent); }
 }
 
 @keyframes spacilly-shimmer {

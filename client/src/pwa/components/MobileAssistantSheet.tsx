@@ -43,6 +43,11 @@ type RowProps = {
   iconContent?: ReactNode;
 };
 
+const BRAND_ICON_STYLE: CSSProperties = {
+  background: 'var(--commerce-brand-tint-strong, rgba(215, 25, 63, 0.14))',
+  color: 'var(--brand-orange-text, #d7193f)',
+};
+
 function ActionRow({ icon: Icon, iconStyle, title, subtitle, onClick, trailing, iconContent }: RowProps) {
   return (
     <button type="button" className="ai-action-row" onClick={onClick}>
@@ -282,7 +287,7 @@ export default function MobileAssistantSheet({ open, onClose }: MobileAssistantS
                 />
                 <ActionRow
                   icon={Zap}
-                  iconStyle={{ background: 'rgba(249, 115, 22, 0.18)', color: '#fb923c' }}
+                  iconStyle={BRAND_ICON_STYLE}
                   title="Flash Deals"
                   subtitle="Limited time offers"
                   onClick={() => go(() => navigate('/search?sort=discount'))}
@@ -306,7 +311,7 @@ export default function MobileAssistantSheet({ open, onClose }: MobileAssistantS
                 <p className="ai-section-label">Account</p>
                 <ActionRow
                   icon={Package}
-                  iconStyle={{ background: 'rgba(249, 115, 22, 0.18)', color: '#fb923c' }}
+                  iconStyle={BRAND_ICON_STYLE}
                   title="Orders"
                   subtitle="Track and manage orders"
                   onClick={() => go(() => navigate(user ? '/account?tab=orders' : '/auth?tab=login'))}

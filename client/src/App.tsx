@@ -22,10 +22,12 @@ import AdminRoute from './components/AdminRoute';
 import AdminDashboard from './components/AdminDashboard';
 import { useAuthStore } from './stores/authStore';
 import { useSystemFeatures } from './hooks/useSystemFeatures';
+import { useIsMobile } from './hooks/useIsMobile';
 import LiveCommerceRouteGuard from './components/platform/LiveCommerceRouteGuard';
 import BuyerShellGuard from './components/BuyerShellGuard';
 import NotFoundRedirect from './components/NotFoundRedirect';
 import { canAccessBuyerUi, getDashboardPathForRole } from './lib/authRouting';
+import { isOnboardingComplete } from './lib/onboardingStorage';
 import { ToastNotification } from './components/ToastNotification';
 import { SecurityTelemetryProbe } from './components/SecurityTelemetryProbe';
 // @ts-ignore JSX module without TS typings
@@ -69,7 +71,9 @@ import { ClientOnly } from './components/ClientOnly';
 function GlobalNavbar() {
   const { pathname, search } = useLocation();
   const user = useAuthStore((s) => s.user);
+  const isMobile = useIsMobile();
   const isSellerPending = pathname === '/seller/pending';
+  if (pathname === '/' && isMobile) return null;
   if (isSellerPending) return <Navbar />;
   if (user && !canAccessBuyerUi(user)) return null;
   if (isBuyerChromeHidden(pathname, search)) return null;
@@ -157,6 +161,7 @@ const HelpCenter           = lazy(() => import('./pages/HelpCenter'));
 const HelpSearch           = lazy(() => import('./pages/HelpSearch'));
 const HelpCategory         = lazy(() => import('./pages/HelpCategory'));
 const HelpArticle          = lazy(() => import('./pages/HelpArticle'));
+const OnboardingPage       = lazy(() => import('./pages/OnboardingPage'));
 
 /** Redirects /login and /signup to /auth?tab=... while preserving query (e.g. redirect=) */
 function RedirectToAuth({ tab }: { tab: 'login' | 'signup' }) {
@@ -193,6 +198,9 @@ function HomeRouteGuard() {
         replace
       />
     );
+  }
+  if (!isOnboardingComplete()) {
+    return <Navigate to="/onboarding" replace />;
   }
   return <BuyerHome />;
 }
@@ -363,6 +371,7 @@ function App() {
               <Route path="/seller/advertise" element={<SellerAdvertise />} />
               <Route path="/seller/pending" element={<SellerPending />} />
               <Route path="/become-seller" element={<BecomeSeller />} />
+              <Route path="/onboarding" element={<OnboardingPage />} />
               <Route path="/cart" element={<Navigate to="/" replace />} />
             </Route>
             </Route>

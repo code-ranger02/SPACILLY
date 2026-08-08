@@ -1112,7 +1112,7 @@ export default function SellerFees() {
                       </span>
                       <span
                         className="font-semibold"
-                        style={{ color: '#fdba74', fontSize: 15 }}
+                        style={{ color: 'var(--brand-orange-text, #ffb3b4)', fontSize: 15 }}
                       >
                         − {formatMoney(animatedProcessing)}
                       </span>
@@ -1169,10 +1169,10 @@ export default function SellerFees() {
                   <button
                     type="button"
                     onClick={() => scrollToCalculator()}
-                    className="mt-2 w-full rounded-[16px] py-3 text-sm font-bold"
+                    className="mt-2 w-full min-h-[52px] rounded-[16px] px-6 py-4 text-base font-bold"
                     style={{
                       background:
-                        'linear-gradient(135deg,var(--brand-primary),var(--brand-primary-hover),#c2410c)',
+                        'linear-gradient(135deg,var(--brand-primary),var(--brand-primary-hover),#920024)',
                       color: '#ffffff',
                       boxShadow: '0 10px 28px color-mix(in srgb, var(--brand-primary) 50%, transparent)',
                     }}
@@ -1723,7 +1723,7 @@ export default function SellerFees() {
               className="rounded-[24px] px-6 py-10 sm:px-10"
               style={{
                 background:
-                  'linear-gradient(135deg,var(--brand-primary) 0%,var(--brand-primary-hover) 50%,#c2410c 100%)',
+                  'linear-gradient(135deg,var(--brand-primary) 0%,var(--brand-primary-hover) 50%,#920024 100%)',
                 boxShadow: '0 20px 60px rgba(0,0,0,0.28)',
               }}
             >
@@ -1762,7 +1762,7 @@ export default function SellerFees() {
                 <div className="relative mt-4 flex flex-col items-center justify-center gap-3 sm:flex-row sm:justify-center">
                   <button
                     type="button"
-                    className="w-full rounded-[14px] px-8 py-3 text-sm font-bold sm:w-auto"
+                    className="w-full min-h-[52px] rounded-[14px] px-10 py-4 text-base font-bold sm:w-auto"
                     style={{
                       background: 'var(--text-on-accent)',
                       color: 'var(--brand-primary)',

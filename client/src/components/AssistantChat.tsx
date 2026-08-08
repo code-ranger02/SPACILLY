@@ -45,10 +45,11 @@ const MAX_MESSAGES = 50;
 const SEND_COOLDOWN_MS = 10_000;
 const PRIMARY = 'var(--commerce-brand-primary)';
 const PRIMARY_HOVER = 'var(--commerce-brand-primary-hover)';
-const ORANGE_GLOW = 'rgba(249, 115, 22, 0.18)';
-const ORANGE_GLOW_SOFT = 'rgba(249, 115, 22, 0.1)';
-const ORANGE_ICON_BG = 'linear-gradient(145deg, rgba(249, 115, 22, 0.14) 0%, rgba(234, 88, 12, 0.1) 100%)';
-const ORANGE_ICON_BORDER = 'rgba(249, 115, 22, 0.28)';
+const BRAND_GLOW = 'var(--commerce-brand-tint-strong, rgba(215, 25, 63, 0.14))';
+const BRAND_GLOW_SOFT = 'var(--commerce-brand-tint, rgba(174, 0, 45, 0.08))';
+const BRAND_ICON_BG =
+  'linear-gradient(145deg, rgba(174, 0, 45, 0.14) 0%, rgba(215, 25, 63, 0.1) 100%)';
+const BRAND_ICON_BORDER = 'var(--commerce-brand-border-subtle, rgba(174, 0, 45, 0.22))';
 
 const QUICK_ACTIONS = [
   { emoji: '🔍', label: 'Find product', query: 'Show me popular products' },
@@ -75,21 +76,21 @@ function GeminiIcon({ size = 22, className = '' }: { size?: number; className?: 
       <defs>
         <radialGradient id="gemini-core-assistant" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(12 12) rotate(90) scale(2.2)">
           <stop stopColor="#ffffff" />
-          <stop offset="1" stopColor="#fdba74" />
+          <stop offset="1" stopColor="#ffb3b4" />
         </radialGradient>
         <linearGradient id="gemini-ring-assistant" x1="3" y1="3" x2="21" y2="21" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#fb923c" />
-          <stop offset="0.5" stopColor="#f97316" />
-          <stop offset="1" stopColor="#ea580c" />
+          <stop stopColor="#ffb3b4" />
+          <stop offset="0.5" stopColor="#d7193f" />
+          <stop offset="1" stopColor="#ae002d" />
         </linearGradient>
         <linearGradient id="gemini-gradient-assistant" x1="1.5" y1="1.5" x2="22.5" y2="22.5" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#fdba74" />
-          <stop offset="0.55" stopColor="#f97316" />
-          <stop offset="1" stopColor="#ea580c" />
+          <stop stopColor="#ffb3b4" />
+          <stop offset="0.55" stopColor="#d7193f" />
+          <stop offset="1" stopColor="#920024" />
         </linearGradient>
         <linearGradient id="gemini-lines-assistant" x1="5.3" y1="5.3" x2="18.7" y2="18.7" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#fed7aa" />
-          <stop offset="1" stopColor="#fb923c" />
+          <stop stopColor="#ffd4d5" />
+          <stop offset="1" stopColor="#d7193f" />
         </linearGradient>
       </defs>
     </svg>
@@ -653,7 +654,7 @@ export default function AssistantChat() {
         borderRadius: isMobileViewport ? '24px 24px 0 0' : 22,
         overflow: 'hidden',
         background: 'var(--card-bg)',
-        border: `1px solid ${ORANGE_GLOW}`,
+        border: `1px solid ${BRAND_GLOW}`,
         boxShadow: 'var(--ai-chat-window-shadow)',
         position: 'fixed',
         ...(isMobileViewport
@@ -683,8 +684,8 @@ export default function AssistantChat() {
                 <div style={{ position: 'relative', flexShrink: 0 }}>
                   <div style={{
                     width: 40, height: 40, borderRadius: 13,
-                    background: ORANGE_ICON_BG,
-                    border: `1px solid ${ORANGE_ICON_BORDER}`,
+                    background: BRAND_ICON_BG,
+                    border: `1px solid ${BRAND_ICON_BORDER}`,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}>
                     <GeminiIcon size={21} className="gemini-animated-icon" />
@@ -766,7 +767,7 @@ export default function AssistantChat() {
                     {/* Bubble row */}
                     <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, maxWidth: '88%', justifyContent: isUser ? 'flex-end' : 'flex-start', width: '100%' }}>
                       {!isUser && (
-                        <div style={{ width: 26, height: 26, borderRadius: 9, background: `${ORANGE_ICON_BG}`, border: `1px solid ${ORANGE_ICON_BORDER}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginBottom: 2 }}>
+                        <div style={{ width: 26, height: 26, borderRadius: 9, background: `${BRAND_ICON_BG}`, border: `1px solid ${BRAND_ICON_BORDER}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginBottom: 2 }}>
                           <GeminiIcon size={13} className="gemini-animated-icon" />
                         </div>
                       )}
@@ -887,7 +888,7 @@ export default function AssistantChat() {
               {/* Typing indicator */}
               {typing && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14, paddingLeft: 2 }}>
-                  <div style={{ width: 26, height: 26, borderRadius: 9, background: `${ORANGE_ICON_BG}`, border: `1px solid ${ORANGE_ICON_BORDER}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <div style={{ width: 26, height: 26, borderRadius: 9, background: `${BRAND_ICON_BG}`, border: `1px solid ${BRAND_ICON_BORDER}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     <GeminiIcon size={13} className="gemini-animated-icon" />
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '10px 13px', borderRadius: '4px 17px 17px 17px', background: 'var(--card-bg)', border: '1px solid var(--border-card)', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>

@@ -49,7 +49,7 @@
 }
 
 .seller-product-images__tile--cover {
-  border-color: var(--brand-primary, #ea580c);
+  border-color: var(--brand-primary, #d7193f);
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--brand-primary) 35%, transparent);
 }
 
@@ -65,7 +65,7 @@
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: #fff;
-  background: var(--brand-primary, #ea580c);
+  background: var(--brand-primary, #d7193f);
 }
 
 .seller-product-images__actions {

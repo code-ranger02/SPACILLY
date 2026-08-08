@@ -24,7 +24,7 @@ export const HELP_CATEGORIES: HelpCategory[] = [
     slug: 'orders-tracking',
     name: 'Orders & Tracking',
     icon: '📦',
-    gradient: 'linear-gradient(135deg,#f97316,#ea580c)',
+    gradient: 'linear-gradient(135deg,#ae002d,#920024)',
     description: 'Track orders, view shipping updates, and resolve delivery issues.',
     articleCount: 18,
   },

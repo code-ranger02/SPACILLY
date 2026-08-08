@@ -8,10 +8,10 @@ import { useScrollChrome } from '../stores/scrollChromeStore';
 
 const TABS = [
   { id: 'home', icon: Home, label: 'Home', to: '/' },
-  { id: 'browse', icon: LayoutGrid, label: 'Categories', to: '/category/all' },
+  { id: 'browse', icon: LayoutGrid, label: 'Shop', to: '/category/all' },
   { id: 'cart', icon: ShoppingBag, label: 'Cart', to: null },
   { id: 'wishlist', icon: Heart, label: 'Saved', to: '/account?tab=wishlist' },
-  { id: 'account', icon: User, label: 'Account', to: '/account' },
+  { id: 'account', icon: User, label: 'Profile', to: '/account' },
 ];
 
 function activeTab(pathname, search) {
@@ -85,7 +85,7 @@ export default function MobileBottomNav() {
       aria-label="Primary"
     >
       <div
-        className="pointer-events-auto flex w-full max-w-md items-stretch rounded-2xl px-0.5 py-1"
+        className="sp-mob-nav-dock pointer-events-auto flex w-full max-w-md items-stretch rounded-2xl px-0.5 py-1"
         style={{
           minHeight: 56,
           maxHeight: 60,
@@ -107,7 +107,9 @@ export default function MobileBottomNav() {
               key={tab.id}
               type="button"
               onClick={() => handlePress(tab)}
-              className="relative flex flex-1 flex-col items-center justify-center gap-0.5 py-1.5 min-h-[48px]"
+              className={`relative flex flex-1 flex-col items-center justify-center gap-0.5 py-1.5 min-h-[48px] ${
+                isActive ? 'sp-mob-nav-tab--active' : ''
+              }`}
               style={{
                 WebkitTapHighlightColor: 'transparent',
                 touchAction: 'manipulation',
@@ -117,22 +119,24 @@ export default function MobileBottomNav() {
                 {isActive && (
                   <motion.span
                     layoutId="buyer-mob-nav-active"
-                    initial={{ opacity: 0, scale: 0.9 }}
+                    initial={{ opacity: 0, scale: 0.92 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
+                    exit={{ opacity: 0, scale: 0.92 }}
                     transition={{ type: 'spring', stiffness: 520, damping: 38 }}
-                    className="absolute inset-x-[18%] top-0.5 h-0.5 rounded-full"
-                    style={{ background: 'var(--brand-primary)' }}
+                    className="absolute inset-0 rounded-xl"
+                    style={{ background: 'var(--brand-primary)', zIndex: 0 }}
+                    aria-hidden
                   />
                 )}
               </AnimatePresence>
 
-              <div className="relative">
+              <div className="relative z-[1]">
                 <Icon
                   size={20}
                   strokeWidth={isActive ? 2.2 : 1.65}
+                  className="sp-mob-nav-icon"
                   style={{
-                    color: isActive ? 'var(--brand-primary)' : 'var(--text-muted)',
+                    color: isActive ? '#ffffff' : 'var(--text-muted)',
                   }}
                 />
                 {badgeCount > 0 && (
@@ -153,8 +157,10 @@ export default function MobileBottomNav() {
               </div>
 
               <span
-                className="text-[9px] font-semibold leading-none tracking-tight"
-                style={{ color: isActive ? 'var(--brand-primary)' : 'var(--text-muted)' }}
+                className={`sp-mob-nav-label relative z-[1] text-[9px] font-semibold leading-none tracking-tight${
+                  isActive ? ' sp-mob-nav-label--active' : ''
+                }`}
+                style={{ color: isActive ? '#ffffff' : 'var(--text-muted)' }}
               >
                 {tab.label}
               </span>

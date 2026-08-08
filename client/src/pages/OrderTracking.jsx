@@ -2,8 +2,15 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Check, Truck, Home, MapPin, ArrowLeft, FileText, Cog,
-  Copy, Loader2, Search,
+  Check,
+  Truck,
+  ArrowLeft,
+  Copy,
+  Loader2,
+  Search,
+  Info,
+  MapPin,
+  Phone,
 } from 'lucide-react';
 import BuyerLayout from '../components/buyer/BuyerLayout';
 import { useToastStore } from '../stores/toastStore';
@@ -11,21 +18,39 @@ import { useAuthStore } from '../stores/authStore';
 import { orderAPI } from '../services/api';
 import { SERVER_URL } from '../lib/config';
 import { formatOrderMoney } from '../lib/formatOrderMoney';
+import '../styles/order-tracking.css';
 
-const PRIMARY = 'var(--brand-primary)';
 const SUCCESS = 'var(--text-in-stock)';
-const EASE = [0.25, 0.46, 0.45, 0.94];
 
 const STATUS_STEP_INDEX = {
   pending: 0,
   processing: 1,
   packed: 1,
   paid: 1,
-  shipped: 2,
+  shipped: 3,
   delivered: 4,
   completed: 4,
-  cancelled: 0,
+  cancelled: -1,
 };
+
+const STATUS_COPY = {
+  pending: { headline: 'Order received', badge: 'Processing' },
+  processing: { headline: 'We\'re preparing your order', badge: 'Processing' },
+  packed: { headline: 'Your order is packed', badge: 'Packed' },
+  paid: { headline: 'Payment confirmed', badge: 'Processing' },
+  shipped: { headline: 'Order is on the way', badge: 'In transit' },
+  delivered: { headline: 'Order delivered', badge: 'Delivered' },
+  completed: { headline: 'Order complete', badge: 'Complete' },
+  cancelled: { headline: 'Order cancelled', badge: 'Cancelled' },
+};
+
+const TIMELINE_DEFS = [
+  { key: 'placed', label: 'Order created' },
+  { key: 'packed', label: 'Packed' },
+  { key: 'courier', label: 'Handed to courier' },
+  { key: 'transit', label: 'In transit' },
+  { key: 'arrived', label: 'Order arrived' },
+];
 
 function resolveImg(src) {
   if (!src) return '';
@@ -37,6 +62,7 @@ function normalizeOrder(data) {
   const o = data?.order || data;
   if (!o) return null;
   const currency = o.currency || o.payment?.currency || 'RWF';
+  const addr = o.shipping_address || o.shippingAddress || {};
   return {
     ...o,
     id: o.id || o._id,
@@ -52,7 +78,47 @@ function normalizeOrder(data) {
     currency,
     items: o.items || [],
     timeline: o.timeline || [],
+    carrier: o.carrier || o.fulfillment?.carrier || 'Spacilly Express',
+    estimated_delivery: o.estimated_delivery || o.estimatedDelivery,
+    estimated_delivery_to: o.estimated_delivery_to || o.estimatedDeliveryTo,
+    shipping_address: {
+      fullName: addr.fullName || addr.name,
+      address: addr.address || addr.street,
+      city: addr.city,
+      country: addr.country,
+      postalCode: addr.postalCode || addr.zip,
+      phone: addr.phone,
+    },
   };
+}
+
+function formatEtaRange(order) {
+  const from = order?.estimated_delivery;
+  const to = order?.estimated_delivery_to;
+  const fmt = (iso) => {
+    if (!iso) return null;
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return null;
+    return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  };
+  const a = fmt(from);
+  const b = fmt(to);
+  if (a && b && a !== b) return `Estimated arrival ${a} – ${b}`;
+  if (a) return `Estimated arrival ${a}`;
+  if (b) return `Estimated arrival by ${b}`;
+  return 'Delivery estimate will appear once shipped';
+}
+
+function formatAddress(addr) {
+  if (!addr) return '—';
+  const parts = [addr.address, addr.city, addr.country].filter(Boolean);
+  return parts.length ? parts.join(', ') : '—';
+}
+
+function itemLineTotal(item, currency) {
+  const raw = item.total ?? (item.price != null ? item.price * (item.quantity || 1) : null);
+  if (raw == null) return null;
+  return formatOrderMoney(raw, currency);
 }
 
 export default function OrderTracking() {
@@ -64,7 +130,6 @@ export default function OrderTracking() {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
-  const [progressWidth, setProgressWidth] = useState(0);
   const [confirmModal, setConfirmModal] = useState(false);
   const [confirmSuccess, setConfirmSuccess] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
@@ -130,69 +195,55 @@ export default function OrderTracking() {
   const displayOrderId = order?.order_number || orderId || guestForm.orderNumber || '—';
   const status = String(order?.status || 'processing').toLowerCase();
   const isCod = String(order?.payment_method || '').toLowerCase().includes('cash');
-  const isDelivered = status === 'delivered';
+  const isDelivered = status === 'delivered' || status === 'completed';
   const canConfirm = Boolean(order?.can_confirm_receipt) && user;
   const currentStepIndex = STATUS_STEP_INDEX[status] ?? 1;
   const trackingNumber = order?.tracking_number || '—';
   const mongoId = String(order?.id || orderId || '');
+  const statusCopy = STATUS_COPY[status] || STATUS_COPY.processing;
 
   const timelineSteps = useMemo(() => {
     const apiTimeline = Array.isArray(order?.timeline) ? order.timeline : [];
-    const defaults = [
-      { key: 'placed', label: 'Order placed', icon: FileText },
-      { key: 'processing', label: 'Preparing', icon: Cog },
-      { key: 'shipped', label: 'Shipped', icon: Truck },
-      { key: 'out', label: 'On the way', icon: MapPin },
-      { key: 'delivered', label: isCod ? 'Delivered — pay cash' : 'Delivered', icon: Home },
-    ];
-    const statusOrder = ['pending', 'processing', 'shipped', 'delivered', 'completed'];
-    const currentIdx = statusOrder.indexOf(status);
 
-    return defaults.map((step, idx) => {
-      const match = apiTimeline.find((t) =>
-        String(t.status || '').toLowerCase().includes(step.key === 'out' ? 'ship' : step.key),
-      );
-      const done = idx <= Math.max(currentIdx, currentStepIndex);
-      const active = idx === currentStepIndex;
-      return {
-        ...step,
-        date: match?.date
-          ? new Date(match.date).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
-          : active
-            ? 'In progress'
-            : '—',
-        done,
-        active,
-        sub:
-          step.key === 'delivered' && isCod
-            ? 'Have exact cash ready for the driver.'
-            : step.key === 'delivered' && canConfirm
-              ? 'Confirm receipt when you have your package.'
-              : '',
-      };
+    return TIMELINE_DEFS.map((step, idx) => {
+      const match = apiTimeline.find((t) => {
+        const s = String(t.status || t.label || '').toLowerCase();
+        if (step.key === 'placed') return s.includes('place') || s.includes('pending');
+        if (step.key === 'packed') return s.includes('pack') || s.includes('process');
+        if (step.key === 'courier') return s.includes('courier') || s.includes('hand');
+        if (step.key === 'transit') return s.includes('ship') || s.includes('transit') || s.includes('way');
+        if (step.key === 'arrived') return s.includes('deliver') || s.includes('arriv');
+        return false;
+      });
+
+      const done = status === 'cancelled' ? idx === 0 : idx <= currentStepIndex;
+      const active = status !== 'cancelled' && idx === currentStepIndex;
+      const pending = !done && !active;
+
+      let date = '—';
+      if (match?.date) {
+        date = new Date(match.date).toLocaleString(undefined, {
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        });
+      } else if (active) {
+        date = match?.location || match?.note || 'In progress';
+      }
+
+      let sub = '';
+      if (step.key === 'arrived' && isCod && done) sub = 'Have exact cash ready for the driver.';
+      if (step.key === 'arrived' && canConfirm && active) sub = 'Confirm receipt when you have your package.';
+
+      return { ...step, date, done, active, pending, sub };
     });
   }, [order, status, currentStepIndex, canConfirm, isCod]);
 
-  useEffect(() => {
-    const duration = 1500;
-    const start = Date.now();
-    const steps = 5;
-    const targetPercent = ((currentStepIndex + 1) / steps) * 100;
-    const tick = () => {
-      const elapsed = Date.now() - start;
-      const t = Math.min(elapsed / duration, 1);
-      const eased = 1 - (1 - t) ** 2;
-      setProgressWidth(eased * targetPercent);
-      if (t < 1) requestAnimationFrame(tick);
-    };
-    const id = setTimeout(() => requestAnimationFrame(tick), 300);
-    return () => clearTimeout(id);
-  }, [currentStepIndex]);
-
-  const copyTracking = () => {
-    if (!trackingNumber || trackingNumber === '—') return;
-    navigator.clipboard.writeText(trackingNumber);
-    showToast('Tracking number copied', 'success', 2000);
+  const copyText = (text, label) => {
+    if (!text || text === '—') return;
+    navigator.clipboard.writeText(text);
+    showToast(`${label} copied`, 'success', 2000);
   };
 
   const handleConfirmDelivery = async () => {
@@ -215,12 +266,17 @@ export default function OrderTracking() {
   };
 
   const firstItem = order?.items?.[0];
+  const backHref = user ? '/account?tab=orders' : '/';
+  const carrierLabel = order?.carrier || 'Standard courier';
+  const recipientName = order?.shipping_address?.fullName || 'Recipient';
+  const addressLine = formatAddress(order?.shipping_address);
+  const supportPhone = order?.shipping_address?.phone;
 
   if (loading) {
     return (
       <BuyerLayout>
-        <div className="min-h-[50vh] flex items-center justify-center" style={{ color: 'var(--text-muted)' }}>
-          <Loader2 className="w-8 h-8 animate-spin" style={{ color: PRIMARY }} />
+        <div className="ot-loading">
+          <Loader2 className="w-8 h-8 animate-spin" style={{ color: 'var(--sp-primary-container)' }} />
         </div>
       </BuyerLayout>
     );
@@ -229,64 +285,59 @@ export default function OrderTracking() {
   if (guestMode && !order) {
     return (
       <BuyerLayout>
-        <div className="max-w-md mx-auto px-4 py-12">
-          <Link to="/" className="inline-flex items-center gap-2 text-sm font-semibold mb-6" style={{ color: PRIMARY }}>
-            <ArrowLeft className="w-4 h-4" /> Home
-          </Link>
-          <h1 className="text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Track your order</h1>
-          <p className="text-sm mb-6" style={{ color: 'var(--text-muted)' }}>
-            Enter your order number and the email or phone used at checkout.
-          </p>
-          <form onSubmit={searchGuestOrder} className="space-y-4 rounded-2xl border p-5" style={{ borderColor: 'var(--divider)', background: 'var(--card-bg)' }}>
-            <label className="block text-sm">
-              Order number
-              <input
-                required
-                value={guestForm.orderNumber}
-                onChange={(e) => setGuestForm((f) => ({ ...f, orderNumber: e.target.value }))}
-                placeholder="e.g. RX-20260326-001"
-                className="mt-1 w-full rounded-xl border px-3 py-2.5 text-sm"
-                style={{ borderColor: 'var(--input-border)', background: 'var(--input-bg)' }}
-              />
-            </label>
-            <label className="block text-sm">
-              Email (optional if phone provided)
-              <input
-                type="email"
-                value={guestForm.email}
-                onChange={(e) => setGuestForm((f) => ({ ...f, email: e.target.value }))}
-                className="mt-1 w-full rounded-xl border px-3 py-2.5 text-sm"
-                style={{ borderColor: 'var(--input-border)', background: 'var(--input-bg)' }}
-              />
-            </label>
-            <label className="block text-sm">
-              Phone (optional if email provided)
-              <input
-                value={guestForm.phone}
-                onChange={(e) => setGuestForm((f) => ({ ...f, phone: e.target.value }))}
-                placeholder="+250..."
-                className="mt-1 w-full rounded-xl border px-3 py-2.5 text-sm"
-                style={{ borderColor: 'var(--input-border)', background: 'var(--input-bg)' }}
-              />
-            </label>
-            {loadError && <p className="text-sm text-red-600">{loadError}</p>}
-            <button
-              type="submit"
-              disabled={guestSearching}
-              className="w-full flex items-center justify-center gap-2 rounded-xl py-3 text-sm font-bold text-white disabled:opacity-50"
-              style={{ background: PRIMARY }}
-            >
-              {guestSearching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
-              Track order
-            </button>
-          </form>
-          <p className="text-center text-sm mt-6" style={{ color: 'var(--text-muted)' }}>
-            Have an account?{' '}
-            <Link to="/auth?tab=login" className="font-semibold" style={{ color: PRIMARY }}>
-              Sign in
-            </Link>{' '}
-            for full order history.
-          </p>
+        <div className="ot-page ot-page--guest">
+          <div className="ot-guest">
+            <Link to="/" className="ot-topbar__btn" style={{ width: 'auto', paddingRight: 12 }} aria-label="Back home">
+              <ArrowLeft size={20} strokeWidth={1.75} />
+            </Link>
+            <h1 className="ot-guest__title">Track your order</h1>
+            <p className="ot-guest__sub">
+              Enter your order number and the email or phone used at checkout.
+            </p>
+            <form onSubmit={searchGuestOrder} className="ot-card" style={{ padding: 16 }}>
+              <label className="ot-field">
+                <span className="ot-field__label">Order number</span>
+                <input
+                  required
+                  value={guestForm.orderNumber}
+                  onChange={(e) => setGuestForm((f) => ({ ...f, orderNumber: e.target.value }))}
+                  placeholder="e.g. ORD-20260808-001"
+                  className="ot-field__input"
+                />
+              </label>
+              <label className="ot-field">
+                <span className="ot-field__label">Email</span>
+                <input
+                  type="email"
+                  value={guestForm.email}
+                  onChange={(e) => setGuestForm((f) => ({ ...f, email: e.target.value }))}
+                  className="ot-field__input"
+                  placeholder="Optional if phone provided"
+                />
+              </label>
+              <label className="ot-field">
+                <span className="ot-field__label">Phone</span>
+                <input
+                  value={guestForm.phone}
+                  onChange={(e) => setGuestForm((f) => ({ ...f, phone: e.target.value }))}
+                  placeholder="+250..."
+                  className="ot-field__input"
+                />
+              </label>
+              {loadError && <p className="ot-error">{loadError}</p>}
+              <button type="submit" disabled={guestSearching} className="ot-btn ot-btn--primary">
+                {guestSearching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search size={16} />}
+                Track order
+              </button>
+            </form>
+            <p className="ot-guest__sub" style={{ textAlign: 'center', marginTop: 20 }}>
+              Have an account?{' '}
+              <Link to="/auth?tab=login" style={{ color: 'var(--sp-primary-container)', fontWeight: 600 }}>
+                Sign in
+              </Link>{' '}
+              for full order history.
+            </p>
+          </div>
         </div>
       </BuyerLayout>
     );
@@ -295,177 +346,262 @@ export default function OrderTracking() {
   if (loadError || !order) {
     return (
       <BuyerLayout>
-        <div className="min-h-[50vh] flex flex-col items-center justify-center gap-4 px-4">
-          <p style={{ color: 'var(--text-muted)' }}>{loadError || 'Order not found'}</p>
-          <button type="button" onClick={() => { setGuestMode(true); setLoadError(null); }} className="text-sm font-semibold" style={{ color: PRIMARY }}>
-            Try guest tracking
-          </button>
-          <Link to="/account?tab=orders" className="text-sm font-semibold" style={{ color: PRIMARY }}>
-            ← My Orders
-          </Link>
+        <div className="ot-page ot-page--guest">
+          <div className="ot-guest" style={{ textAlign: 'center', paddingTop: 48 }}>
+            <p style={{ color: 'var(--text-muted)' }}>{loadError || 'Order not found'}</p>
+            <div className="ot-actions" style={{ marginTop: 20 }}>
+              <button
+                type="button"
+                onClick={() => { setGuestMode(true); setLoadError(null); }}
+                className="ot-btn ot-btn--primary"
+              >
+                Try guest tracking
+              </button>
+              <Link to="/account?tab=orders" className="ot-btn ot-btn--ghost">
+                My orders
+              </Link>
+            </div>
+          </div>
         </div>
       </BuyerLayout>
     );
   }
 
+  const badgeClass =
+    status === 'delivered' || status === 'completed'
+      ? 'ot-badge ot-badge--delivered'
+      : status === 'cancelled'
+        ? 'ot-badge ot-badge--cancelled'
+        : 'ot-badge';
+
   return (
     <BuyerLayout>
-      <div className="min-h-screen track-page" style={{ background: 'var(--bg-page)' }}>
-        {/* ═══ TIER 1: Hero banner ═══ */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, ease: EASE }}
-          className="w-full px-4 sm:px-8 py-6 flex items-center justify-between flex-wrap gap-4"
-          style={{
-            minHeight: 120,
-            background: 'linear-gradient(135deg, var(--navbar-bg) 0%, var(--bg-tertiary) 55%, var(--brand-primary) 100%)',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-          }}
-        >
-          <div>
-            <Link to={user ? '/account?tab=orders' : '/'} className="inline-flex items-center gap-2 text-sm font-semibold mb-1" style={{ color: 'rgba(255,255,255,0.8)' }}>
-              <ArrowLeft className="w-4 h-4" /> {user ? 'My Orders' : 'Home'}
-            </Link>
-            <h1 className="text-2xl font-bold text-white">Track order</h1>
-            <p className="text-sm mt-0.5" style={{ color: PRIMARY }}>#{displayOrderId}</p>
-            {isCod && (
-              <p className="text-xs mt-1 text-white/80">Cash on delivery — pay when you receive the package</p>
-            )}
-          </div>
-          <div className="px-3 py-1.5 rounded-full text-sm font-bold capitalize" style={{ background: 'rgba(255,255,255,0.15)', color: '#fff' }}>
-            {status.replace(/_/g, ' ')}
-          </div>
-        </motion.div>
+      <div className="ot-page">
+        <header className="ot-topbar">
+          <Link to={backHref} className="ot-topbar__btn" aria-label="Go back">
+            <ArrowLeft size={22} strokeWidth={1.75} />
+          </Link>
+          <h1 className="ot-topbar__title">Order tracking</h1>
+          <Link to="/help/orders-tracking/how-to-track-my-order" className="ot-topbar__btn" aria-label="Tracking help">
+            <Info size={22} strokeWidth={1.75} />
+          </Link>
+        </header>
 
-        <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
+        <div className="ot-status-hero">
+          <h2 className="ot-status-hero__title">{statusCopy.headline}</h2>
+          <p className="ot-status-hero__eta">{formatEtaRange(order)}</p>
+          {isCod && (
+            <p className="ot-status-hero__eta" style={{ marginTop: 4 }}>
+              Cash on delivery — pay when you receive your package.
+            </p>
+          )}
+        </div>
+
+        <div className="ot-shell">
           {firstItem && (
-            <div className="rounded-2xl p-4 flex gap-3" style={{ background: 'var(--card-bg)', boxShadow: 'var(--shadow-md)' }}>
-              {firstItem.product_image && (
-                <img src={resolveImg(firstItem.product_image)} alt="" className="w-16 h-16 rounded-xl object-cover" />
+            <article className="ot-card ot-product">
+              {firstItem.product_image ? (
+                <img
+                  src={resolveImg(firstItem.product_image)}
+                  alt=""
+                  className="ot-product__img"
+                />
+              ) : (
+                <div className="ot-product__img" aria-hidden />
               )}
-              <div>
-                <p className="font-semibold" style={{ color: 'var(--text-primary)' }}>{firstItem.product_title || firstItem.name}</p>
-                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
-                  Qty {firstItem.quantity}
+              <div className="ot-product__body">
+                <p className="ot-product__name">{firstItem.product_title || firstItem.name}</p>
+                <p className="ot-product__meta">
+                  {firstItem.quantity || 1} item{(firstItem.quantity || 1) > 1 ? 's' : ''}
                 </p>
+                {itemLineTotal(firstItem, order.currency) && (
+                  <p className="ot-product__price">{itemLineTotal(firstItem, order.currency)}</p>
+                )}
               </div>
-            </div>
+              <span className={badgeClass}>{statusCopy.badge}</span>
+            </article>
           )}
 
-          {Number(order?.total) > 0 && (
-            <div className="rounded-2xl p-5 space-y-2" style={{ background: 'var(--card-bg)', boxShadow: 'var(--shadow-md)' }}>
-              <p className="text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--text-faint)' }}>
-                Payment summary
-              </p>
-              {order.subtotal != null && (
-                <div className="flex justify-between text-sm" style={{ color: 'var(--text-muted)' }}>
-                  <span>Subtotal</span>
-                  <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>
-                    {formatOrderMoney(order.subtotal, order.currency)}
-                  </span>
-                </div>
-              )}
-              {order.shipping != null && (
-                <div className="flex justify-between text-sm" style={{ color: 'var(--text-muted)' }}>
-                  <span>Shipping</span>
-                  <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>
-                    {formatOrderMoney(order.shipping, order.currency)}
-                  </span>
-                </div>
-              )}
-              {order.tax != null && Number(order.tax) > 0 && (
-                <div className="flex justify-between text-sm" style={{ color: 'var(--text-muted)' }}>
-                  <span>VAT</span>
-                  <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>
-                    {formatOrderMoney(order.tax, order.currency)}
-                  </span>
-                </div>
-              )}
-              <div className="flex justify-between text-sm font-bold border-t pt-2" style={{ borderColor: 'var(--divider)', color: 'var(--text-primary)' }}>
-                <span>Total</span>
-                <span style={{ color: PRIMARY }}>{formatOrderMoney(order.total, order.currency)}</span>
+          <article className="ot-card ot-ids">
+            <div className="ot-id-row">
+              <div>
+                <span className="ot-id-row__label">Order no.</span>
+                <p className="ot-id-row__value">#{displayOrderId}</p>
               </div>
+              <button
+                type="button"
+                className="ot-id-row__copy"
+                onClick={() => copyText(displayOrderId, 'Order number')}
+                aria-label="Copy order number"
+              >
+                <Copy size={16} strokeWidth={1.75} />
+              </button>
+            </div>
+            <div className="ot-id-row">
+              <div>
+                <span className="ot-id-row__label">
+                  Tracking no. ({carrierLabel})
+                </span>
+                <p className="ot-id-row__value">{trackingNumber}</p>
+              </div>
+              <button
+                type="button"
+                className="ot-id-row__copy"
+                onClick={() => copyText(trackingNumber, 'Tracking number')}
+                aria-label="Copy tracking number"
+                disabled={trackingNumber === '—'}
+              >
+                <Copy size={16} strokeWidth={1.75} />
+              </button>
+            </div>
+          </article>
+
+          <article className="ot-card ot-map" aria-label="Delivery route map">
+            <svg className="ot-map__route" viewBox="0 0 400 168" preserveAspectRatio="none" aria-hidden>
+              <path
+                d="M48 120 C 90 80, 130 140, 180 90 S 280 60, 340 100"
+                fill="none"
+                stroke="var(--sp-primary-container, #d7193f)"
+                strokeWidth="3"
+                strokeDasharray="6 8"
+                strokeLinecap="round"
+              />
+              <circle cx="48" cy="120" r="7" fill="var(--sp-primary-container, #d7193f)" />
+              <circle cx="340" cy="100" r="7" fill="var(--sp-primary-container, #d7193f)" />
+            </svg>
+            <div className="ot-map__overlay">
+              <p className="ot-map__overlay-title">Track your order</p>
+              {trackingNumber !== '—' ? (
+                <a
+                  href={`https://www.google.com/search?q=${encodeURIComponent(`${carrierLabel} ${trackingNumber}`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="ot-map__overlay-btn"
+                >
+                  View details
+                </a>
+              ) : (
+                <span className="ot-map__overlay-btn" style={{ opacity: 0.6 }}>
+                  Pending
+                </span>
+              )}
+            </div>
+          </article>
+
+          <article className="ot-card ot-timeline-card">
+            <h3 className="ot-section-title">Shipping history</h3>
+            <ol className="ot-timeline">
+              {timelineSteps.map((step) => (
+                <li
+                  key={step.key}
+                  className={[
+                    'ot-timeline__item',
+                    step.done ? 'ot-timeline__item--done' : '',
+                    step.active ? 'ot-timeline__item--active' : '',
+                    step.pending ? 'ot-timeline__item--pending' : '',
+                  ].filter(Boolean).join(' ')}
+                >
+                  <div className="ot-timeline__dot">
+                    {step.done && !step.active ? (
+                      <Check size={14} strokeWidth={2.5} />
+                    ) : step.active ? (
+                      <span className="ot-timeline__dot-inner" />
+                    ) : null}
+                  </div>
+                  <div>
+                    <div className="ot-timeline__label-row">
+                      <p className="ot-timeline__label">{step.label}</p>
+                      {step.active && <span className="ot-timeline__now">Current</span>}
+                    </div>
+                    <p className="ot-timeline__meta">{step.date}</p>
+                    {step.sub && <p className="ot-timeline__sub">{step.sub}</p>}
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </article>
+
+          <article className="ot-card">
+            <div className="ot-info-row">
+              <span className="ot-info-row__icon">
+                <Truck size={18} strokeWidth={1.75} />
+              </span>
+              <div className="ot-info-row__body">
+                <span className="ot-info-row__label">Courier</span>
+                <p className="ot-info-row__value">{carrierLabel}</p>
+              </div>
+              {supportPhone ? (
+                <a href={`tel:${supportPhone}`} className="ot-info-row__action" aria-label="Call courier">
+                  <Phone size={16} strokeWidth={1.75} />
+                </a>
+              ) : (
+                <span className="ot-info-row__action" style={{ opacity: 0.35, pointerEvents: 'none' }}>
+                  <Phone size={16} strokeWidth={1.75} />
+                </span>
+              )}
+            </div>
+          </article>
+
+          <article className="ot-card">
+            <div className="ot-info-row">
+              <span className="ot-info-row__icon">
+                <MapPin size={18} strokeWidth={1.75} />
+              </span>
+              <div className="ot-info-row__body">
+                <span className="ot-info-row__label">Delivery address</span>
+                <p className="ot-info-row__value">{recipientName}</p>
+                <p className="ot-info-row__sub">{addressLine}</p>
+              </div>
+            </div>
+          </article>
+
+          {Number(order?.total) > 0 && (
+            <article className="ot-card" style={{ padding: '14px 16px' }}>
+              <span className="ot-info-row__label">Order total</span>
+              <p className="ot-info-row__value" style={{ marginTop: 4 }}>
+                {formatOrderMoney(order.total, order.currency)}
+              </p>
               {!isCod && String(order.payment_method || '').toLowerCase() !== 'cash_on_delivery' && (
-                <p className="text-xs pt-1" style={{ color: 'var(--badge-success-text)' }}>
+                <p className="ot-info-row__sub" style={{ marginTop: 6 }}>
                   Paid online — funds held in escrow until you confirm delivery.
                 </p>
               )}
-            </div>
+            </article>
           )}
 
-          <div className="rounded-2xl p-5 bg-[var(--card-bg)]" style={{ boxShadow: 'var(--shadow-md)' }}>
-            <div className="h-2 rounded-full overflow-hidden mb-6" style={{ background: 'var(--bg-tertiary)' }}>
-              <div className="h-full rounded-full transition-all duration-500" style={{ width: `${progressWidth}%`, background: PRIMARY }} />
-            </div>
-            <div className="space-y-4">
-              {timelineSteps.map((step) => {
-                const Icon = step.icon;
-                return (
-                  <div key={step.key} className="flex gap-3">
-                    <div
-                      className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
-                      style={{
-                        background: step.done ? PRIMARY : 'var(--bg-tertiary)',
-                        color: step.done ? '#fff' : 'var(--text-muted)',
-                      }}
-                    >
-                      <Icon className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>{step.label}</p>
-                      <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{step.date}</p>
-                      {step.sub && <p className="text-xs mt-0.5 text-emerald-700">{step.sub}</p>}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {trackingNumber && trackingNumber !== '—' && (
-            <div className="rounded-2xl p-4 flex items-center justify-between gap-3" style={{ background: 'var(--card-bg)' }}>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--text-faint)' }}>Tracking number</p>
-                <p className="font-mono font-bold" style={{ color: 'var(--text-primary)' }}>{trackingNumber}</p>
-              </div>
-              <button type="button" onClick={copyTracking} className="p-2 rounded-lg border" style={{ borderColor: 'var(--divider)' }} aria-label="Copy tracking">
-                <Copy className="w-4 h-4" />
-              </button>
-            </div>
-          )}
-
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="ot-actions">
             {user ? (
-              <motion.button
+              <button
                 type="button"
                 onClick={() => canConfirm && setConfirmModal(true)}
                 disabled={!canConfirm || confirmLoading}
-                whileTap={canConfirm ? { scale: 0.98 } : {}}
-                className="flex-1 py-3 rounded-xl font-semibold text-sm text-white flex items-center justify-center gap-2 disabled:opacity-50"
-                style={{ background: canConfirm ? SUCCESS : 'var(--text-faint)' }}
+                className={`ot-btn ${canConfirm ? 'ot-btn--success' : 'ot-btn--primary'}`}
               >
-                {confirmLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                {confirmLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Check size={16} strokeWidth={2} />
+                )}
                 {canConfirm ? 'I received my order' : isDelivered ? 'Already confirmed' : 'Confirm when delivered'}
-              </motion.button>
+              </button>
             ) : (
               <Link
                 to={`/auth?tab=login&redirect=${encodeURIComponent(`/track/${orderId || displayOrderId}`)}`}
-                className="flex-1 py-3 rounded-xl font-semibold text-sm text-center text-white"
-                style={{ background: PRIMARY }}
+                className="ot-btn ot-btn--primary"
               >
                 Sign in to confirm delivery
               </Link>
             )}
+
             {user && mongoId && (
-              <Link
-                to={`/returns?order=${mongoId}`}
-                className="flex-1 py-3 rounded-xl font-semibold text-sm text-center border-2"
-                style={{ borderColor: 'var(--badge-error-text)', color: 'var(--badge-error-text)' }}
-              >
+              <Link to={`/returns?order=${mongoId}`} className="ot-btn ot-btn--danger-outline">
                 Problem with this order?
               </Link>
             )}
+
+            <Link to="/contact" className="ot-btn ot-btn--ghost">
+              Contact support
+            </Link>
           </div>
         </div>
       </div>
@@ -476,33 +612,31 @@ export default function OrderTracking() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4"
-            style={{ background: 'rgba(0,0,0,0.5)' }}
+            className="ot-modal-backdrop"
             onClick={() => !confirmSuccess && !confirmLoading && setConfirmModal(false)}
           >
             <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
+              initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="rounded-2xl p-6 bg-[var(--card-bg)] shadow-xl max-w-md w-full"
+              exit={{ opacity: 0, scale: 0.96 }}
+              className="ot-modal"
               onClick={(e) => e.stopPropagation()}
             >
               {!confirmSuccess ? (
                 <>
-                  <p className="font-bold text-lg" style={{ color: 'var(--text-primary)' }}>
-                    Did you receive your order?
-                  </p>
-                  <p className="text-sm mt-2" style={{ color: 'var(--text-muted)' }}>
+                  <p className="ot-modal__title">Did you receive your order?</p>
+                  <p className="ot-modal__text">
                     Order #{displayOrderId}
-                    {isCod ? ' — you should have paid cash to the driver.' : ' — payment will be released to the seller.'}
+                    {isCod
+                      ? ' — you should have paid cash to the driver.'
+                      : ' — payment will be released to the seller.'}
                   </p>
-                  <div className="flex gap-3 mt-6">
+                  <div className="ot-modal__actions">
                     <button
                       type="button"
                       disabled={confirmLoading}
                       onClick={() => setConfirmModal(false)}
-                      className="flex-1 py-3 rounded-xl font-semibold border-2"
-                      style={{ borderColor: 'var(--divider)', color: 'var(--text-secondary)' }}
+                      className="ot-btn ot-btn--ghost"
                     >
                       Not yet
                     </button>
@@ -510,19 +644,29 @@ export default function OrderTracking() {
                       type="button"
                       disabled={confirmLoading}
                       onClick={handleConfirmDelivery}
-                      className="flex-1 py-3 rounded-xl font-semibold text-white"
-                      style={{ background: PRIMARY }}
+                      className="ot-btn ot-btn--primary"
                     >
                       {confirmLoading ? 'Confirming…' : 'Yes, received'}
                     </button>
                   </div>
                 </>
               ) : (
-                <div className="py-6 flex flex-col items-center gap-3">
-                  <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ background: SUCCESS }}>
-                    <Check className="w-8 h-8 text-white" strokeWidth={3} />
+                <div style={{ textAlign: 'center', padding: '12px 0' }}>
+                  <div
+                    style={{
+                      width: 56,
+                      height: 56,
+                      borderRadius: '9999px',
+                      background: SUCCESS,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginBottom: 12,
+                    }}
+                  >
+                    <Check className="w-7 h-7 text-white" strokeWidth={3} />
                   </div>
-                  <p className="font-bold text-lg" style={{ color: 'var(--text-primary)' }}>Thank you!</p>
+                  <p className="ot-modal__title">Thank you!</p>
                 </div>
               )}
             </motion.div>

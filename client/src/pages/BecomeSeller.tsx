@@ -249,13 +249,13 @@ export default function BecomeSeller() {
             >
               <Link
                 to="/auth?tab=signup&role=seller"
-                className="inline-flex items-center gap-3 px-8 py-4 rounded-full text-sm font-bold text-white transition-all duration-300 hover:-translate-y-1 hover:gap-5"
+                className="inline-flex items-center gap-3 min-h-[52px] px-10 py-4 rounded-full text-base font-bold text-white transition-all duration-300 hover:-translate-y-1 hover:gap-5"
                 style={{
                   background: 'var(--gradient-brand-cta)',
                   boxShadow: 'var(--shadow-cta-hover)',
                 }}
               >
-                Start Selling Today <ArrowRight size={16} />
+                Start Selling Today <ArrowRight size={18} />
               </Link>
               <Link
                 to="/login?redirect=/seller"

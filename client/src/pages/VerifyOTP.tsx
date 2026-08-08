@@ -1,10 +1,18 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Mail, Loader2, KeyRound, ArrowLeft, CheckCircle2, Sparkles } from 'lucide-react';
+import { Mail } from 'lucide-react';
 import { useToastStore } from '../stores/toastStore';
 import { authAPI } from '../lib/api';
-
-const PRIMARY = 'var(--brand-primary)';
+import AuthPremiumLayout from '../components/AuthPremiumLayout';
+import AuthFusionCard from '../components/auth/AuthFusionCard';
+import AuthFormHeader from '../components/auth/AuthFormHeader';
+import {
+  AuthInput,
+  ErrorBanner,
+  PrimaryBtn,
+  OtpInputs,
+  applyOtpInput,
+} from '../components/auth/AuthFormControls';
 
 export function VerifyOTP() {
   const [searchParams] = useSearchParams();
@@ -21,7 +29,6 @@ export function VerifyOTP() {
   const [resendCooldown, setResendCooldown] = useState(0);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  /** When linked with ?email=, open the 6-digit step first (code was usually sent at signup). */
   useEffect(() => {
     const e = emailFromUrl.trim();
     if (!e) return;
@@ -32,10 +39,10 @@ export function VerifyOTP() {
   }, [emailFromUrl]);
 
   useEffect(() => {
-    if (step === 'code' && otp.every(d => !d)) {
+    if (step === 'code' && otp.every((d) => !d)) {
       setTimeout(() => inputRefs.current[0]?.focus(), 150);
     }
-  }, [step]);
+  }, [step, otp]);
 
   useEffect(() => {
     if (resendCooldown <= 0) return;
@@ -55,39 +62,35 @@ export function VerifyOTP() {
       setResendCooldown(60);
       showToast('Verification code sent. Check your email.', 'success');
       setTimeout(() => inputRefs.current[0]?.focus(), 200);
-    } catch (err: any) {
-      setError(err.message || 'Failed to send code.');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to send code.';
+      setError(message);
     } finally {
       setSendLoading(false);
     }
   };
 
-  const handleChange = (index: number, value: string) => {
-    if (value !== '' && !/^\d$/.test(value)) return;
-    const next = [...otp];
-    next[index] = value;
+  const handleOtpChange = (index: number, raw: string) => {
+    const { next, focusIndex } = applyOtpInput(index, raw, otp);
     setOtp(next);
     setError('');
-    if (value && index < 5) inputRefs.current[index + 1]?.focus();
+    if (focusIndex !== index) inputRefs.current[focusIndex]?.focus();
   };
 
-  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleOtpKey = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Backspace' && !otp[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
   };
 
-  const handlePaste = (e: React.ClipboardEvent) => {
+  const handleOtpPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault();
     const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
     if (!pasted) return;
-    const next = [...otp];
-    for (let i = 0; i < pasted.length; i++) next[i] = pasted[i];
-    for (let i = pasted.length; i < 6; i++) next[i] = '';
+    const next = Array.from({ length: 6 }, (_, i) => pasted[i] || '');
     setOtp(next);
     setError('');
-    const nextIndex = Math.min(pasted.length, 5);
-    inputRefs.current[nextIndex]?.focus();
+    inputRefs.current[Math.min(pasted.length, 5)]?.focus();
   };
 
   const handleVerify = async (e: React.FormEvent) => {
@@ -102,8 +105,9 @@ export function VerifyOTP() {
       setStep('success');
       showToast('Email verified! You can sign in now.', 'success');
       setTimeout(() => navigate('/login', { replace: true }), 1800);
-    } catch (err: any) {
-      setError(err.message || 'Invalid code. Try again.');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Invalid code. Try again.';
+      setError(message);
     } finally {
       setVerifyLoading(false);
     }
@@ -119,8 +123,9 @@ export function VerifyOTP() {
       setResendCooldown(60);
       showToast('New code sent. Check your email.', 'success');
       setTimeout(() => inputRefs.current[0]?.focus(), 100);
-    } catch (err: any) {
-      setError(err.message || 'Failed to resend.');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to resend.';
+      setError(message);
     } finally {
       setSendLoading(false);
     }
@@ -130,185 +135,94 @@ export function VerifyOTP() {
   const canVerify = otp.every(Boolean);
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
-      {/* Background */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background:
-            'linear-gradient(to bottom right, color-mix(in srgb, var(--brand-primary) 8%, var(--bg-page)), var(--bg-page), color-mix(in srgb, var(--brand-primary) 5%, var(--bg-page)))',
-        }}
-      />
-      <div
-        className="absolute inset-0"
-        style={{
-          background:
-            'radial-gradient(ellipse 90% 80% at 50% -30%, color-mix(in srgb, var(--brand-primary) 15%, transparent), transparent)',
-        }}
-      />
-      <div
-        className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[480px] h-[320px] rounded-full blur-3xl"
-        style={{ background: 'color-mix(in srgb, var(--brand-primary) 18%, transparent)' }}
-      />
-      <div
-        className="absolute bottom-1/4 right-1/4 w-64 h-64 rounded-full blur-3xl"
-        style={{ background: 'color-mix(in srgb, var(--brand-primary) 12%, transparent)' }}
-      />
-
-      <div className="relative w-full max-w-md">
-        <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-[28px] shadow-2xl shadow-black/10 dark:shadow-black/30 border border-[var(--brand-border-subtle)] p-8 sm:p-10">
-          {/* Icon */}
-          <div className="flex justify-center mb-6">
-            <div className="relative">
-              <div
-                className="w-20 h-20 rounded-2xl flex items-center justify-center text-white transition-transform duration-300 hover:scale-105"
-                style={{
-                  background: 'var(--gradient-brand-cta)',
-                  boxShadow: 'var(--shadow-cta-hover)',
-                }}
-              >
-                {step === 'success' ? (
-                  <CheckCircle2 className="w-10 h-10" strokeWidth={2} />
-                ) : (
-                  <KeyRound className="w-10 h-10" strokeWidth={1.8} />
-                )}
-              </div>
-              <span className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-amber-400 flex items-center justify-center text-amber-950 animate-pulse">
-                <Sparkles className="w-3.5 h-3.5" />
-              </span>
+    <AuthPremiumLayout>
+      <AuthFusionCard>
+        {step === 'success' ? (
+          <div className="agf-otp-wrap text-center">
+            <div className="agf-otp-icon mx-auto">
+              <Mail size={28} aria-hidden />
             </div>
+            <h2 className="agf-heading">You&apos;re all set</h2>
+            <p className="agf-subheading agf-subheading--center">
+              Your email is verified. Redirecting you to sign in…
+            </p>
+            <div
+              className="mx-auto mt-4 w-12 h-12 rounded-full border-4 border-t-transparent animate-spin"
+              style={{ borderColor: 'var(--agf-brand-bright)', borderTopColor: 'transparent' }}
+              aria-hidden
+            />
           </div>
-
-          {step === 'success' ? (
-            <>
-              <h1 className="text-2xl sm:text-3xl font-bold text-center text-gray-900 dark:text-white mb-2 tracking-tight">
-                You&apos;re all set
-              </h1>
-              <p className="text-center text-gray-600 dark:text-gray-400 mb-6">
-                Your email is verified. Redirecting you to sign in…
-              </p>
-              <div className="flex justify-center">
-                <div className="w-12 h-12 rounded-full border-4 border-t-transparent animate-spin border-[var(--brand-primary)]" />
-              </div>
-            </>
-          ) : step === 'email' ? (
-            <>
-              <h1 className="text-2xl sm:text-3xl font-bold text-center text-gray-900 dark:text-white mb-2 tracking-tight">
-                Verify with a code
-              </h1>
-              <p className="text-center text-gray-600 dark:text-gray-400 mb-6">
-                Enter your email and we&apos;ll send you a 6-digit verification code.
-              </p>
-              {error && (
-                <p className="text-sm text-red-600 dark:text-red-400 text-center mb-4 px-3 py-2 rounded-xl bg-red-50 dark:bg-red-950/30">
-                  {error}
-                </p>
-              )}
-              <div className="space-y-4">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Email address
-                </label>
-                <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => { setEmail(e.target.value); setError(''); }}
-                    placeholder="you@example.com"
-                    className="w-full h-14 pl-12 pr-4 rounded-2xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 outline-none transition focus:border-[var(--brand-primary)] focus:ring-4 focus:ring-[color-mix(in_srgb,var(--brand-primary)_20%,transparent)]"
-                    autoComplete="email"
-                  />
-                </div>
+        ) : step === 'email' ? (
+          <div className="agf-form">
+            <AuthFormHeader
+              title="Verify Email"
+              subtitle="Enter your email and we'll send you a 6-digit verification code."
+              backTo="/auth?tab=login"
+              backLabel="Back to sign in"
+            />
+            <ErrorBanner message={error} />
+            <AuthInput
+              label="Email Address"
+              type="email"
+              name="email"
+              autoComplete="email"
+              value={email}
+              onChange={(v) => {
+                setEmail(v);
+                setError('');
+              }}
+              placeholder="you@example.com"
+              leftIcon={Mail}
+              required
+            />
+            <PrimaryBtn type="button" onClick={handleSendCode} loading={sendLoading} disabled={!validEmail}>
+              {sendLoading ? 'Sending…' : 'Send Verification Code'}
+            </PrimaryBtn>
+            <p className="agf-form-footer">
+              <Link to="/auth?tab=login" className="agf-link">
+                Back to Log In
+              </Link>
+            </p>
+          </div>
+        ) : (
+          <form onSubmit={handleVerify} className="agf-form agf-otp-wrap">
+            <AuthFormHeader
+              title="Enter Your Code"
+              subtitle={`We sent a 6-digit code to ${email.trim()}.`}
+              backTo="/auth?tab=login"
+              backLabel="Back to sign in"
+            />
+            <div className="agf-center-narrow">
+              <OtpInputs
+                digits={otp}
+                inputRefs={inputRefs}
+                locked={verifyLoading}
+                error={!!error}
+                errorMessage={error || undefined}
+                onChange={handleOtpChange}
+                onKeyDown={handleOtpKey}
+                onPaste={handleOtpPaste}
+              />
+              <div className="text-center my-4">
                 <button
                   type="button"
-                  onClick={handleSendCode}
-                  disabled={sendLoading || !validEmail}
-                  className="w-full h-14 rounded-2xl font-semibold text-white flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:opacity-95 active:scale-[0.99]"
-                  style={{
-                    background: 'var(--gradient-brand-cta)',
-                    boxShadow: 'var(--shadow-cta-hover)',
-                  }}
+                  onClick={handleResend}
+                  disabled={resendCooldown > 0 || sendLoading}
+                  className="agf-link"
+                  style={{ opacity: resendCooldown > 0 || sendLoading ? 0.55 : 1 }}
                 >
-                  {sendLoading ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  ) : (
-                    <Mail className="w-5 h-5" />
-                  )}
-                  {sendLoading ? 'Sending…' : 'Send verification code'}
+                  {resendCooldown > 0
+                    ? `Resend code in ${resendCooldown}s`
+                    : "Didn't get the code? Resend"}
                 </button>
               </div>
-            </>
-          ) : (
-            <>
-              <h1 className="text-2xl sm:text-3xl font-bold text-center text-gray-900 dark:text-white mb-2 tracking-tight">
-                Enter your code
-              </h1>
-              <p className="text-center text-gray-600 dark:text-gray-400 mb-6">
-                We sent a 6-digit code to <span className="font-semibold text-gray-900 dark:text-white break-all">{email}</span>
-              </p>
-              {error && (
-                <p className="text-sm text-red-600 dark:text-red-400 text-center mb-4 px-3 py-2 rounded-xl bg-red-50 dark:bg-red-950/30">
-                  {error}
-                </p>
-              )}
-              <form onSubmit={handleVerify} className="space-y-6">
-                <div className="flex justify-center gap-2 sm:gap-3" onPaste={handlePaste}>
-                  {otp.map((digit, i) => (
-                    <input
-                      key={i}
-                      ref={(el) => { inputRefs.current[i] = el; }}
-                      type="text"
-                      inputMode="numeric"
-                      maxLength={1}
-                      value={digit}
-                      onChange={(e) => handleChange(i, e.target.value)}
-                      onKeyDown={(e) => handleKeyDown(i, e)}
-                      className="w-12 h-14 sm:w-14 sm:h-16 text-center text-xl sm:text-2xl font-bold rounded-2xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white outline-none transition-all hover:border-[color-mix(in_srgb,var(--brand-primary)_35%,var(--divider))] dark:hover:border-[color-mix(in_srgb,var(--brand-primary)_45%,transparent)] focus:border-[var(--brand-primary)] focus:ring-4 focus:ring-[color-mix(in_srgb,var(--brand-primary)_20%,transparent)]"
-                    />
-                  ))}
-                </div>
-                <button
-                  type="submit"
-                  disabled={verifyLoading || !canVerify}
-                  className="w-full h-14 rounded-2xl font-semibold text-white flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:opacity-95 active:scale-[0.99]"
-                  style={{
-                    background: 'var(--gradient-brand-cta)',
-                    boxShadow: 'var(--shadow-cta-hover)',
-                  }}
-                >
-                  {verifyLoading ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  ) : null}
-                  {verifyLoading ? 'Verifying…' : 'Verify & continue'}
-                </button>
-                <div className="text-center">
-                  <button
-                    type="button"
-                    onClick={handleResend}
-                    disabled={resendCooldown > 0 || sendLoading}
-                    className="text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition hover:opacity-90"
-                    style={{ color: PRIMARY }}
-                  >
-                    {resendCooldown > 0
-                      ? `Resend code in ${resendCooldown}s`
-                      : "Didn't get the code? Resend"}
-                  </button>
-                </div>
-              </form>
-            </>
-          )}
-
-          {step !== 'success' && (
-            <Link
-              to="/login"
-              className="mt-8 flex items-center justify-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400 transition hover:text-[var(--brand-primary)]"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back to sign in
-            </Link>
-          )}
-        </div>
-      </div>
-    </div>
+              <PrimaryBtn loading={verifyLoading} disabled={!canVerify}>
+                {verifyLoading ? 'Verifying…' : 'Verify & Continue'}
+              </PrimaryBtn>
+            </div>
+          </form>
+        )}
+      </AuthFusionCard>
+    </AuthPremiumLayout>
   );
 }

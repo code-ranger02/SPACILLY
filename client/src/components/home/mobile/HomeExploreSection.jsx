@@ -27,6 +27,7 @@ export default function HomeExploreSection({
   title,
   subtitle,
   href,
+  linkLabel = 'View all',
   products = [],
   loading = false,
   layout: layoutProp,
@@ -63,7 +64,7 @@ export default function HomeExploreSection({
 
   return (
     <section className="mob-section mob-home-ex" aria-labelledby={id}>
-      <MobileSectionHeader id={id} title={title} subtitle={subtitle} href={href} />
+      <MobileSectionHeader id={id} title={title} subtitle={subtitle} href={href} linkLabel={linkLabel} />
 
       {loading && !items.length ? (
         <HomeExploreSkeleton layout={layout} />

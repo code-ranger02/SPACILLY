@@ -74,7 +74,7 @@ html[data-theme='light'] .ud-featured {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: #fdba74;
+  color: var(--brand-orange-text, #d7193f);
   background: color-mix(in srgb, var(--brand-primary) 18%, transparent);
 }
 
@@ -171,7 +171,7 @@ html[data-theme='dark'] .ud-countdown-num {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--brand-primary), #fb923c);
+  background: linear-gradient(90deg, var(--brand-primary), var(--sp-primary-container, #d7193f));
   box-shadow: 0 0 12px var(--ud-glow-orange);
 }
 
@@ -238,9 +238,9 @@ html[data-theme='dark'] .ud-btn--ghost {
 }
 
 .ud-btn--primary {
-  background: linear-gradient(135deg, #f97316, #ec4899);
+  background: var(--gradient-brand-cta, #d7193f);
   color: #fff;
-  box-shadow: 0 8px 28px color-mix(in srgb, #f97316 40%, transparent);
+  box-shadow: var(--shadow-cta-hover, 0 4px 14px rgba(215, 25, 63, 0.22));
 }
 
 .ud-rail-title {
@@ -370,7 +370,7 @@ html[data-theme='dark'] .ud-btn--ghost {
 }
 
 .ud-promo-icon--bell {
-  background: radial-gradient(circle at 30% 30%, #fdba74, var(--brand-primary));
+  background: radial-gradient(circle at 30% 30%, var(--brand-orange-text, #ffb3b4), var(--brand-primary));
   box-shadow: 0 8px 20px var(--ud-glow-orange);
 }
 

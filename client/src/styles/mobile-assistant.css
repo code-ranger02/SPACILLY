@@ -242,8 +242,8 @@
   }
 
   .ai-quick-icon--cart {
-    color: #fb923c;
-    background: rgba(249, 115, 22, 0.12);
+    color: var(--brand-orange-text, var(--sp-primary-container));
+    background: var(--brand-tint);
   }
 
   .ai-quick-icon--wish {
@@ -252,8 +252,8 @@
   }
 
   .ai-quick-icon--deals {
-    color: #fb923c;
-    background: rgba(249, 115, 22, 0.1);
+    color: var(--brand-orange-text, var(--sp-primary-container));
+    background: var(--brand-tint);
   }
 
   .ai-quick-icon--discover {
@@ -356,18 +356,18 @@
     font-size: 10px;
     font-weight: 700;
     color: var(--text-on-accent);
-    background: var(--brand-primary, #f97316);
+    background: var(--brand-primary-container, #d7193f);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 1;
-    box-shadow: 0 1px 4px rgba(249, 115, 22, 0.35);
+    box-shadow: 0 1px 4px color-mix(in srgb, var(--brand-primary-container, #d7193f) 35%, transparent);
   }
 
   .ai-cta-pill {
     font-size: 12px;
     font-weight: 600;
-    color: var(--brand-primary, #f97316);
+    color: var(--brand-orange-text, var(--sp-primary-container));
     white-space: nowrap;
     flex-shrink: 0;
   }
