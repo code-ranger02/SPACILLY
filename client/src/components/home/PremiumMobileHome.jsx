@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import FuturisticHero from '../FuturisticHero';
+import FuturisticHero from './FuturisticHero';
 import { useHomeFeedBundle } from '../../hooks/useHomeFeedSections';
 import { HOME_PRODUCT_LIMIT } from './mobile/HomeExploreSection';
 import HomeExploreSection from './mobile/HomeExploreSection';
