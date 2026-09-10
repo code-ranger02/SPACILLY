@@ -413,7 +413,7 @@ const Header: React.FC<HeaderProps> = ({
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="absolute right-0 mt-2 w-64 bg-white dark:bg-[var(--dropdown-bg)] border border-gray-200 dark:border-[var(--border-card)] rounded-xl shadow-2xl z-20 backdrop-blur-xl"
+                  className="absolute right-0 mt-2 w-64 bg-[var(--dropdown-bg)] border border-[var(--dropdown-border)] text-[var(--dropdown-text)] rounded-xl shadow-2xl z-20"
                 >
                   <div className="px-4 py-2.5 border-b border-gray-200 dark:border-gray-700">
                     <p className="font-semibold text-gray-900 dark:text-white text-sm">

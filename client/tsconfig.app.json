@@ -15,8 +15,7 @@
     "resolveJsonModule": true,
     "jsx": "react-jsx",
 
-    /* Path Aliases */
-    "baseUrl": ".",
+    /* Path Aliases — resolved relative to this config (baseUrl is deprecated in TS 6) */
     "paths": {
       "@/*": ["./src/*"]
     },

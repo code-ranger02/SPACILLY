@@ -1,6 +1,8 @@
+import { Link } from 'react-router-dom';
 import { HOME_PRODUCT_LIMIT } from '../../../hooks/useHomeFeedSections';
 import { useHomeLayoutForSection } from '../../../hooks/useHomeLayoutConfig';
 import { layoutModeToExploreLayout } from '../../../constants/buyerHomeLayoutDefaults';
+import { productIsTrending } from '../../../lib/productFeedFlags';
 import '../../../styles/home-layout-cards.css';
 
 function cardDensityClass(density) {
@@ -47,8 +49,7 @@ export default function HomeExploreSection({
   const densityCls = isTrendingSection ? '' : cardDensityClass(cardDensity);
 
   const items = (Array.isArray(products) ? products : []).slice(0, HOME_PRODUCT_LIMIT);
-
-  if (!loading && items.length === 0) return null;
+  const empty = !loading && items.length === 0;
 
   const railItems = layout === 'trending' ? items.slice(0, railCount) : [];
   const gridItems =
@@ -68,6 +69,8 @@ export default function HomeExploreSection({
 
       {loading && !items.length ? (
         <HomeExploreSkeleton layout={layout} />
+      ) : empty ? (
+        <HomeExploreEmpty title={title} href={href} />
       ) : (
         <>
           {layout === 'trending' && railItems.length > 0 && (
@@ -78,7 +81,7 @@ export default function HomeExploreSection({
                     key={p._id || p.id || `rail-${i}`}
                     product={p}
                     index={i}
-                    showHotBadge
+                    showHotBadge={productIsTrending(p)}
                   />
                 ))}
               </div>
@@ -122,6 +125,22 @@ export default function HomeExploreSection({
         </>
       )}
     </section>
+  );
+}
+
+function HomeExploreEmpty({ title, href }) {
+  return (
+    <div className="mob-home-ex-empty">
+      <p className="mob-home-ex-empty__title">Nothing here yet</p>
+      <p className="mob-home-ex-empty__text">
+        {title ? `${title} will show up as soon as matching products are listed.` : 'Products will appear here soon.'}
+      </p>
+      {href ? (
+        <Link to={href} className="mob-home-ex-empty__link">
+          Browse the marketplace
+        </Link>
+      ) : null}
+    </div>
   );
 }
 

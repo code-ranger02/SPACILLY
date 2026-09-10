@@ -36,19 +36,19 @@
   .dark .dark\:bg-gray-800 { background-color: var(--card-bg) !important; }
   .dark .dark\:bg-gray-700 { background-color: var(--bg-input) !important; }
   .dark .dark\:bg-gray-600 { background-color: var(--bg-hover) !important; }
-  .dark .dark\:bg-gray-700\/30 { background-color: rgba(36, 36, 36, 0.45) !important; }
-  .dark .dark\:bg-gray-700\/40 { background-color: rgba(36, 36, 36, 0.52) !important; }
-  .dark .dark\:bg-gray-700\/50 { background-color: rgba(36, 36, 36, 0.58) !important; }
-  .dark .dark\:bg-gray-800\/50 { background-color: rgba(28, 28, 28, 0.72) !important; }
-  .dark .dark\:bg-gray-800\/60 { background-color: color-mix(in srgb, var(--card-bg) 82%, transparent) !important; }
-  /* `dark:bg-gray-900/*` opacity utilities default to cool Tailwind gray → map to warm card/page tokens */
-  .dark .dark\:bg-gray-900\/20 { background-color: color-mix(in srgb, var(--card-bg) 42%, transparent) !important; }
-  .dark .dark\:bg-gray-900\/30 { background-color: color-mix(in srgb, var(--card-bg) 52%, transparent) !important; }
-  .dark .dark\:bg-gray-900\/40 { background-color: color-mix(in srgb, var(--card-bg) 65%, transparent) !important; }
-  .dark .dark\:bg-gray-900\/50 { background-color: color-mix(in srgb, var(--card-bg) 80%, transparent) !important; }
-  .dark .dark\:bg-gray-900\/60 { background-color: color-mix(in srgb, var(--card-bg) 85%, transparent) !important; }
-  .dark .dark\:bg-gray-900\/80 { background-color: color-mix(in srgb, var(--card-bg) 92%, transparent) !important; }
-  .dark .dark\:bg-gray-900\/95 { background-color: color-mix(in srgb, var(--card-bg) 97%, transparent) !important; }
+  .dark .dark\:bg-gray-700\/30 { background-color: var(--bg-secondary) !important; }
+  .dark .dark\:bg-gray-700\/40 { background-color: var(--bg-secondary) !important; }
+  .dark .dark\:bg-gray-700\/50 { background-color: var(--bg-tertiary) !important; }
+  .dark .dark\:bg-gray-800\/50 { background-color: var(--card-bg) !important; }
+  .dark .dark\:bg-gray-800\/60 { background-color: var(--card-bg) !important; }
+  /* High-opacity gray utilities were mixed with glass --card-bg and looked see-through */
+  .dark .dark\:bg-gray-900\/20 { background-color: var(--bg-secondary) !important; }
+  .dark .dark\:bg-gray-900\/30 { background-color: var(--bg-secondary) !important; }
+  .dark .dark\:bg-gray-900\/40 { background-color: var(--card-bg) !important; }
+  .dark .dark\:bg-gray-900\/50 { background-color: var(--card-bg) !important; }
+  .dark .dark\:bg-gray-900\/60 { background-color: var(--card-bg) !important; }
+  .dark .dark\:bg-gray-900\/80 { background-color: var(--modal-bg) !important; }
+  .dark .dark\:bg-gray-900\/95 { background-color: var(--modal-bg) !important; }
   .dark .dark\:border-gray-700\/30 { border-color: rgba(255, 255, 255, 0.05) !important; }
   .dark .dark\:border-gray-700\/50 { border-color: rgba(255, 255, 255, 0.08) !important; }
   .dark .dark\:border-gray-700\/60 { border-color: rgba(255, 255, 255, 0.1) !important; }
@@ -78,15 +78,15 @@
   .dark .dashboard-app .dark\:bg-slate-900 { background-color: var(--card-bg) !important; }
   .dark .dashboard-app .dark\:bg-slate-950 { background-color: var(--bg-page) !important; }
   .dark .dashboard-app .dark\:bg-slate-800 { background-color: var(--bg-secondary) !important; }
-  .dark .dashboard-app .dark\:bg-slate-900\/30 { background-color: color-mix(in srgb, var(--card-bg) 55%, transparent) !important; }
-  .dark .dashboard-app .dark\:bg-slate-900\/40 { background-color: color-mix(in srgb, var(--card-bg) 65%, transparent) !important; }
-  .dark .dashboard-app .dark\:bg-slate-900\/50 { background-color: color-mix(in srgb, var(--card-bg) 72%, transparent) !important; }
-  .dark .dashboard-app .dark\:bg-slate-900\/60 { background-color: color-mix(in srgb, var(--card-bg) 78%, transparent) !important; }
-  .dark .dashboard-app .dark\:bg-slate-900\/80 { background-color: color-mix(in srgb, var(--card-bg) 90%, transparent) !important; }
-  .dark .dashboard-app .dark\:bg-slate-950\/30 { background-color: color-mix(in srgb, var(--bg-page) 78%, transparent) !important; }
-  .dark .dashboard-app .dark\:bg-slate-950\/40 { background-color: color-mix(in srgb, var(--card-bg) 72%, transparent) !important; }
-  .dark .dashboard-app .dark\:bg-slate-950\/50 { background-color: color-mix(in srgb, var(--card-bg) 80%, transparent) !important; }
-  .dark .dashboard-app .dark\:bg-slate-950\/95 { background-color: var(--card-bg) !important; }
+  .dark .dashboard-app .dark\:bg-slate-900\/30 { background-color: var(--bg-secondary) !important; }
+  .dark .dashboard-app .dark\:bg-slate-900\/40 { background-color: var(--card-bg) !important; }
+  .dark .dashboard-app .dark\:bg-slate-900\/50 { background-color: var(--card-bg) !important; }
+  .dark .dashboard-app .dark\:bg-slate-900\/60 { background-color: var(--card-bg) !important; }
+  .dark .dashboard-app .dark\:bg-slate-900\/80 { background-color: var(--modal-bg) !important; }
+  .dark .dashboard-app .dark\:bg-slate-950\/30 { background-color: var(--bg-secondary) !important; }
+  .dark .dashboard-app .dark\:bg-slate-950\/40 { background-color: var(--card-bg) !important; }
+  .dark .dashboard-app .dark\:bg-slate-950\/50 { background-color: var(--card-bg) !important; }
+  .dark .dashboard-app .dark\:bg-slate-950\/95 { background-color: var(--modal-bg) !important; }
 
   .dark .dark\:hover\:bg-gray-700:hover { background-color: var(--bg-hover) !important; }
   .dark .dark\:hover\:bg-gray-800:hover { background-color: var(--bg-elevated) !important; }
@@ -1931,3 +1931,131 @@ html.pwa-standalone .cat-browse-toolbar {
   transform: scale(1);
   opacity: 1;
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Overlay surfaces — opaque modal / dialog / popover / dropdown / sheet
+   Backdrop may stay translucent. These panels must not use glass fills.
+   ══════════════════════════════════════════════════════════════════════════ */
+.sp-overlay-surface {
+  background-color: var(--modal-bg);
+  color: var(--text-primary);
+  border-color: var(--modal-border);
+  box-shadow: var(--shadow-modal);
+}
+
+html.dark [data-sp-overlay='backdrop'],
+[data-theme='dark'] [data-sp-overlay='backdrop'] {
+  background-color: var(--bg-overlay);
+}
+
+html.dark [data-sp-overlay='dialog'],
+[data-theme='dark'] [data-sp-overlay='dialog'],
+html.dark [data-radix-dialog-content],
+[data-theme='dark'] [data-radix-dialog-content],
+html.dark [data-radix-alert-dialog-content],
+[data-theme='dark'] [data-radix-alert-dialog-content],
+html.dark .sp-overlay-surface,
+[data-theme='dark'] .sp-overlay-surface {
+  background-color: var(--modal-bg) !important;
+  background-image: none !important;
+  color: var(--text-primary);
+  border-color: var(--modal-border) !important;
+  box-shadow: var(--shadow-modal);
+}
+
+html.dark [data-radix-popover-content],
+[data-theme='dark'] [data-radix-popover-content],
+html.dark [data-radix-dropdown-menu-content],
+[data-theme='dark'] [data-radix-dropdown-menu-content],
+html.dark [data-radix-select-content],
+[data-theme='dark'] [data-radix-select-content],
+html.dark [data-radix-hover-card-content],
+[data-theme='dark'] [data-radix-hover-card-content] {
+  background-color: var(--popover-bg, var(--dropdown-bg)) !important;
+  background-image: none !important;
+  color: var(--dropdown-text, var(--text-primary));
+  border-color: var(--dropdown-border) !important;
+  box-shadow: var(--dropdown-shadow);
+}
+
+html.dark .rx-sheet-panel,
+[data-theme='dark'] .rx-sheet-panel,
+html.dark .ai-sheet-panel,
+[data-theme='dark'] .ai-sheet-panel,
+html.dark .dloc-sheet,
+[data-theme='dark'] .dloc-sheet,
+html.dark .mmo-panel,
+[data-theme='dark'] .mmo-panel,
+html.dark .ot-modal,
+[data-theme='dark'] .ot-modal,
+html.dark .system-features-modal,
+[data-theme='dark'] .system-features-modal,
+html.dark .auth-modal-root,
+[data-theme='dark'] .auth-modal-root,
+html.dark .intel-search-shell,
+[data-theme='dark'] .intel-search-shell,
+html.dark .pqp-shell,
+[data-theme='dark'] .pqp-shell,
+html.dark .react-modal-sheet-container,
+[data-theme='dark'] .react-modal-sheet-container {
+  background-color: var(--modal-bg) !important;
+  background-image: none !important;
+}
+
+html.dark .rxn-dropdown-panel,
+[data-theme='dark'] .rxn-dropdown-panel,
+html.dark .account-menu-panel,
+[data-theme='dark'] .account-menu-panel {
+  background-color: var(--dropdown-bg) !important;
+  background-image: none !important;
+  border-color: var(--dropdown-border);
+  color: var(--dropdown-text, var(--text-primary));
+}
+
+/* Inner fields on overlay surfaces — recessed vs --modal-bg / --bg-elevated */
+html.dark [data-sp-overlay='dialog'] input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']),
+html.dark [data-sp-overlay='dialog'] textarea,
+html.dark [data-sp-overlay='dialog'] select,
+html.dark [data-sp-overlay='dialog'] .premium-input,
+html.dark [data-radix-dialog-content] input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']),
+html.dark [data-radix-dialog-content] textarea,
+html.dark [data-radix-dialog-content] select,
+html.dark .sp-overlay-surface input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']),
+html.dark .sp-overlay-surface textarea,
+html.dark .sp-overlay-surface select,
+html.dark .sp-overlay-surface .premium-input,
+[data-theme='dark'] [data-sp-overlay='dialog'] input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']),
+[data-theme='dark'] [data-sp-overlay='dialog'] textarea,
+[data-theme='dark'] [data-sp-overlay='dialog'] select,
+[data-theme='dark'] [data-sp-overlay='dialog'] .premium-input,
+[data-theme='dark'] [data-radix-dialog-content] input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']),
+[data-theme='dark'] [data-radix-dialog-content] textarea,
+[data-theme='dark'] [data-radix-dialog-content] select,
+[data-theme='dark'] .sp-overlay-surface input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']),
+[data-theme='dark'] .sp-overlay-surface textarea,
+[data-theme='dark'] .sp-overlay-surface select,
+[data-theme='dark'] .sp-overlay-surface .premium-input {
+  background-color: var(--bg-input) !important;
+  color: var(--input-text) !important;
+  border-color: var(--border-input);
+}
+
+/* Custom centered modals: first opaque panel over a dim overlay */
+html.dark [class*='bg-black/'] > .bg-white,
+html.dark [class*='bg-black/'] > .bg-white\/80,
+html.dark [class*='bg-black/'] > .bg-white\/90,
+html.dark [class*='bg-black/'] > .bg-white\/95,
+html.dark .bg-black.bg-opacity-50 > .bg-white,
+html.dark .modal-backdrop > .bg-white,
+[data-theme='dark'] [class*='bg-black/'] > .bg-white,
+[data-theme='dark'] [class*='bg-black/'] > .bg-white\/80,
+[data-theme='dark'] [class*='bg-black/'] > .bg-white\/90,
+[data-theme='dark'] [class*='bg-black/'] > .bg-white\/95,
+[data-theme='dark'] .bg-black.bg-opacity-50 > .bg-white,
+[data-theme='dark'] .modal-backdrop > .bg-white {
+  background-color: var(--modal-bg) !important;
+  background-image: none !important;
+  color: var(--text-primary);
+  border-color: var(--modal-border);
+}
+

@@ -20,6 +20,38 @@
     margin-top: 0;
   }
 
+  .mob-home-ex-empty {
+    margin: 4px 0 8px;
+    padding: 28px 20px;
+    border-radius: 16px;
+    text-align: center;
+    background: var(--card-bg);
+    border: 1px solid var(--border-card);
+  }
+
+  .mob-home-ex-empty__title {
+    margin: 0 0 6px;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .mob-home-ex-empty__text {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.45;
+    color: var(--text-muted);
+  }
+
+  .mob-home-ex-empty__link {
+    display: inline-flex;
+    margin-top: 14px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--brand-primary);
+    text-decoration: none;
+  }
+
   /* Trending Now rail — same card shell as recently viewed (148px, --border-card) */
   .mob-trending-rail .ex-rail-card {
     flex: 0 0 148px;

@@ -8,6 +8,7 @@ import { homeFeedApi } from '../../services/homeFeedApi';
 import { useBuyerCart } from '../../stores/buyerCartStore';
 import { SERVER_URL } from '../../lib/config';
 import { buyerProductPath } from '../../lib/productUrl';
+import { productIsTrending } from '../../lib/productFeedFlags';
 import { useHomeLayoutForSection } from '../../hooks/useHomeLayoutConfig';
 import '../../styles/home-layout-cards.css';
 
@@ -22,17 +23,6 @@ const resolveImg = (src) => {
   if (src.startsWith('http')) return src;
   return `${SERVER_URL}${src}`;
 };
-
-const FALLBACK_PRODUCTS = [
-  { _id: 'f1', name: 'Wireless Headphones Pro', price: 129, originalPrice: 199, rating: 4.8, reviewCount: 324, thumbnail: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&q=80', discount: 35 },
-  { _id: 'f2', name: 'Smart Watch Series X', price: 249, originalPrice: 349, rating: 4.7, reviewCount: 218, thumbnail: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&q=80', discount: 29 },
-  { _id: 'f3', name: 'Running Shoes Elite', price: 89, originalPrice: 130, rating: 4.6, reviewCount: 512, thumbnail: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80', discount: 32 },
-  { _id: 'f4', name: 'Leather Crossbody Bag', price: 68, originalPrice: 95, rating: 4.5, reviewCount: 187, thumbnail: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&q=80', discount: 28 },
-  { _id: 'f5', name: 'Polaroid Instant Camera', price: 75, originalPrice: 99, rating: 4.7, reviewCount: 290, thumbnail: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=400&q=80', discount: 24 },
-  { _id: 'f6', name: 'Minimalist Desk Lamp', price: 49, originalPrice: 75, rating: 4.4, reviewCount: 143, thumbnail: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=400&q=80', discount: 35 },
-  { _id: 'f7', name: 'Stainless Water Bottle', price: 28, originalPrice: 40, rating: 4.8, reviewCount: 650, thumbnail: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=400&q=80', discount: 30 },
-  { _id: 'f8', name: 'Laptop Stand Aluminum', price: 42, originalPrice: 60, rating: 4.6, reviewCount: 389, thumbnail: 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=400&q=80', discount: 30 },
-];
 
 const TRENDING_CACHE_TTL = 5 * 60 * 1000;
 let trendingCache = { data: null, ts: 0 };
@@ -104,14 +94,16 @@ function TrendCard({ product, index, onAdd, cardDensity = 'standard', layout = '
             </div>
           )}
 
-          {/* Trending badge */}
-          <div
-            className="absolute top-2.5 right-2.5 flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold"
-            style={{ background: 'var(--brand-primary)', color: 'var(--text-on-accent)' }}
-          >
-            <TrendingUp size={10} />
-            HOT
-          </div>
+          {/* Trending badge — only when the product is actually trending */}
+          {productIsTrending(product) && (
+            <div
+              className="absolute top-2.5 right-2.5 flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold"
+              style={{ background: 'var(--brand-primary)', color: 'var(--text-on-accent)' }}
+            >
+              <TrendingUp size={10} />
+              HOT
+            </div>
+          )}
 
           {/* Wishlist button */}
           <button
@@ -234,8 +226,8 @@ export default function TrendingProducts() {
             trendingCache = { data: next, ts: Date.now() };
           })
           .catch(() => {
-            setProducts(FALLBACK_PRODUCTS);
-            trendingCache = { data: FALLBACK_PRODUCTS, ts: Date.now() };
+            setProducts([]);
+            trendingCache = { data: [], ts: Date.now() };
           }),
       )
       .finally(() => setLoading(false));
@@ -319,7 +311,7 @@ export default function TrendingProducts() {
             transition={{ duration: 0.5, delay: 0.2 }}
           >
             <Link
-              to="/search"
+              to="/explore?tab=trending"
               className="flex sm:justify-end items-center gap-2 text-xs font-semibold tracking-wide self-start sm:self-auto"
               style={{ color: 'var(--link-color)' }}
             >

@@ -47,6 +47,9 @@
   --dropdown-bg:    #ffffff;
   --dropdown-border: var(--sp-surface-container-high);
   --dropdown-shadow: 0 4px 16px rgba(26, 28, 28, 0.06);
+  --popover-bg:     var(--dropdown-bg);
+  --bg-card:        var(--card-bg);
+  --sp-surface-container-lowest: #ffffff;
   --bg-hover:       var(--sp-surface-container-high);
   --bg-active:      var(--sp-surface-container);
   --bg-input:       var(--sp-surface);
@@ -131,7 +134,7 @@
   --badge-error-text:    #b91c1c;
 
   /* ── Modal ───────────────────────────────────────────────────────────────── */
-  --modal-bg:            #ffffff;
+  --modal-bg:            var(--bg-elevated);
   --modal-border:        #e5e7eb;
   --shadow-modal:        0 24px 48px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04);
 
@@ -331,10 +334,13 @@
   --bg-secondary:   #222424;
   --bg-tertiary:    var(--sp-surface-container);
   --bg-elevated:    var(--sp-surface-container-high);
-  --card-bg:        var(--sp-glass-bg);
+  --card-bg:        var(--sp-surface-container);
+  --bg-card:        var(--card-bg);
+  --sp-surface-container-lowest: var(--sp-surface-dim);
   --dropdown-bg:    var(--sp-surface-container-high);
   --dropdown-border: rgba(255, 255, 255, 0.08);
   --dropdown-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --popover-bg:     var(--dropdown-bg);
   --bg-hover:       rgba(255, 255, 255, 0.08);
   --bg-active:      rgba(215, 25, 63, 0.14);
   --bg-input:       var(--sp-surface-container);
@@ -417,9 +423,9 @@
   --badge-error-border:  rgba(200,100,100,0.28);
   --badge-error-text:    #E8B0B0;
 
-  /* ── Modal ───────────────────────────────────────────────────────────────── */
-  --modal-bg:            #171a20;
-  --modal-border:        rgba(255,255,255,0.07);
+  /* ── Modal — opaque elevated surface (not glass, not a blue-black) ─────── */
+  --modal-bg:            var(--bg-elevated);
+  --modal-border:        var(--dropdown-border);
   --shadow-modal:        0 20px 56px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
 
   /* ── Loading — page matches floor; spinner uses brand accent only ───────── */
@@ -519,55 +525,45 @@
   --notif-type-review: #fbbf24;
 
   /* ── AI Assistant (mobile sheet + chat window) ───────────────────────────── */
-  --ai-backdrop:               rgba(6, 8, 14, 0.55);
-  --ai-sheet-bg:               linear-gradient(
-    165deg,
-    rgba(22, 26, 38, 0.94) 0%,
-    rgba(14, 17, 28, 0.96) 55%,
-    rgba(10, 12, 20, 0.98) 100%
-  );
-  --ai-sheet-border:           rgba(255, 255, 255, 0.08);
-  --ai-sheet-shadow:           0 -12px 48px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
-  --ai-sheet-handle:           rgba(255, 255, 255, 0.2);
-  --ai-hero-bg:                linear-gradient(
-    105deg,
-    rgba(15, 118, 110, 0.72) 0%,
-    rgba(8, 78, 92, 0.58) 38%,
-    rgba(15, 23, 42, 0.88) 100%
-  );
-  --ai-hero-border:            rgba(45, 212, 191, 0.28);
-  --ai-hero-title:             #ffffff;
-  --ai-hero-sub:               rgba(255, 255, 255, 0.78);
-  --ai-hero-chevron:           rgba(255, 255, 255, 0.45);
-  --ai-tile-bg:                rgba(255, 255, 255, 0.04);
-  --ai-tile-border:            rgba(255, 255, 255, 0.06);
-  --ai-tile-icon-bg:           rgba(30, 35, 48, 0.92);
-  --ai-tile-label:             #f1f5f9;
-  --ai-tile-sub:               rgba(148, 163, 184, 0.9);
-  --ai-section-label:          rgba(100, 116, 139, 0.95);
-  --ai-action-title:           #f1f5f9;
-  --ai-action-sub:             rgba(148, 163, 184, 0.9);
-  --ai-action-chevron:         rgba(100, 116, 139, 0.75);
-  --ai-icon-btn-bg:            rgba(255, 255, 255, 0.07);
-  --ai-icon-btn-border:        rgba(255, 255, 255, 0.1);
-  --ai-icon-btn-color:         rgba(226, 232, 240, 0.9);
+  --ai-backdrop:               var(--bg-overlay);
+  --ai-sheet-bg:               var(--modal-bg);
+  --ai-sheet-border:           var(--modal-border);
+  --ai-sheet-shadow:           var(--shadow-modal);
+  --ai-sheet-handle:           var(--divider-strong);
+  --ai-hero-bg:                color-mix(in srgb, var(--brand-primary) 16%, var(--bg-secondary));
+  --ai-hero-border:            var(--brand-border-subtle);
+  --ai-hero-title:             var(--text-primary);
+  --ai-hero-sub:               var(--text-secondary);
+  --ai-hero-chevron:           var(--text-faint);
+  --ai-tile-bg:                var(--bg-secondary);
+  --ai-tile-border:            var(--border-card);
+  --ai-tile-icon-bg:           var(--bg-tertiary);
+  --ai-tile-label:             var(--text-primary);
+  --ai-tile-sub:               var(--text-muted);
+  --ai-section-label:          var(--text-faint);
+  --ai-action-title:           var(--text-primary);
+  --ai-action-sub:             var(--text-muted);
+  --ai-action-chevron:         var(--text-faint);
+  --ai-icon-btn-bg:            var(--bg-tertiary);
+  --ai-icon-btn-border:        var(--border-card);
+  --ai-icon-btn-color:         var(--text-secondary);
   --ai-chat-window-shadow:       var(--shadow-xl);
-  --ai-chat-header-bg:         linear-gradient(135deg, rgba(10, 10, 22, 0.98) 0%, rgba(13, 15, 28, 0.97) 100%);
-  --ai-chat-header-title:      #f0f4ff;
-  --ai-chat-header-online:     #4ade80;
-  --ai-online-ring:            #0d0f1c;
-  --ai-hdr-btn-bg:             rgba(255, 255, 255, 0.06);
-  --ai-hdr-btn-border:         rgba(255, 255, 255, 0.1);
-  --ai-hdr-btn-color:          rgba(200, 210, 230, 0.7);
-  --ai-hdr-btn-hover-bg:       rgba(255, 255, 255, 0.14);
-  --ai-hdr-btn-hover-color:    #ffffff;
-  --ai-fallback-bg:            rgba(251, 191, 36, 0.12);
-  --ai-fallback-text:          #fbbf24;
-  --ai-fallback-border:        rgba(251, 191, 36, 0.2);
-  --ai-fab-hint-bg:            rgba(15, 23, 42, 0.96);
-  --ai-fab-hint-text:          #ffffff;
-  --ai-fab-hint-border:        rgba(148, 163, 184, 0.22);
-  --ai-fab-hint-shadow:        0 12px 30px rgba(0, 0, 0, 0.45);
+  --ai-chat-header-bg:         var(--modal-bg);
+  --ai-chat-header-title:      var(--text-primary);
+  --ai-chat-header-online:     var(--badge-success-text);
+  --ai-online-ring:            var(--modal-bg);
+  --ai-hdr-btn-bg:             var(--bg-tertiary);
+  --ai-hdr-btn-border:         var(--border-card);
+  --ai-hdr-btn-color:          var(--text-muted);
+  --ai-hdr-btn-hover-bg:       var(--bg-hover);
+  --ai-hdr-btn-hover-color:    var(--text-primary);
+  --ai-fallback-bg:            var(--badge-warning-bg);
+  --ai-fallback-text:          var(--badge-warning-text);
+  --ai-fallback-border:        var(--badge-warning-border);
+  --ai-fab-hint-bg:            var(--modal-bg);
+  --ai-fab-hint-text:          var(--text-primary);
+  --ai-fab-hint-border:        var(--modal-border);
+  --ai-fab-hint-shadow:        var(--shadow-lg);
 }
 
 /* Prevent flash when toggling theme (used by ThemeContext) */

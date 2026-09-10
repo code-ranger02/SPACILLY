@@ -589,11 +589,12 @@ export default function AuthModal() {
               aria-modal="true"
               aria-labelledby="auth-modal-title"
               className={`auth-root auth-modal-root relative w-full max-w-[560px] flex overflow-hidden rounded-3xl pointer-events-auto ${shake ? 'auth-shake-anim' : ''}`}
+              data-sp-overlay="dialog"
               style={{
                 maxHeight: '90vh',
                 borderRadius: 24,
-                background: 'var(--card-bg)',
-                boxShadow: '0 24px 64px rgba(0,0,0,0.28), 0 0 0 1px color-mix(in srgb, var(--border-card) 55%, transparent)',
+                background: 'var(--modal-bg)',
+                boxShadow: 'var(--shadow-modal)',
               }}
             >
               <LeftPanel />

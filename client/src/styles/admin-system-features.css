@@ -146,8 +146,8 @@
   max-width: 480px;
   border-radius: 16px;
   padding: 22px;
-  background: var(--bg-card, #fff);
-  border: 1px solid var(--border-card);
+  background: var(--modal-bg, var(--bg-card, #fff));
+  border: 1px solid var(--modal-border, var(--border-card));
   box-shadow: 0 24px 48px rgba(0, 0, 0, 0.2);
 }
 

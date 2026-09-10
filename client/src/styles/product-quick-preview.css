@@ -17,10 +17,7 @@
   min-height: 0;
   flex: 1;
   height: 100%;
-  background:
-    radial-gradient(120% 80% at 100% -20%, color-mix(in srgb, var(--brand-primary) 14%, transparent), transparent 55%),
-    radial-gradient(90% 60% at -10% 0%, color-mix(in srgb, #6366f1 10%, transparent), transparent 50%),
-    var(--card-bg);
+  background: var(--modal-bg);
 }
 
 .pqp-topbar {
@@ -30,8 +27,7 @@
   justify-content: space-between;
   padding: 10px 16px 6px;
   border-bottom: 1px solid color-mix(in srgb, var(--border-card) 55%, transparent);
-  background: color-mix(in srgb, var(--card-bg) 82%, transparent);
-  backdrop-filter: blur(16px);
+  background: var(--modal-bg);
 }
 
 .pqp-drag-pill {

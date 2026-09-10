@@ -88,7 +88,8 @@ export function DeviceApprovalPopup() {
       aria-labelledby="device-approval-title"
     >
       <div
-        className="w-full max-w-md rounded-2xl shadow-[0_24px_80px_-12px_rgba(0,0,0,0.25)] dark:shadow-[0_24px_80px_-12px_rgba(0,0,0,0.5)] border border-gray-200/80 dark:border-gray-700/80 bg-white dark:bg-gray-900 overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+        className="sp-overlay-surface w-full max-w-md rounded-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 border"
+        data-sp-overlay="dialog"
         style={{ animationFillMode: 'backwards' }}
       >
         <div className="px-6 py-5 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-gray-800 dark:to-gray-850 border-b border-gray-200/80 dark:border-gray-700/80">

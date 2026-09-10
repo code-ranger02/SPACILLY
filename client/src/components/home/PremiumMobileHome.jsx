@@ -3,23 +3,34 @@ import FuturisticHero from './FuturisticHero';
 import { useHomeFeedBundle } from '../../hooks/useHomeFeedSections';
 import { HOME_PRODUCT_LIMIT } from './mobile/HomeExploreSection';
 import HomeExploreSection from './mobile/HomeExploreSection';
-import SpacillyMobileHomeHeader, { SpacillyMobileSearchBar } from './mobile/SpacillyMobileHomeHeader';
+import SpacillyMobileHomeHeader from './mobile/SpacillyMobileHomeHeader';
 import SpacillyCategoryCircles from './mobile/SpacillyCategoryCircles';
 import { explorePath } from '../explore/exploreConfig';
+import { HOME_SECTION_COPY } from '../../lib/productFeedFlags';
 import '../../styles/spacilly-commerce.css';
 import '../../styles/explore-all.css';
 import '../../styles/home-explore-bridge.css';
+
+function sectionTitle(feed, id, fallback) {
+  const fromApi = feed?.meta?.[id]?.title;
+  return (typeof fromApi === 'string' && fromApi.trim()) || fallback;
+}
+
+function sectionSub(feed, id, fallback) {
+  const fromApi = feed?.meta?.[id]?.subtitle;
+  return (typeof fromApi === 'string' && fromApi.trim()) || fallback;
+}
 
 export default function PremiumMobileHome() {
   const { data: feed, isPending } = useHomeFeedBundle(HOME_PRODUCT_LIMIT);
 
   const trending = feed?.trending ?? [];
   const bestSellers = feed?.bestsellers ?? [];
-  const aiRecs = feed?.foryou ?? [];
-  const picks = aiRecs.length > 0 ? aiRecs : trending;
+  const forYou = feed?.foryou ?? [];
 
   const loading = {
-    picks: isPending && !picks.length,
+    trending: isPending && !trending.length,
+    foryou: isPending && !forYou.length,
     best: isPending && !bestSellers.length,
   };
 
@@ -32,34 +43,43 @@ export default function PremiumMobileHome() {
     >
       <SpacillyMobileHomeHeader />
       <FuturisticHero compact className="fx-hero--mobile-home" />
-      <SpacillyMobileSearchBar />
       <SpacillyCategoryCircles />
 
       <HomeExploreSection
-        id="mob-picks"
+        id="mob-foryou"
         sectionKey="foryou"
-        title="Fashion picks for you"
-        href={explorePath('foryou')}
+        title={sectionTitle(feed, 'foryou', HOME_SECTION_COPY.foryou.title)}
+        subtitle={sectionSub(feed, 'foryou', HOME_SECTION_COPY.foryou.subtitle)}
+        href={explorePath(HOME_SECTION_COPY.foryou.hrefTab)}
         linkLabel="See all"
-        products={picks}
-        loading={loading.picks}
-        layout="grid"
+        products={forYou}
+        loading={loading.foryou}
+        variant="ai"
+      />
+
+      <HomeExploreSection
+        id="mob-trending"
+        sectionKey="trending"
+        title={sectionTitle(feed, 'trending', HOME_SECTION_COPY.trending.title)}
+        subtitle={sectionSub(feed, 'trending', HOME_SECTION_COPY.trending.subtitle)}
+        href={explorePath(HOME_SECTION_COPY.trending.hrefTab)}
+        linkLabel="See all"
+        products={trending}
+        loading={loading.trending}
         variant="trending"
       />
 
-      {bestSellers.length > 0 || loading.best ? (
-        <HomeExploreSection
-          id="mob-bestsellers"
-          sectionKey="bestsellers"
-          title="Best sellers"
-          href={explorePath('bestseller')}
-          linkLabel="See all"
-          products={bestSellers}
-          loading={loading.best}
-          layout="grid"
-          variant="bestseller"
-        />
-      ) : null}
+      <HomeExploreSection
+        id="mob-bestsellers"
+        sectionKey="bestsellers"
+        title={sectionTitle(feed, 'bestsellers', HOME_SECTION_COPY.bestsellers.title)}
+        subtitle={sectionSub(feed, 'bestsellers', HOME_SECTION_COPY.bestsellers.subtitle)}
+        href={explorePath(HOME_SECTION_COPY.bestsellers.hrefTab)}
+        linkLabel="See all"
+        products={bestSellers}
+        loading={loading.best}
+        variant="bestseller"
+      />
     </motion.div>
   );
 }

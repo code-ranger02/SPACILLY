@@ -104,44 +104,6 @@
   outline-offset: 2px;
 }
 
-.sp-mob-search-wrap {
-  padding: 0 20px 20px;
-}
-
-.sp-mob-search {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  min-height: 48px;
-  padding: 0 16px;
-  border-radius: var(--sp-input-radius, 0.5rem);
-  border: 1px solid var(--sp-outline-variant, #e8e8e8);
-  background: var(--sp-surface-container-low, #f3f3f3);
-  color: var(--text-muted, #777777);
-  font-family: var(--font-body);
-  font-size: 14px;
-  font-weight: 400;
-  text-align: left;
-  cursor: pointer;
-  box-shadow: none;
-}
-
-.sp-mob-search--pill {
-  border-radius: 9999px;
-}
-
-.sp-mob-search:focus-visible {
-  outline: none;
-  border-color: var(--text-primary, #1a1c1c);
-}
-
-.dark .sp-mob-search,
-[data-theme='dark'] .sp-mob-search {
-  background: var(--bg-input);
-  border-color: var(--sp-outline-variant);
-}
-
 /* ── Promo hero card (Crimson Editorial) ─────────────────────────────────── */
 .sp-mob-promo {
   margin: 0 20px 16px;
@@ -248,7 +210,7 @@
 
 /* ── Category circles ────────────────────────────────────────────────────── */
 .sp-mob-categories {
-  padding: 0 20px 28px;
+  padding: 20px 20px 28px;
 }
 
 .sp-mob-categories__head {

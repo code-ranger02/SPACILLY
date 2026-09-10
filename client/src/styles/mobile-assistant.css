@@ -35,8 +35,6 @@
     border-radius: 28px 28px 22px 22px;
     overflow: hidden;
     background: var(--ai-sheet-bg);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
     border: 1px solid var(--ai-sheet-border);
     box-shadow: var(--ai-sheet-shadow);
   }

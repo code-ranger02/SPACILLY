@@ -27,15 +27,15 @@ export function ProductDetailModal({ product, isOpen, onClose }: ProductDetailMo
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={onClose}>
       <div
-        className="rounded-xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto"
+        className="sp-overlay-surface rounded-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto border"
+        data-sp-overlay="dialog"
         onClick={(e) => e.stopPropagation()}
-        style={{ background: 'var(--card-bg)', color: 'var(--text-primary)' }}
       >
         <div
           className="sticky top-0 p-4 flex items-center justify-between border-b"
           style={{
-            background: 'var(--card-bg)',
-            borderColor: 'var(--divider-strong)',
+            background: 'var(--modal-bg)',
+            borderColor: 'var(--modal-border)',
           }}
         >
           <h2 className="text-xl font-bold">{product.title}</h2>

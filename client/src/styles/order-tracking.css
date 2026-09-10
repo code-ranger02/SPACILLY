@@ -604,8 +604,8 @@
   max-width: 400px;
   padding: 24px;
   border-radius: 16px;
-  background: var(--sp-surface-container-lowest, #ffffff);
-  border: 1px solid var(--sp-outline-variant, #e8e8e8);
+  background: var(--modal-bg, var(--sp-surface-container-lowest, #ffffff));
+  border: 1px solid var(--modal-border, var(--sp-outline-variant, #e8e8e8));
 }
 
 .ot-modal__title {

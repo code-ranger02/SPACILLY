@@ -20,6 +20,7 @@ import { usePlatformFeature } from '../../hooks/useSystemFeatures';
 import { navigateToProduct } from '../../lib/productNavigation';
 import MobileAddCta from '../home/mobile/MobileAddCta';
 import { EXPLORE_CARD_CTA } from './exploreCardCtas';
+import { productIsTrending } from '../../lib/productFeedFlags';
 import {
   productDisplayName,
   productId,
@@ -121,7 +122,9 @@ export function ExploreTrendingRailCard({ product, index = 0, cardDensity = 'sta
         >
           <div className="ex-rail-card-media">
             <img src={resolveProductImage(product)} alt="" loading="lazy" />
-            <span className="ex-badge ex-badge--trending">🔥 Hot</span>
+            {productIsTrending(product) ? (
+              <span className="ex-badge ex-badge--trending">🔥 Hot</span>
+            ) : null}
             {wishlistOn && (
               <button
                 type="button"
@@ -272,10 +275,19 @@ export function ExploreGridCard({
         >
           <div className="ex-grid-card-media">
             <img src={resolveProductImage(product)} alt="" loading="lazy" />
-            <span className={`ex-badge ex-badge--${variant}`}>
-              <BadgeIcon size={10} strokeWidth={1.85} />
-              {badge.label}
-            </span>
+            {variant === 'trending' ? (
+              productIsTrending(product) ? (
+                <span className={`ex-badge ex-badge--${variant}`}>
+                  <BadgeIcon size={10} strokeWidth={1.85} />
+                  {badge.label}
+                </span>
+              ) : null
+            ) : (
+              <span className={`ex-badge ex-badge--${variant}`}>
+                <BadgeIcon size={10} strokeWidth={1.85} />
+                {badge.label}
+              </span>
+            )}
             {wishlistOn && (
               <button
                 type="button"

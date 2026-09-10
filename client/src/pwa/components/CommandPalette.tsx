@@ -273,9 +273,9 @@ function DesktopCommandPalette({
             transition={{ type: 'spring', stiffness: 320, damping: 28 }}
             className="w-full max-w-2xl rounded-3xl overflow-hidden"
             style={{
-              background: 'var(--card-bg)',
-              border: '1px solid var(--border-card)',
-              boxShadow: 'var(--shadow-xl)',
+              background: 'var(--modal-bg)',
+              border: '1px solid var(--modal-border)',
+              boxShadow: 'var(--shadow-modal)',
             }}
           >
             <div

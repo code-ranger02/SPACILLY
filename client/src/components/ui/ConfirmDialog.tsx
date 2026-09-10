@@ -59,11 +59,13 @@ export default function ConfirmDialog({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--bg-overlay)] px-4 py-6"
+      data-sp-overlay="backdrop"
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-md rounded-2xl border border-gray-200 bg-white p-6 shadow-2xl dark:border-gray-700 dark:bg-gray-900"
+        className="sp-overlay-surface relative w-full max-w-md rounded-2xl border p-6"
+        data-sp-overlay="dialog"
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -86,7 +88,7 @@ export default function ConfirmDialog({
         <div className="mt-6 flex items-center justify-end gap-3">
           <button
             onClick={onClose}
-            className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 hover:border-gray-300 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:border-gray-600 dark:hover:bg-gray-800"
+            className="rounded-xl border border-[var(--border-visible)] bg-transparent px-4 py-2 text-sm font-semibold text-[var(--text-secondary)] hover:bg-[var(--btn-secondary-hover-bg)] hover:text-[var(--text-primary)]"
           >
             {cancelText}
           </button>
@@ -95,7 +97,11 @@ export default function ConfirmDialog({
               onConfirm();
               onClose();
             }}
-            className={`rounded-xl px-4 py-2 text-sm font-semibold ${styles.confirmBg} ${styles.confirmText} transition-colors`}
+            className={`rounded-xl px-4 py-2 text-sm font-semibold ${
+              variant === 'danger'
+                ? 'bg-[var(--sp-error)] text-white hover:opacity-90'
+                : 'bg-[var(--brand-primary)] text-[var(--text-on-accent)] hover:bg-[var(--brand-primary-hover)]'
+            } transition-colors`}
           >
             {confirmText}
           </button>

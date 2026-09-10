@@ -17,11 +17,12 @@
   --premium-input-transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
 }
 
-.dark {
-  --premium-input-bg: rgba(255, 255, 255, 0.08);
-  --premium-input-border: rgba(255, 255, 255, 0.14);
-  --premium-input-focus-border: rgba(255, 255, 255, 0.35);
-  --premium-input-focus-ring: 0 0 0 1px rgba(255, 255, 255, 0.28);
+.dark,
+[data-theme='dark'] {
+  --premium-input-bg: var(--bg-input);
+  --premium-input-border: var(--border-input);
+  --premium-input-focus-border: var(--border-focus);
+  --premium-input-focus-ring: 0 0 0 1px var(--border-focus);
   --premium-input-shadow: none;
 }
 

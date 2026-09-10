@@ -14,22 +14,11 @@ const resolveImg = (src) => {
   return `${SERVER_URL}${src}`;
 };
 
-const FALLBACK = [
-  { _id: 'r1', name: 'Vintage Film Camera', price: 165, rating: 4.8, reviewCount: 92, thumbnail: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=500&q=85' },
-  { _id: 'r2', name: 'Scented Soy Candle', price: 22, rating: 4.9, reviewCount: 341, thumbnail: 'https://images.unsplash.com/photo-1602028915047-37269d1a73f7?w=500&q=85' },
-  { _id: 'r3', name: 'Wooden Chess Set', price: 58, rating: 4.7, reviewCount: 136, thumbnail: 'https://images.unsplash.com/photo-1586165368502-1bad197a6461?w=500&q=85' },
-  { _id: 'r4', name: 'Matcha Tea Gift Set', price: 38, rating: 4.8, reviewCount: 215, thumbnail: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=500&q=85' },
-  { _id: 'r5', name: 'Minimalist Backpack', price: 79, rating: 4.6, reviewCount: 284, thumbnail: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500&q=85' },
-  { _id: 'r6', name: 'Gold Hoop Earrings', price: 34, rating: 4.7, reviewCount: 178, thumbnail: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=500&q=85' },
-  { _id: 'r7', name: 'Smart Plant Sensor', price: 45, rating: 4.5, reviewCount: 99, thumbnail: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&q=85' },
-  { _id: 'r8', name: 'Leather Journal', price: 29, rating: 4.9, reviewCount: 430, thumbnail: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=500&q=85' },
-];
-
 const RECOMMENDED_CACHE_TTL = 5 * 60 * 1000;
 const recommendedCache = new Map();
 
 /* ─── Rec card ───────────────────────────────────────────────────────────── */
-function RecCard({ product, index, onAdd }) {
+function RecCard({ product, index, onAdd, badgeLabel = 'For You' }) {
   const [wished, setWished] = useState(false);
   const [adding, setAdding] = useState(false);
   const img = resolveImg(product.thumbnail || product.images?.[0]);
@@ -74,14 +63,15 @@ function RecCard({ product, index, onAdd }) {
             height="500"
           />
 
-          {/* For You badge */}
-          <div
-            className="absolute top-2.5 left-2.5 flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold"
-            style={{ background: 'var(--brand-primary)', color: 'var(--text-on-accent)' }}
-          >
-            <Sparkles size={9} />
-            For You
-          </div>
+          {badgeLabel ? (
+            <div
+              className="absolute top-2.5 left-2.5 flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold"
+              style={{ background: 'var(--brand-primary)', color: 'var(--text-on-accent)' }}
+            >
+              <Sparkles size={9} />
+              {badgeLabel}
+            </div>
+          ) : null}
 
           {/* Wishlist */}
           <button
@@ -144,7 +134,12 @@ function RecCard({ product, index, onAdd }) {
 }
 
 /* ─── Filter tabs ────────────────────────────────────────────────────────── */
-const TABS = ['For You', 'New Arrivals', 'Popular', 'Deals'];
+const TABS = [
+  { label: 'For You', section: 'foryou', href: '/explore?tab=ai', badge: 'For You' },
+  { label: 'New Arrivals', section: 'fresh', href: '/explore?tab=new', badge: 'New' },
+  { label: 'Popular', section: 'trending', href: '/explore?tab=trending', badge: 'Popular' },
+  { label: 'Deals', section: 'deals', href: '/search?sale=true', badge: 'Deal' },
+];
 
 /* ─── Section ────────────────────────────────────────────────────────────── */
 export default function RecommendedSection() {
@@ -155,13 +150,14 @@ export default function RecommendedSection() {
   const headerRef = useRef(null);
   const inView = useInView(headerRef, { once: true, margin: '-80px' });
 
+  const active = TABS[activeTab] || TABS[0];
   const sortParam = ['', '-createdAt', '-rating', '-discount'][activeTab] || '';
 
   useEffect(() => {
     setLoading(true);
     const params = { limit: 8 };
     if (sortParam) params.sort = sortParam;
-    const key = sortParam || 'default';
+    const key = `${active.section}:${sortParam || 'default'}`;
     const now = Date.now();
     const cached = recommendedCache.get(key);
     if (cached && now - cached.ts < RECOMMENDED_CACHE_TTL) {
@@ -170,19 +166,8 @@ export default function RecommendedSection() {
       return;
     }
 
-    // Personalised: map the legacy sort buckets onto AI feed sections so
-    // every shopper sees a different recommendation list driven by their
-    // affinity / session intent.
-    const aiSectionByTab = {
-      'just-for-you': 'foryou',
-      'trending':     'trending',
-      'best-deals':   'deals',
-      'new-arrivals': 'fresh',
-    };
-    const aiSection = aiSectionByTab[activeTab] || 'foryou';
-
     homeFeedApi
-      .getSection(aiSection, { limit: params.limit })
+      .getSection(active.section, { limit: params.limit })
       .then((section) => {
         const list = Array.isArray(section?.products) ? section.products : [];
         if (!list.length) throw new Error('empty');
@@ -200,12 +185,12 @@ export default function RecommendedSection() {
             recommendedCache.set(key, { data: next, ts: Date.now() });
           })
           .catch(() => {
-            setProducts(FALLBACK);
-            recommendedCache.set(key, { data: FALLBACK, ts: Date.now() });
+            setProducts([]);
+            recommendedCache.set(key, { data: [], ts: Date.now() });
           }),
       )
       .finally(() => setLoading(false));
-  }, [activeTab, sortParam]);
+  }, [active.section, sortParam]);
 
   useEffect(() => {
     const onInventoryUpdated = (event) => {
@@ -226,7 +211,7 @@ export default function RecommendedSection() {
           };
         });
         if (changed) {
-          const key = sortParam || 'default';
+          const key = `${active.section}:${sortParam || 'default'}`;
           recommendedCache.set(key, { data: next, ts: Date.now() });
         }
         return changed ? next : prev;
@@ -234,7 +219,7 @@ export default function RecommendedSection() {
     };
     window.addEventListener('inventoryUpdated', onInventoryUpdated);
     return () => window.removeEventListener('inventoryUpdated', onInventoryUpdated);
-  }, [sortParam]);
+  }, [sortParam, active.section]);
 
   const handleAdd = (product) => {
     addItem({
@@ -289,7 +274,7 @@ export default function RecommendedSection() {
         >
           {TABS.map((tab, i) => (
             <button
-              key={tab}
+              key={tab.section}
               onClick={() => setActiveTab(i)}
               className="px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200"
               style={
@@ -305,7 +290,7 @@ export default function RecommendedSection() {
                     }
               }
             >
-              {tab}
+              {tab.label}
             </button>
           ))}
         </motion.div>
@@ -329,7 +314,7 @@ export default function RecommendedSection() {
       ) : products.length > 0 ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {products.map((p, i) => (
-            <RecCard key={p._id} product={p} index={i} onAdd={handleAdd} />
+            <RecCard key={p._id} product={p} index={i} onAdd={handleAdd} badgeLabel={active.badge} />
           ))}
         </div>
       ) : (
@@ -340,7 +325,7 @@ export default function RecommendedSection() {
             color: 'var(--text-muted)',
           }}
         >
-          Recommended products will appear here once available.
+          {active.label} products will appear here once they are listed.
         </div>
       )}
 
@@ -353,7 +338,7 @@ export default function RecommendedSection() {
         transition={{ duration: 0.5 }}
       >
         <Link
-          to="/search"
+          to={active.href}
           className="inline-flex items-center gap-3 px-8 py-3.5 rounded-full text-xs font-bold tracking-[0.15em] uppercase transition-all duration-300"
           style={{
             background: 'var(--btn-ghost-hover-bg)',

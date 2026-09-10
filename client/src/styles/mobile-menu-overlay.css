@@ -43,9 +43,11 @@ html.rx-menu-open [data-buyer-page-root] {
   color: var(--text-primary);
 }
 
-html[data-theme='dark'] .mmo-panel {
-  background: color-mix(in srgb, #0f172a 96%, #1e293b);
-  color: #f8fafc;
+html[data-theme='dark'] .mmo-panel,
+html.dark .mmo-panel {
+  background: var(--modal-bg);
+  color: var(--text-primary);
+  border-color: var(--modal-border);
 }
 
 /* Light-first drawer like reference image 3 */

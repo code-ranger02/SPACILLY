@@ -1,42 +1,25 @@
-/* Desktop home hero — Crimson Editorial 3D carousel */
+/* Home hero — Crimson Editorial carousel (one markup, responsive CSS) */
 
 .fx-hero {
-  --fx-hero-height: clamp(480px, 72vh, 720px);
+  --fx-hero-height: clamp(420px, 52vh, 640px);
+  --fx-hero-pad-x: clamp(1.15rem, 4vw, 3rem);
+  --fx-hero-pad-top: clamp(1.5rem, 5vh, 3.25rem);
+  --fx-hero-pad-bottom: 3.5rem;
+  --fx-hero-dots-offset: 14px;
   position: relative;
   width: 100%;
   max-width: 100%;
   height: var(--fx-hero-height);
+  margin: 0;
   overflow: hidden;
   background: var(--bg-page, #f9f9f9);
   color: #ffffff;
   perspective: 1400px;
 }
 
-.fx-hero--compact {
-  --fx-hero-height: clamp(380px, 58vh, 540px);
-}
-
+.fx-hero--compact,
 .fx-hero--mobile-home {
-  --fx-hero-height: clamp(260px, 38vh, 360px);
-}
-
-.fx-hero--mobile-home .fx-hero-slide__title {
-  font-size: clamp(1.65rem, 7vw, 2.25rem);
-}
-
-.fx-hero--mobile-home .fx-hero-slide__content {
-  padding: 1.25rem 1rem 2.5rem;
-  gap: 0.55rem;
-}
-
-.fx-hero--mobile-home .fx-hero-slide__detail {
-  font-size: 0.875rem;
-  line-height: 1.45;
-}
-
-.fx-hero--mobile-home .fx-hero-slide__cta {
-  min-height: 44px;
-  font-size: 11px;
+  --fx-hero-height: clamp(420px, 52vh, 640px);
 }
 
 .fx-hero__swiper,
@@ -54,6 +37,7 @@
 .fx-hero-slide__stage {
   position: relative;
   overflow: hidden;
+  isolation: isolate;
   transform-style: preserve-3d;
 }
 
@@ -62,28 +46,37 @@
   inset: 0;
   width: 100%;
   height: 100%;
+  max-width: none;
   object-fit: cover;
-  transform: scale(1.06);
+  transform: scale(1.04);
   animation: fx-hero-kenburns 14s ease-in-out infinite alternate;
   will-change: transform;
+  pointer-events: none;
 }
 
 @keyframes fx-hero-kenburns {
   0% {
-    transform: scale(1.04) translate3d(0, 0, 0);
+    transform: scale(1.03) translate3d(0, 0, 0);
   }
   100% {
-    transform: scale(1.1) translate3d(-1.2%, -0.6%, 0);
+    transform: scale(1.08) translate3d(-0.8%, -0.4%, 0);
   }
 }
 
+/* Overlay keeps copy readable without flattening the photo */
 .fx-hero-slide__scrim {
   position: absolute;
   inset: 0;
-  background:
-    linear-gradient(180deg, rgba(26, 28, 28, 0.28) 0%, rgba(26, 28, 28, 0.12) 38%, rgba(26, 28, 28, 0.52) 100%),
-    radial-gradient(ellipse 80% 60% at 50% 50%, rgba(26, 28, 28, 0.15) 0%, rgba(26, 28, 28, 0.55) 100%);
+  z-index: 1;
   pointer-events: none;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(26, 28, 28, 0.22) 0%,
+      rgba(26, 28, 28, 0.06) 34%,
+      rgba(26, 28, 28, 0.42) 62%,
+      rgba(26, 28, 28, 0.78) 100%
+    );
 }
 
 .fx-hero-slide__content {
@@ -93,12 +86,14 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
   text-align: center;
-  padding: clamp(2rem, 5vw, 4rem) clamp(1.25rem, 4vw, 3rem);
-  gap: 0.85rem;
+  padding: var(--fx-hero-pad-top) var(--fx-hero-pad-x) var(--fx-hero-pad-bottom);
+  gap: 0.7rem;
   max-width: 920px;
+  width: 100%;
   margin: 0 auto;
+  box-sizing: border-box;
 }
 
 .fx-hero-slide__eyebrow {
@@ -108,18 +103,20 @@
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.82);
+  color: rgba(255, 255, 255, 0.88);
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.35);
 }
 
 .fx-hero-slide__title {
   margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(2.25rem, 5.5vw, 4rem);
+  font-size: clamp(1.85rem, 4.6vw, 3.75rem);
   font-weight: 700;
-  line-height: 1.02;
+  line-height: 1.08;
   letter-spacing: -0.03em;
   color: #ffffff;
   text-wrap: balance;
+  text-shadow: 0 2px 22px rgba(0, 0, 0, 0.4);
 }
 
 .fx-hero-slide__title-line {
@@ -130,10 +127,11 @@
   margin: 0;
   max-width: 42ch;
   font-family: var(--font-body);
-  font-size: clamp(0.95rem, 1.8vw, 1.05rem);
-  line-height: 1.55;
-  color: rgba(255, 255, 255, 0.86);
+  font-size: clamp(0.875rem, 1.6vw, 1.05rem);
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.9);
   text-wrap: balance;
+  text-shadow: 0 1px 14px rgba(0, 0, 0, 0.38);
 }
 
 .fx-hero-slide__cta {
@@ -142,7 +140,7 @@
   justify-content: center;
   gap: 0.45rem;
   min-height: 48px;
-  margin-top: 0.35rem;
+  margin-top: 0.2rem;
   padding: 0 1.35rem;
   border-radius: 9999px;
   background: var(--sp-primary-container, #d7193f);
@@ -171,21 +169,25 @@
 
 .fx-hero__swiper .swiper-pagination {
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: clamp(1rem, 3vh, 1.75rem);
+  left: 50%;
+  right: auto;
+  bottom: var(--fx-hero-dots-offset);
+  transform: translateX(-50%);
+  width: auto;
   z-index: 5;
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 0.5rem;
+  margin: 0;
 }
 
 .fx-hero__dot {
   width: 8px;
   height: 8px;
+  flex-shrink: 0;
   border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.38);
+  background: rgba(255, 255, 255, 0.42);
   opacity: 1;
   margin: 0 !important;
   pointer-events: auto;
@@ -203,10 +205,97 @@
   background: var(--bg-page, #1a1c1c);
 }
 
+/* Tablet */
+@media (max-width: 1023px) {
+  .fx-hero,
+  .fx-hero--compact,
+  .fx-hero--mobile-home {
+    --fx-hero-height: clamp(340px, 46vh, 460px);
+    --fx-hero-pad-bottom: 3.25rem;
+    --fx-hero-dots-offset: 12px;
+  }
+}
+
+/* Phones — keep height in check, copy above the crop of the photo */
+@media (max-width: 767px) {
+  .fx-hero,
+  .fx-hero--compact,
+  .fx-hero--mobile-home {
+    --fx-hero-height: clamp(240px, 38dvh, 300px);
+    --fx-hero-pad-x: 1rem;
+    --fx-hero-pad-top: 1rem;
+    --fx-hero-pad-bottom: 2.75rem;
+    --fx-hero-dots-offset: 10px;
+    max-height: 300px;
+  }
+
+  .fx-hero-slide__content {
+    gap: 0.45rem;
+  }
+
+  .fx-hero-slide__title {
+    font-size: clamp(1.45rem, 6.4vw, 1.95rem);
+    line-height: 1.12;
+  }
+
+  .fx-hero-slide__eyebrow {
+    font-size: 11px;
+  }
+
+  .fx-hero-slide__detail {
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .fx-hero-slide__cta {
+    min-height: 44px;
+    font-size: 11px;
+    padding: 0 1.15rem;
+  }
+
+  .fx-hero-slide__bg {
+    animation-name: fx-hero-kenburns-sm;
+    animation-duration: 18s;
+  }
+}
+
+@keyframes fx-hero-kenburns-sm {
+  0% {
+    transform: scale(1.02) translate3d(0, 0, 0);
+  }
+  100% {
+    transform: scale(1.05) translate3d(-0.4%, -0.2%, 0);
+  }
+}
+
+@media (max-width: 767px) and (max-height: 560px) {
+  .fx-hero,
+  .fx-hero--compact,
+  .fx-hero--mobile-home {
+    --fx-hero-height: 220px;
+    max-height: 220px;
+    --fx-hero-pad-bottom: 2.5rem;
+  }
+
+  .fx-hero-slide__detail {
+    display: none;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .fx-hero-slide__title {
+    font-size: clamp(2rem, 4.2vw, 2.75rem);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .fx-hero-slide__bg {
     animation: none;
-    transform: scale(1.03);
+    transform: none;
   }
 
   .fx-hero-slide__cta:hover {

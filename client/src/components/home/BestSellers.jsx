@@ -21,17 +21,6 @@ const resolveImg = (src) => {
   return `${SERVER_URL}${src}`;
 };
 
-const FALLBACK = [
-  { _id: 'b1', name: 'AirPods Pro Gen 3', price: 199, rating: 4.9, reviewCount: 1240, thumbnail: 'https://images.unsplash.com/photo-1606220588913-b3aacb4d2f46?w=500&q=85', badge: '#1 in Audio' },
-  { _id: 'b2', name: 'iPhone 15 Pro Case', price: 29, rating: 4.8, reviewCount: 876, thumbnail: 'https://images.unsplash.com/photo-1603481588273-2f908a9a7a1b?w=500&q=85', badge: 'Best Seller' },
-  { _id: 'b3', name: 'Silk Pillowcase Set', price: 45, rating: 4.7, reviewCount: 543, thumbnail: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=500&q=85', badge: 'Top Rated' },
-  { _id: 'b4', name: 'Ceramic Coffee Mug', price: 18, rating: 4.9, reviewCount: 2100, thumbnail: 'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?w=500&q=85', badge: '#1 in Kitchen' },
-  { _id: 'b5', name: 'Linen Tote Bag', price: 34, rating: 4.6, reviewCount: 420, thumbnail: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=500&q=85', badge: 'Trending' },
-  { _id: 'b6', name: 'Bamboo Cutting Board', price: 22, rating: 4.8, reviewCount: 780, thumbnail: 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=500&q=85', badge: 'Best Value' },
-  { _id: 'b7', name: 'Resistance Band Set', price: 26, rating: 4.7, reviewCount: 635, thumbnail: 'https://images.unsplash.com/photo-1598289431512-b97b0917affc?w=500&q=85', badge: 'Top Seller' },
-  { _id: 'b8', name: 'Glass Meal Prep Containers', price: 38, rating: 4.8, reviewCount: 910, thumbnail: 'https://images.unsplash.com/photo-1606166325683-e6deb697d301?w=500&q=85', badge: 'Staff Pick' },
-];
-
 const BEST_CACHE_TTL = 5 * 60 * 1000;
 let bestCache = { data: null, ts: 0 };
 
@@ -206,8 +195,8 @@ export default function BestSellers() {
             bestCache = { data: next, ts: Date.now() };
           })
           .catch(() => {
-            setProducts(FALLBACK);
-            bestCache = { data: FALLBACK, ts: Date.now() };
+            setProducts([]);
+            bestCache = { data: [], ts: Date.now() };
           }),
       )
       .finally(() => setLoading(false));
@@ -304,6 +293,19 @@ export default function BestSellers() {
               BEST SELLERS
             </motion.h2>
           </div>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={inView ? { opacity: 1 } : {}}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <Link
+              to="/explore?tab=bestseller"
+              className="flex sm:justify-end items-center gap-2 text-xs font-semibold tracking-wide self-start sm:self-auto"
+              style={{ color: 'var(--link-color)' }}
+            >
+              View all <span>→</span>
+            </Link>
+          </motion.div>
 
           {/* Scroll arrows (carousel mode) */}
           {layoutMode === 'horizontal_carousel' && (
@@ -357,7 +359,14 @@ export default function BestSellers() {
                 </div>
               ))}
             </div>
-          ) : null}
+          ) : (
+            <div
+              className="rounded-2xl p-8 text-center"
+              style={{ background: 'var(--bg-tertiary)', color: 'var(--text-muted)' }}
+            >
+              Best sellers will appear here once products start selling.
+            </div>
+          )}
         </div>
       ) : (
       /* Horizontal scroll strip (default) */
