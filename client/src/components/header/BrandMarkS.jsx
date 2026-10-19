@@ -4,7 +4,7 @@ import '../../styles/brand-mark.css';
 export default function BrandMarkS({ className = '', onClick }) {
   const inner = (
     <span className="brand-mark-s__letter" aria-hidden>
-      S
+      
     </span>
   );
 
