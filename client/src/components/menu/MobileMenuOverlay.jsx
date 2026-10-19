@@ -402,7 +402,7 @@ export default function MobileMenuOverlay() {
                   }}
                 >
                   <LogOut size={18} strokeWidth={1.75} />
-                  Logout
+                  out
                 </button>
               </footer>
             </motion.aside>
