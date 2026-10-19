@@ -48,30 +48,41 @@ const CSS = `
   inset: 0;
   z-index: 99999;
   display: flex;
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  margin: 0;
+  padding: 0;
   overflow: hidden;
   isolation: isolate;
-  font-family: inherit;
   overscroll-behavior: none;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .mmo-backdrop {
   position: absolute;
   inset: 0;
+  display: block;
   width: 100%;
   height: 100%;
+  margin: 0;
   padding: 0;
   border: 0;
-  background: rgb(20 18 26 / 48%);
-  -webkit-tap-highlight-color: transparent;
+  border-radius: 0;
+  background: rgb(15 18 28 / 48%);
+  cursor: pointer;
 }
 
 .mmo-panel {
-  position: relative;
+  position: absolute;
+  inset: 0 auto 0 0;
   z-index: 1;
   display: flex;
-  flex: 0 0 min(88vw, 380px);
+  flex: none;
   flex-direction: column;
-  width: min(88vw, 380px);
+  width: min(82vw, 400px);
+  max-width: 400px;
   height: 100%;
   height: 100dvh;
   min-height: 0;
@@ -81,20 +92,21 @@ const CSS = `
   border: 0;
   border-radius: 0;
   background: #fff;
-  color: #25232a;
-  box-shadow: 5px 0 24px rgb(0 0 0 / 10%);
+  color: #27232b;
+  box-shadow: 5px 0 24px rgb(0 0 0 / 16%);
   will-change: transform;
+  overscroll-behavior: none;
 }
 
 .mmo-header {
   display: flex;
-  flex: 0 0 62px;
+  flex: 0 0 60px;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
   min-width: 0;
-  padding: 0 16px;
-  border-bottom: 1px solid #f0edf0;
+  padding: 0 14px;
+  border-bottom: 1px solid #efedf0;
   background: #fff;
 }
 
@@ -102,22 +114,22 @@ const CSS = `
   display: flex;
   align-items: center;
   min-width: 0;
-  gap: 10px;
+  gap: 9px;
 }
 
 .mmo-logo-mark {
   display: grid;
-  flex: 0 0 40px;
-  width: 40px;
-  height: 40px;
+  flex: 0 0 38px;
+  width: 38px;
+  height: 38px;
   place-items: center;
-  border-radius: 12px;
+  border-radius: 10px;
   background: #c81046;
   color: #fff;
   font-family: Georgia, serif;
-  font-size: 24px;
+  font-size: 23px;
   font-weight: 800;
-  box-shadow: 0 4px 12px rgb(200 16 70 / 17%);
+  box-shadow: 0 3px 10px rgb(200 16 70 / 16%);
 }
 
 .mmo-brand-text {
@@ -125,7 +137,7 @@ const CSS = `
   color: #211c28;
   font-size: 18px;
   font-weight: 850;
-  letter-spacing: .025em;
+  letter-spacing: .02em;
   white-space: nowrap;
 }
 
@@ -135,49 +147,49 @@ const CSS = `
 
 .mmo-close {
   display: grid;
-  flex: 0 0 38px;
-  width: 38px;
-  height: 38px;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
   place-items: center;
+  padding: 0;
   border: 0;
-  border-radius: 10px;
-  background: #f5f4f6;
+  border-radius: 8px;
+  background: #f4f3f5;
   color: #514c56;
   cursor: pointer;
-  transition: background .18s ease;
+  transition: background .16s ease;
 }
 
 .mmo-close:hover {
-  background: #ece9ed;
+  background: #eae8ec;
 }
 
 .mmo-profile-card {
   display: flex;
   flex: 0 0 auto;
   align-items: center;
-  gap: 11px;
+  gap: 10px;
   min-width: 0;
-  margin: 12px 12px 0;
-  padding: 11px;
+  margin: 10px 10px 0;
+  padding: 9px;
   border: 1px solid #ebe8ed;
-  border-radius: 14px;
+  border-radius: 12px;
   background: #faf9fb;
   color: inherit;
   text-decoration: none;
-  -webkit-tap-highlight-color: transparent;
 }
 
 .mmo-avatar {
   display: grid;
-  flex: 0 0 42px;
-  width: 42px;
-  height: 42px;
+  flex: 0 0 38px;
+  width: 38px;
+  height: 38px;
   place-items: center;
   overflow: hidden;
   border-radius: 50%;
   background: #7158df;
   color: #fff;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 750;
 }
 
@@ -186,13 +198,13 @@ const CSS = `
   flex: 1;
   flex-direction: column;
   min-width: 0;
-  gap: 4px;
+  gap: 3px;
 }
 
 .mmo-profile-name {
   overflow: hidden;
   color: #29252d;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 750;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -201,7 +213,7 @@ const CSS = `
 .mmo-profile-email {
   overflow: hidden;
   color: #77717c;
-  font-size: 12px;
+  font-size: 11px;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -211,7 +223,7 @@ const CSS = `
   align-items: center;
   gap: 4px;
   color: #9b651d;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
 }
 
@@ -225,12 +237,12 @@ const CSS = `
   flex: 0 0 auto;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 8px;
   min-width: 0;
-  margin: 10px 12px 8px;
-  padding: 12px;
+  margin: 8px 10px 5px;
+  padding: 9px;
   border: 1px solid #f0d5df;
-  border-radius: 13px;
+  border-radius: 10px;
   background: #fff5f7;
 }
 
@@ -242,16 +254,16 @@ const CSS = `
 .mmo-premium-title {
   margin: 0;
   color: #30252b;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 800;
   line-height: 1.4;
 }
 
 .mmo-premium-sub {
-  margin: 4px 0 0;
+  margin: 3px 0 0;
   color: #786c73;
-  font-size: 11px;
-  line-height: 1.5;
+  font-size: 10px;
+  line-height: 1.4;
 }
 
 .mmo-premium-cta {
@@ -259,31 +271,44 @@ const CSS = `
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  min-height: 34px;
-  padding: 0 12px;
+  min-height: 32px;
+  padding: 0 10px;
   border: 0;
-  border-radius: 9px;
+  border-radius: 8px;
   background: #b90b40;
   color: #fff;
-  font-size: 12px;
+  font-family: inherit;
+  font-size: 11px;
   font-weight: 750;
   white-space: nowrap;
   cursor: pointer;
+  transition: background .16s ease;
+}
+
+.mmo-premium-cta:hover {
+  background: #990832;
 }
 
 .mmo-scroll {
   flex: 1 1 0;
+  min-width: 0;
   min-height: 0;
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior-y: contain;
   -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  padding: 4px 12px 18px;
+  scrollbar-width: thin;
+  scrollbar-color: #d9d5dc transparent;
+  padding: 3px 10px 12px;
 }
 
 .mmo-scroll::-webkit-scrollbar {
-  display: none;
+  width: 3px;
+}
+
+.mmo-scroll::-webkit-scrollbar-thumb {
+  border-radius: 0;
+  background: #d9d5dc;
 }
 
 .mmo-nav-section {
@@ -292,11 +317,11 @@ const CSS = `
 }
 
 .mmo-section-label {
-  margin: 13px 5px 7px;
+  margin: 12px 4px 5px;
   color: #918a96;
   font-size: 10px;
   font-weight: 800;
-  letter-spacing: .15em;
+  letter-spacing: .14em;
   line-height: 1.5;
   text-transform: uppercase;
 }
@@ -304,7 +329,7 @@ const CSS = `
 .mmo-nav-list {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -314,18 +339,21 @@ const CSS = `
   display: flex;
   align-items: center;
   gap: 10px;
-  min-height: 44px;
-  padding: 5px 9px;
+  min-height: 42px;
+  padding: 4px 8px;
   border: 1px solid transparent;
-  border-radius: 10px;
+  border-radius: 8px;
   color: #37313c;
   text-decoration: none;
-  -webkit-tap-highlight-color: transparent;
-  transition: background .15s ease, color .15s ease;
+  transition: background .14s ease, color .14s ease;
+}
+
+.mmo-nav-link:hover {
+  background: #f8f5f7;
 }
 
 .mmo-nav-link:active {
-  background: #f7f2f5;
+  background: #f4e9ee;
 }
 
 .mmo-nav-link--active {
@@ -336,11 +364,11 @@ const CSS = `
 
 .mmo-nav-icon {
   display: grid;
-  flex: 0 0 34px;
-  width: 34px;
-  height: 34px;
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
   place-items: center;
-  border-radius: 9px;
+  border-radius: 8px;
   background: #f3f2f4;
   color: #77717c;
 }
@@ -353,10 +381,10 @@ const CSS = `
 .mmo-nav-label {
   flex: 1;
   min-width: 0;
+  overflow-wrap: anywhere;
   font-size: 13px;
   font-weight: 500;
   line-height: 1.4;
-  overflow-wrap: anywhere;
 }
 
 .mmo-nav-link--active .mmo-nav-label {
@@ -387,7 +415,9 @@ const CSS = `
   position: relative;
   z-index: 2;
   flex: 0 0 auto;
-  padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
+  width: 100%;
+  margin: 0;
+  padding: 9px 10px calc(9px + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid #efedf0;
   background: #fff;
 }
@@ -396,16 +426,16 @@ const CSS = `
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 9px;
+  gap: 8px;
   width: 100%;
-  min-height: 44px;
-  padding: 9px 12px;
+  min-height: 43px;
+  padding: 8px 12px;
   border: 1px solid #f0cbd7;
-  border-radius: 11px;
+  border-radius: 9px;
   background: #fff4f6;
   color: #bd204b;
   font-family: inherit;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 750;
   text-decoration: none;
   cursor: pointer;
@@ -416,40 +446,63 @@ const CSS = `
   cursor: wait;
 }
 
-@media (min-width: 600px) {
+@media (max-width: 360px) {
   .mmo-panel {
-    flex-basis: min(390px, 86vw);
-    width: min(390px, 86vw);
+    width: 86vw;
   }
-}
 
-@media (max-height: 680px) {
   .mmo-header {
-    flex-basis: 54px;
+    padding-inline: 11px;
   }
 
-  .mmo-logo-mark {
-    width: 34px;
-    height: 34px;
-    flex-basis: 34px;
-    font-size: 21px;
+  .mmo-brand-text {
+    font-size: 16px;
   }
 
   .mmo-profile-card {
-    margin-top: 7px;
-    padding: 8px 10px;
-  }
-
-  .mmo-avatar {
-    width: 36px;
-    height: 36px;
-    flex-basis: 36px;
+    margin-inline: 8px;
   }
 
   .mmo-premium-banner {
-    margin-top: 7px;
-    margin-bottom: 4px;
-    padding: 8px 10px;
+    margin-inline: 8px;
+  }
+
+  .mmo-scroll {
+    padding-inline: 8px;
+  }
+
+  .mmo-footer {
+    padding-inline: 8px;
+  }
+}
+
+@media (max-height: 620px) {
+  .mmo-header {
+    flex-basis: 50px;
+  }
+
+  .mmo-logo-mark {
+    width: 32px;
+    height: 32px;
+    flex-basis: 32px;
+    font-size: 20px;
+  }
+
+  .mmo-profile-card {
+    margin-top: 6px;
+    padding: 6px 8px;
+  }
+
+  .mmo-avatar {
+    width: 32px;
+    height: 32px;
+    flex-basis: 32px;
+  }
+
+  .mmo-premium-banner {
+    margin-top: 5px;
+    margin-bottom: 3px;
+    padding: 6px 8px;
   }
 
   .mmo-premium-sub {
@@ -457,29 +510,39 @@ const CSS = `
   }
 
   .mmo-section-label {
-    margin-top: 9px;
+    margin-top: 8px;
   }
 
   .mmo-nav-link {
-    min-height: 39px;
+    min-height: 36px;
   }
 
   .mmo-nav-icon {
-    width: 30px;
-    height: 30px;
-    flex-basis: 30px;
+    width: 28px;
+    height: 28px;
+    flex-basis: 28px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .mmo-close,
-  .mmo-nav-link {
-    transition: none;
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
   }
 }
 `;
 
-function NavItem({ icon: Icon, label, to, badge = 0, active, onNavigate }) {
+function NavItem({
+  icon: Icon,
+  label,
+  to,
+  badge = 0,
+  active,
+  onNavigate,
+}) {
   return (
     <li>
       <Link
@@ -523,7 +586,7 @@ export default function MobileMenuOverlay() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const cartCount = useBuyerCart((s) =>
-    s.items.reduce((n, item) => n + (item.quantity || 1), 0)
+    s.items.reduce((total, item) => total + (item.quantity || 1), 0)
   );
 
   const wishlistCount = useWishlistStore((s) => s.items.length);
@@ -550,13 +613,13 @@ export default function MobileMenuOverlay() {
             icon: Home,
             label: t('nav.home'),
             to: '/',
-            match: (p) => p === '/',
+            match: (pathname) => pathname === '/',
           },
           {
             icon: LayoutGrid,
             label: t('nav.categories'),
             to: '/category/all',
-            match: (p) => p.startsWith('/category/'),
+            match: (pathname) => pathname.startsWith('/category/'),
           },
           {
             icon: Radio,
@@ -568,7 +631,11 @@ export default function MobileMenuOverlay() {
       {
         label: 'Account',
         items: [
-          { icon: Package, label: t('nav.orders'), to: '/account?tab=orders' },
+          {
+            icon: Package,
+            label: t('nav.orders'),
+            to: '/account?tab=orders',
+          },
           {
             icon: Heart,
             label: t('nav.wishlist'),
@@ -581,8 +648,16 @@ export default function MobileMenuOverlay() {
             to: '/cart',
             badge: cartCount,
           },
-          { icon: Ticket, label: 'Coupons', to: '/search?q=coupon' },
-          { icon: User, label: t('nav.account'), to: '/account' },
+          {
+            icon: Ticket,
+            label: 'Coupons',
+            to: '/search?q=coupon',
+          },
+          {
+            icon: User,
+            label: t('nav.account'),
+            to: '/account',
+          },
           {
             icon: MapPin,
             label: t('account.addresses'),
@@ -656,11 +731,11 @@ export default function MobileMenuOverlay() {
     root.classList.add('rx-menu-open');
     body.style.overflow = 'hidden';
 
-    const onKeyDown = (event) => {
+    const handleKeyDown = (event) => {
       if (event.key === 'Escape') close();
     };
 
-    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('keydown', handleKeyDown);
 
     return () => {
       if (!hadOpenClass) {
@@ -668,7 +743,7 @@ export default function MobileMenuOverlay() {
       }
 
       body.style.overflow = previousOverflow;
-      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('keydown', handleKeyDown);
     };
   }, [isOpen, close]);
 
@@ -696,6 +771,11 @@ export default function MobileMenuOverlay() {
     }
   };
 
+  const handlePremium = () => {
+    // Connect this button to your existing Premium route/action.
+    // Example: navigate('/premium') if that route exists in your app.
+  };
+
   return (
     <>
       <style>{CSS}</style>
@@ -707,7 +787,7 @@ export default function MobileMenuOverlay() {
               className="mmo-root md:hidden"
               role="dialog"
               aria-modal="true"
-              aria-label="Menu"
+              aria-label="Main menu"
             >
               <motion.button
                 type="button"
@@ -787,9 +867,7 @@ export default function MobileMenuOverlay() {
                   <button
                     type="button"
                     className="mmo-premium-cta"
-                    onClick={() => {
-                      // Connect the existing Premium page or upgrade flow here.
-                    }}
+                    onClick={handlePremium}
                   >
                     Upgrade
                   </button>
@@ -830,7 +908,7 @@ export default function MobileMenuOverlay() {
                       onClick={handleLogout}
                       disabled={isLoggingOut}
                     >
-                      <LogOut size={18} />
+                      <LogOut size={17} />
                       {isLoggingOut ? 'Logging out…' : 'Logout'}
                     </button>
                   ) : (
@@ -839,7 +917,7 @@ export default function MobileMenuOverlay() {
                       className="mmo-logout"
                       onClick={close}
                     >
-                      <User size={18} />
+                      <User size={17} />
                       Sign in
                     </Link>
                   )}
