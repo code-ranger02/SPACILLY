@@ -8,9 +8,9 @@ export type {
   SellerNotificationCopy,
   SellerNotificationTone,
   SellerNotificationVisualStyle,
-} from './sellerNotificationEngine/types';
+} from "./sellerNotificationEngine/types.js";
 
 export {
   generateSellerNotificationCopy,
   generateSellerNotificationCopySync,
-} from './sellerNotificationEngine';
+} from "./sellerNotificationEngine/index.js";

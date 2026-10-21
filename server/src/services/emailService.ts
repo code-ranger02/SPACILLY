@@ -14,10 +14,10 @@ import {
   getRecommendationDealsEmailHtml,
   getAbandonedCartEmailHtml,
   getNewsletterWelcomeEmailHtml,
-} from '../email/templates';
-import type { RichNotificationOptions } from '../email/templates';
-import { getClientUrl } from '../config/publicEnv';
-import { isProductionReadyEmailHtml, toAbsoluteEmailUrl } from '../email/emailUrls';
+} from "../email/templates.js";
+import type { RichNotificationOptions } from "../email/templates.js";
+import { getClientUrl } from "../config/publicEnv.js";
+import { isProductionReadyEmailHtml, toAbsoluteEmailUrl } from "../email/emailUrls.js";
 
 function getEnv(key: string, fallback = ''): string {
   return String(process.env[key] || fallback).trim();

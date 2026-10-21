@@ -4,6 +4,8 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useTranslation } from '../i18n/useTranslation';
 // @ts-ignore Temporary: Navbar is implemented in JS
 import Navbar from './Navbar';
+// @ts-ignore Temporary: BrandLogo is implemented in JS
+import BrandLogo from './BrandLogo';
 
 interface AuthLayoutProps {
   tab: 'login' | 'signup' | 'forgot';
@@ -162,9 +164,9 @@ export default function AuthLayout({ tab, children, authBasePath, hideHeader }: 
               <div className="relative z-10 space-y-6">
                 <div className="flex items-center gap-3">
                   <div>
-                    <p className="spacilly-logo-font text-white font-bold text-2xl tracking-tight">Spacilly</p>
+                    <BrandLogo className="h-12 max-w-[200px] rounded-md bg-white p-1" />
                     <p
-                      className="text-[13px]"
+                      className="text-[13px] mt-2"
                       style={{ color: 'rgba(255,255,255,0.6)' }}
                     >
                       {t('footer.brandTagline')}

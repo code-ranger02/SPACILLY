@@ -1,9 +1,9 @@
 import { Response } from 'express';
 import mongoose from 'mongoose';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { SellerSubscription } from '../models/SellerSubscription';
-import { User } from '../models/User';
-import { getPlanByTierId, getPlansFromDB, IPlan } from '../models/SubscriptionPlan';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { SellerSubscription } from "../models/SellerSubscription.js";
+import { User } from "../models/User.js";
+import { getPlanByTierId, getPlansFromDB, IPlan } from "../models/SubscriptionPlan.js";
 import {
   createPlan,
   deletePlan,
@@ -12,10 +12,10 @@ import {
   planMarketingBullets,
   updatePlan,
   type PlanUpsertInput,
-} from '../services/subscriptionPlan.service';
-import { deliverSellerNotification } from '../services/sellerNotificationService';
-import { calculateRenewalDate } from '../utils/subscriptionTransformers';
-import { createSystemInboxAndFanout } from '../services/systemInboxFanout';
+} from "../services/subscriptionPlan.service.js";
+import { deliverSellerNotification } from "../services/sellerNotificationService.js";
+import { calculateRenewalDate } from "../utils/subscriptionTransformers.js";
+import { createSystemInboxAndFanout } from "../services/systemInboxFanout.js";
 
 async function notifySellerAndAdmins(opts: {
   sellerUserId: string;

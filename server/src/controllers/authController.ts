@@ -4,13 +4,13 @@ import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import speakeasy from 'speakeasy';
 import QRCode from 'qrcode';
-import { User } from '../models/User';
-import { PasswordResetToken } from '../models/PasswordResetToken';
-import { generateAuthToken, generate2FAPendingToken, verify2FAPendingToken, decodeAuthToken } from '../utils/generateToken';
-import { authCookieOptions } from '../utils/authCookie';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { ActiveSession } from '../models/ActiveSession';
-import { PendingLoginRequest } from '../models/PendingLoginRequest';
+import { User } from "../models/User.js";
+import { PasswordResetToken } from "../models/PasswordResetToken.js";
+import { generateAuthToken, generate2FAPendingToken, verify2FAPendingToken, decodeAuthToken } from "../utils/generateToken.js";
+import { authCookieOptions } from "../utils/authCookie.js";
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { ActiveSession } from "../models/ActiveSession.js";
+import { PendingLoginRequest } from "../models/PendingLoginRequest.js";
 import {
   sendPasswordResetEmail,
   sendVerificationEmail,
@@ -20,12 +20,12 @@ import {
   sendDeviceApprovalEmail,
   sendLoginNotificationEmail,
   isEmailConfigured,
-} from '../services/emailService';
-import { getClientUrl, getServerUrl } from '../config/publicEnv';
-import { recordLoginFailure, recordLoginSuccess } from '../services/systemMonitor.service';
-import { ensureReferralCodeForUser, applyReferralCodeOnRegister } from '../services/referralReward.service';
-import { formatUserWithAdminAccess } from '../services/adminAccess.service';
-import type { IUser } from '../models/User';
+} from "../services/emailService.js";
+import { getClientUrl, getServerUrl } from "../config/publicEnv.js";
+import { recordLoginFailure, recordLoginSuccess } from "../services/systemMonitor.service.js";
+import { ensureReferralCodeForUser, applyReferralCodeOnRegister } from "../services/referralReward.service.js";
+import { formatUserWithAdminAccess } from "../services/adminAccess.service.js";
+import type { IUser } from "../models/User.js";
 
 const APP_NAME = process.env.APP_NAME || 'Spacilly';
 
@@ -766,7 +766,7 @@ export async function me(req: AuthenticatedRequest, res: Response) {
     return res.status(404).json({ message: 'User not found' });
   }
 
-  const { formatUserWithAdminAccess } = await import('../services/adminAccess.service');
+  const { formatUserWithAdminAccess } = await import("../services/adminAccess.service.js");
   return res.json({ user: formatUserWithAdminAccess(user) });
 }
 

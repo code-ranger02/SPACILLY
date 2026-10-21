@@ -1,5 +1,5 @@
-import { DeliveryDestination, IDeliveryDestination } from '../models/DeliveryDestination';
-import { ShippingZone } from '../models/ShippingZone';
+import { DeliveryDestination, IDeliveryDestination } from "../models/DeliveryDestination.js";
+import { ShippingZone } from "../models/ShippingZone.js";
 
 const DEFAULT_DESTINATIONS: Array<Partial<IDeliveryDestination>> = [
   {

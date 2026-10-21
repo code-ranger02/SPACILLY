@@ -1,11 +1,11 @@
 import mongoose from 'mongoose';
-import { TransactionLog, type TransactionType } from '../models/TransactionLog';
+import { TransactionLog, type TransactionType } from "../models/TransactionLog.js";
 import {
   checkoutMethodFromGatewayKey,
   gatewayKeyFromCheckoutMethod,
   getRegistryEntry,
-} from '../financial/paymentGatewayRegistry';
-import type { CheckoutPaymentProcessor } from './paymentService';
+} from "../financial/paymentGatewayRegistry.js";
+import type { CheckoutPaymentProcessor } from "./paymentService.js";
 
 export type RecordTransactionInput = {
   type: TransactionType;
@@ -76,7 +76,7 @@ export async function recordPaymentTransaction(
   }
 
   if (input.type === 'PAYMENT' || input.type === 'REFUND' || input.type === 'FEE') {
-    const { enqueueIntelligenceIndex } = await import('../queues/intelligenceIndex.queue');
+    const { enqueueIntelligenceIndex } = await import("../queues/intelligenceIndex.queue.js");
     enqueueIntelligenceIndex('payment', String(doc._id), 'created');
     if (input.orderId) {
       enqueueIntelligenceIndex('order', String(input.orderId), 'updated');

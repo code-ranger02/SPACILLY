@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { uploadAnyBufferToCloudinary } from '../utils/uploadToCloudinary';
+import { uploadAnyBufferToCloudinary } from "../utils/uploadToCloudinary.js";
 
 async function uploadMulterFile(file: Express.Multer.File, folder: string): Promise<void> {
   if (!file.buffer?.length) return;

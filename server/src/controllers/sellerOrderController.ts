@@ -1,15 +1,15 @@
 import { Response } from 'express';
 import mongoose from 'mongoose';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { Order, OrderStatus } from '../models/Order';
-import { notifyBuyerOrderStatusChange } from '../services/orderInboxNotifications';
-import { restoreInventoryForOrder } from '../services/inventory.service';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { Order, OrderStatus } from "../models/Order.js";
+import { notifyBuyerOrderStatusChange } from "../services/orderInboxNotifications.js";
+import { restoreInventoryForOrder } from "../services/inventory.service.js";
 import {
   compareCarriersForOrder,
   estimateDeliveryPrediction,
-} from '../services/fulfillmentIntelligence.service';
-import { buildPickupCredentials } from '../services/pickupService';
-import { evaluateOrderDeliverySLA } from '../services/sellerDeliverySLA.service';
+} from "../services/fulfillmentIntelligence.service.js";
+import { buildPickupCredentials } from "../services/pickupService.js";
+import { evaluateOrderDeliverySLA } from "../services/sellerDeliverySLA.service.js";
 
 // GET /api/seller/orders
 export async function getSellerOrders(req: AuthenticatedRequest, res: Response) {

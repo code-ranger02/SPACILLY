@@ -1,15 +1,15 @@
 import { Request, Response } from 'express';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { assertSuperAdmin } from '../services/adminAccess.service';
-import { verifySuperAdminPassword } from '../services/systemFeatureSettings.service';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { assertSuperAdmin } from "../services/adminAccess.service.js";
+import { verifySuperAdminPassword } from "../services/systemFeatureSettings.service.js";
 import {
   getAdminHomeLayoutPayload,
   getPublicHomeLayoutPayload,
   publishHomeLayoutDraft,
   resetHomeLayoutToDefaults,
   saveHomeLayoutDraft,
-} from '../services/buyerHomeLayout.service';
-import type { HomeLayoutSectionId, HomeSectionLayoutEntry } from '../constants/buyerHomeLayoutDefaults';
+} from "../services/buyerHomeLayout.service.js";
+import type { HomeLayoutSectionId, HomeSectionLayoutEntry } from "../constants/buyerHomeLayoutDefaults.js";
 
 const PUBLISH_ACK =
   'I understand that publishing homepage layout changes will immediately affect what all buyers see on the live store.';

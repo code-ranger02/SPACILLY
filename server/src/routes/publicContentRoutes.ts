@@ -1,12 +1,12 @@
 import { Router } from 'express';
-import { optionalAuthenticate } from '../middleware/auth';
-import { getPublicHomePromoBanners } from '../controllers/buyerHomePromoController';
-import { getPublicHeroCarousel } from '../controllers/buyerHeroCarouselController';
-import { getPublicReferralProgramStatus } from '../controllers/marketingPublicController';
-import { getPublicPaymentGateways } from '../controllers/paymentPublicController';
-import { createAdvertisingInquiry } from '../controllers/sellerAdvertisingController';
-import { getPublicFeeSchedule } from '../controllers/sellerFeeScheduleController';
-import { getPublicHomeLayout } from '../controllers/buyerHomeLayoutController';
+import { optionalAuthenticate } from "../middleware/auth.js";
+import { getPublicHomePromoBanners } from "../controllers/buyerHomePromoController.js";
+import { getPublicHeroCarousel } from "../controllers/buyerHeroCarouselController.js";
+import { getPublicReferralProgramStatus } from "../controllers/marketingPublicController.js";
+import { getPublicPaymentGateways } from "../controllers/paymentPublicController.js";
+import { createAdvertisingInquiry } from "../controllers/sellerAdvertisingController.js";
+import { getPublicFeeSchedule } from "../controllers/sellerFeeScheduleController.js";
+import { getPublicHomeLayout } from "../controllers/buyerHomeLayoutController.js";
 
 const router = Router();
 

@@ -6,10 +6,10 @@ import {
   type AdminScope,
   type AdminStaffPreset,
   type AdminStaffTier,
-} from '../constants/adminScopes';
-import { User, type IAdminAccess, type IUser } from '../models/User';
-import { AdminStaffAudit } from '../models/AdminStaffAudit';
-import type { IntelligenceEntityType } from '../search/intelligenceSearch.types';
+} from "../constants/adminScopes.js";
+import { User, type IAdminAccess, type IUser } from "../models/User.js";
+import { AdminStaffAudit } from "../models/AdminStaffAudit.js";
+import type { IntelligenceEntityType } from "../search/intelligenceSearch.types.js";
 
 /** Admin API prefixes that require an explicit scope match (scoped staff). */
 export const ADMIN_PROTECTED_API_PREFIXES = [
@@ -216,7 +216,7 @@ export async function logAdminStaffAction(params: {
         : undefined,
       targetEmail: params.targetEmail,
       detail: params.detail,
-      ip: params.ip,
+      ip: params.req?.ip,
       userAgent: String(params.req?.headers?.['user-agent'] || ''),
     });
   } catch (err) {

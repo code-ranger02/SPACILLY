@@ -1,7 +1,7 @@
 import { Router, Response } from 'express';
 import mongoose from 'mongoose';
-import { authenticate, AuthenticatedRequest } from '../middleware/auth';
-import { Order } from '../models/Order';
+import { authenticate, AuthenticatedRequest } from "../middleware/auth.js";
+import { Order } from "../models/Order.js";
 
 const router = Router();
 

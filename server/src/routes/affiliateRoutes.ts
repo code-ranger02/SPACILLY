@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { authenticate, authorize } from '../middleware/auth';
+import { authenticate, authorize } from "../middleware/auth.js";
 import {
   applyForAffiliate,
   getMyAffiliateAccount,
@@ -13,7 +13,7 @@ import {
   updateAffiliateStatus,
   processPayout,
   recordConversion,
-} from '../controllers/affiliateController';
+} from "../controllers/affiliateController.js";
 
 const router = Router();
 

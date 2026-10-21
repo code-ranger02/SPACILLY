@@ -1,9 +1,9 @@
 import crypto from 'crypto';
 import mongoose from 'mongoose';
-import { User } from '../models/User';
-import { ReferralSettings } from '../models/ReferralSettings';
-import { MarketingReferralReward } from '../models/MarketingReferralReward';
-import { createSystemInboxAndFanout } from './systemInboxFanout';
+import { User } from "../models/User.js";
+import { ReferralSettings } from "../models/ReferralSettings.js";
+import { MarketingReferralReward } from "../models/MarketingReferralReward.js";
+import { createSystemInboxAndFanout } from "./systemInboxFanout.js";
 
 const CODE_PREFIX = 'RX';
 const CODE_RANDOM_LEN = 8;
@@ -196,7 +196,7 @@ export async function getBuyerReferralDashboard(
 
   const uid = new mongoose.Types.ObjectId(String(userId));
   const code = await ensureReferralCodeForUser(uid);
-  const { getClientUrl } = await import('../config/publicEnv');
+  const { getClientUrl } = await import("../config/publicEnv.js");
   const base = (getClientUrl() || process.env.CLIENT_URL || '').replace(/\/$/, '');
   const shareLink = base ? `${base}/auth?ref=${encodeURIComponent(code)}` : null;
 

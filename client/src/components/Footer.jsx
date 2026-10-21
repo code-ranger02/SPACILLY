@@ -9,6 +9,7 @@ import { useSellerAccess, useHandleSellerLink } from '../hooks/useSellerAccess';
 import { useTranslation } from '../i18n/useTranslation';
 import { API_BASE_URL } from '../lib/config';
 import { useToastStore } from '../stores/toastStore';
+import BrandLogo from './BrandLogo';
 import '../styles/footer.css';
 
 // Column heading with animated brand underline
@@ -410,17 +411,11 @@ export default function Footer() {
             <div className="footer-brand-col">
               <Link
                 to="/"
-                className="inline-flex items-center gap-2 mb-4"
+                className="inline-flex items-center mb-4"
                 style={{ border: 'none', outline: 'none', boxShadow: 'none' }}
+                aria-label="Spacilly home"
               >
-                <img
-                  src="/logo.jpg"
-                  alt="Spacilly"
-                  className="w-10 h-10 rounded-full object-cover flex-shrink-0"
-                />
-                <span className="spacilly-logo-font font-bold text-2xl tracking-wide" style={{ color: 'var(--footer-on-dark-heading)' }}>
-                  Spacilly
-                </span>
+                <BrandLogo className="h-12 max-w-[220px] rounded-md bg-white p-1" />
               </Link>
               <p className="text-sm font-medium mb-1" style={{ color: 'var(--footer-on-dark-body)' }}>
                 {t('footer.brandTagline')}

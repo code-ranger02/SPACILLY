@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
-import { subscribeNewsletter } from '../controllers/newsletterController';
+import { subscribeNewsletter } from "../controllers/newsletterController.js";
 
 const router = Router();
 

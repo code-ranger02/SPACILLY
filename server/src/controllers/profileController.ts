@@ -2,11 +2,11 @@ import { Response } from 'express';
 import { z } from 'zod';
 import speakeasy from 'speakeasy';
 import QRCode from 'qrcode';
-import { User, IAddress, IPaymentMethod } from '../models/User';
-import { AuthenticatedRequest } from '../middleware/auth';
+import { User, IAddress, IPaymentMethod } from "../models/User.js";
+import { AuthenticatedRequest } from "../middleware/auth.js";
 import bcrypt from 'bcryptjs';
-import { ensureReferralCodeForUser } from '../services/referralReward.service';
-import { isSupportedDisplayCurrency } from '../services/exchangeRate.service';
+import { ensureReferralCodeForUser } from "../services/referralReward.service.js";
+import { isSupportedDisplayCurrency } from "../services/exchangeRate.service.js";
 
 // Validation schemas
 const updateProfileSchema = z.object({
@@ -106,7 +106,7 @@ export async function getProfile(req: AuthenticatedRequest, res: Response) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const { enrichUserWithSellerKyc } = await import('../utils/sellerKycEnrichment');
+    const { enrichUserWithSellerKyc } = await import("../utils/sellerKycEnrichment.js");
     const enriched = await enrichUserWithSellerKyc(user);
     return res.json({ user: enriched });
   } catch (err: any) {
@@ -664,7 +664,7 @@ export async function uploadAvatar(req: AuthenticatedRequest, res: Response) {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { deleteImage } = require('../../config/cloudinary');
+    const { deleteImage } = require("../../config/cloudinary.js");
 
     const existingUser = await User.findById(req.user.id).select('avatarUrl');
     if (existingUser?.avatarUrl) {

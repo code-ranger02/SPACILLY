@@ -1,21 +1,21 @@
 import mongoose from 'mongoose';
-import { User } from '../models/User';
-import { Order } from '../models/Order';
-import type { IOrder } from '../models/Order';
-import { deliverBuyerNotification } from './buyerNotificationService';
-import { deliverSellerNotification } from './sellerNotificationService';
-import { buyerEventFromOrderStatus } from './buyerNotificationAssistant.service';
-import type { BuyerNotificationEvent } from './buyerNotificationAssistant.service';
+import { User } from "../models/User.js";
+import { Order } from "../models/Order.js";
+import type { IOrder } from "../models/Order.js";
+import { deliverBuyerNotification } from "./buyerNotificationService.js";
+import { deliverSellerNotification } from "./sellerNotificationService.js";
+import { buyerEventFromOrderStatus } from "./buyerNotificationAssistant.service.js";
+import type { BuyerNotificationEvent } from "./buyerNotificationAssistant.service.js";
 import {
   buildOrderStatusEmailInput,
   generateOrderStatusEmail,
   generateSellerPayoutEmail,
   resolveEmailOrderStatus,
-} from './orderStatusEmail.service';
-import { sendRichNotificationEmail, isEmailConfigured } from './emailService';
-import { getClientUrl } from '../config/publicEnv';
-import { buyerEventCategory, buyerEventAccent } from '../email/eventCategories';
-import type { EmailCategory } from '../email/copyEngine';
+} from "./orderStatusEmail.service.js";
+import { sendRichNotificationEmail, isEmailConfigured } from "./emailService.js";
+import { getClientUrl } from "../config/publicEnv.js";
+import { buyerEventCategory, buyerEventAccent } from "../email/eventCategories.js";
+import type { EmailCategory } from "../email/copyEngine.js";
 
 function orderDeepLink(orderId: string): string {
   return `${getClientUrl()}/orders/${orderId}`;

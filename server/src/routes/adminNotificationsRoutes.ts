@@ -1,13 +1,13 @@
 import { Router, Response } from 'express';
 import mongoose from 'mongoose';
 import Anthropic, { APIError } from '@anthropic-ai/sdk';
-import { authenticate, authorize, AuthenticatedRequest } from '../middleware/auth';
-import { adminCreateSystemInboxBroadcast } from '../controllers/systemNotificationController';
-import { User } from '../models/User';
-import { ScheduledNotification } from '../models/ScheduledNotification';
-import { NotificationHistory } from '../models/NotificationHistory';
-import { NotificationABTest } from '../models/NotificationABTest';
-import { sendEmail, getResendClient } from '../services/emailService';
+import { authenticate, authorize, AuthenticatedRequest } from "../middleware/auth.js";
+import { adminCreateSystemInboxBroadcast } from "../controllers/systemNotificationController.js";
+import { User } from "../models/User.js";
+import { ScheduledNotification } from "../models/ScheduledNotification.js";
+import { NotificationHistory } from "../models/NotificationHistory.js";
+import { NotificationABTest } from "../models/NotificationABTest.js";
+import { sendEmail, getResendClient } from "../services/emailService.js";
 import {
   getDashboard,
   getTemplates,
@@ -38,8 +38,8 @@ import {
   improveNotificationCopy,
   runNotificationABTest,
   getNotificationEventLibrary,
-} from '../controllers/adminNotificationsController';
-import { getStudioAccessHint, postStudioTransform, postStudioStream } from '../controllers/notificationStudioController';
+} from "../controllers/adminNotificationsController.js";
+import { getStudioAccessHint, postStudioTransform, postStudioStream } from "../controllers/notificationStudioController.js";
 
 const EMAIL_PROVIDER = String(process.env.EMAIL_PROVIDER || 'smtp').toLowerCase();
 

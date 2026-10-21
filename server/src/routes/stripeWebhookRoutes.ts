@@ -1,8 +1,8 @@
 import { Router, Request, Response } from 'express';
 import Stripe from 'stripe';
-import { getStripeCredentialsResolved } from '../services/paymentGatewayCredentials.service';
-import { processStripeCheckoutSession } from '../services/stripeCheckout.service';
-import { assertPaymentGatewayEnabled } from '../services/paymentGateway.service';
+import { getStripeCredentialsResolved } from "../services/paymentGatewayCredentials.service.js";
+import { processStripeCheckoutSession } from "../services/stripeCheckout.service.js";
+import { assertPaymentGatewayEnabled } from "../services/paymentGateway.service.js";
 
 const router = Router();
 

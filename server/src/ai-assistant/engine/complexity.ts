@@ -1,4 +1,4 @@
-import type { ModelTier, TaskComplexityResult } from '../types';
+import type { ModelTier, TaskComplexityResult } from "../types.js";
 
 const TIER1_KEYWORDS =
   /\b(code|debug|analyze|architecture|fix|explain deeply)\b/i;

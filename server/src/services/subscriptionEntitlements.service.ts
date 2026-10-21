@@ -1,13 +1,13 @@
 import mongoose from 'mongoose';
-import { Product } from '../models/Product';
-import { SellerSubscription } from '../models/SellerSubscription';
+import { Product } from "../models/Product.js";
+import { SellerSubscription } from "../models/SellerSubscription.js";
 import {
   evaluateEffectivePrice,
   getPlanByTierIdAny,
   planFeaturesFromPlan,
   type BillingCycleChoice,
-} from './subscriptionPlan.service';
-import { getPlanByTierId } from '../models/SubscriptionPlan';
+} from "./subscriptionPlan.service.js";
+import { getPlanByTierId } from "../models/SubscriptionPlan.js";
 
 export type SubscriptionFeatureKey =
   | 'analytics'

@@ -2,7 +2,7 @@ import { Router } from 'express';
 import multer from 'multer';
 import path from 'path';
 import type { Request } from 'express';
-import { authenticate, authorize } from '../middleware/auth';
+import { authenticate, authorize } from "../middleware/auth.js";
 import {
   evaluateClassificationChecklist,
   exportRegistrationPack,
@@ -12,8 +12,8 @@ import {
   getRegistrationReadiness,
   uploadComplianceDocument,
   upsertComplianceProfile,
-} from '../controllers/adminComplianceController';
-import { cloudinaryUploadBuffers } from '../middleware/cloudinaryMemoryUpload';
+} from "../controllers/adminComplianceController.js";
+import { cloudinaryUploadBuffers } from "../middleware/cloudinaryMemoryUpload.js";
 
 const router = Router();
 const upload = multer({

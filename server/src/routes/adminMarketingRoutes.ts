@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { authenticate, authorize } from '../middleware/auth';
+import { authenticate, authorize } from "../middleware/auth.js";
 import {
   getDashboard,
   getBuyerInsightsOverview,
@@ -55,7 +55,7 @@ import {
   testAutomationEmail,
   sendAutomationPush,
   getAutomationRecentSends,
-} from '../controllers/adminMarketingController';
+} from "../controllers/adminMarketingController.js";
 import {
   getCartStrategy,
   updateCartStrategy,
@@ -65,7 +65,7 @@ import {
   updateCartRecoverySettings,
   getCartRecoveryAnalytics,
   getCartTimeline,
-} from '../controllers/cartRecoveryController';
+} from "../controllers/cartRecoveryController.js";
 
 const router = Router();
 

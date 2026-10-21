@@ -9,7 +9,7 @@
  *   - `bootstrapManual(cat, neighbours)` → admin-curated edges.
  */
 
-import { CategoryAdjacency } from '../../models/CategoryAdjacency';
+import { CategoryAdjacency } from "../../models/CategoryAdjacency.js";
 
 export interface ExpandedCategory {
   category: string;

@@ -1,12 +1,12 @@
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../middleware/auth';
+import { AuthenticatedRequest } from "../middleware/auth.js";
 import {
   getCloudCartForUser,
   syncCloudCart,
   toClientCartLines,
   type ClientCartLine,
-} from '../services/cartSync.service';
-import type { CartDevicePlatform } from '../models/BuyerCloudCart';
+} from "../services/cartSync.service.js";
+import type { CartDevicePlatform } from "../models/BuyerCloudCart.js";
 
 function parsePlatform(raw?: string): CartDevicePlatform {
   const p = String(raw || 'web').toLowerCase();

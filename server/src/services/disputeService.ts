@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
-import { Order } from '../models/Order';
-import { Dispute } from '../models/Dispute';
-import { refundBuyer, releaseEscrow } from './escrowService';
-import { deliverSellerNotification } from './sellerNotificationService';
+import { Order } from "../models/Order.js";
+import { Dispute } from "../models/Dispute.js";
+import { refundBuyer, releaseEscrow } from "./escrowService.js";
+import { deliverSellerNotification } from "./sellerNotificationService.js";
 
 export async function raiseDispute(
   orderId: string,

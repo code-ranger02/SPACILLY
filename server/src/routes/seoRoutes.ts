@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
-import { Product } from '../models/Product';
-import { getClientUrl } from '../config/publicEnv';
-import { STOREFRONT_CATEGORIES } from '../constants/storefrontCategories';
+import { Product } from "../models/Product.js";
+import { getClientUrl } from "../config/publicEnv.js";
+import { STOREFRONT_CATEGORIES } from "../constants/storefrontCategories.js";
 
 const router = Router();
 

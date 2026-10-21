@@ -1,5 +1,5 @@
-import type { StreamProviderType } from './types';
-import { getLiveCommerceSettings } from '../models/LiveCommerceSettings';
+import type { StreamProviderType } from "./types.js";
+import { getLiveCommerceSettings } from "../models/LiveCommerceSettings.js";
 
 export const ALL_STREAM_PROVIDERS: StreamProviderType[] = [
   'webrtc',

@@ -1,11 +1,11 @@
 import mongoose from 'mongoose';
-import { BuyerInsightProfile, type BuyerSegment } from '../models/BuyerInsightProfile';
-import { User } from '../models/User';
-import { Order } from '../models/Order';
-import { RecommendationActivity } from '../models/RecommendationActivity';
-import { RecommendationEmailHistory } from '../models/RecommendationEmailHistory';
-import { AbandonedCart } from '../models/AbandonedCart';
-import { Product } from '../models/Product';
+import { BuyerInsightProfile, type BuyerSegment } from "../models/BuyerInsightProfile.js";
+import { User } from "../models/User.js";
+import { Order } from "../models/Order.js";
+import { RecommendationActivity } from "../models/RecommendationActivity.js";
+import { RecommendationEmailHistory } from "../models/RecommendationEmailHistory.js";
+import { AbandonedCart } from "../models/AbandonedCart.js";
+import { Product } from "../models/Product.js";
 
 function daysSince(date?: Date | null): number {
   if (!date) return Number.MAX_SAFE_INTEGER;

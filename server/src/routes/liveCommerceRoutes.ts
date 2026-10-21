@@ -1,14 +1,14 @@
 import { Router, Response } from 'express';
 import mongoose from 'mongoose';
-import { authenticate, authorize, AuthenticatedRequest } from '../middleware/auth';
+import { authenticate, authorize, AuthenticatedRequest } from "../middleware/auth.js";
 import {
   LiveCommerceSession,
   ILiveCommerceSession,
   LiveSessionMode,
-} from '../models/LiveCommerceSession';
-import type { StreamProviderType } from '../streaming/types';
-import { LiveCommerceSettings, getLiveCommerceSettings } from '../models/LiveCommerceSettings';
-import { User } from '../models/User';
+} from "../models/LiveCommerceSession.js";
+import type { StreamProviderType } from "../streaming/types.js";
+import { LiveCommerceSettings, getLiveCommerceSettings } from "../models/LiveCommerceSettings.js";
+import { User } from "../models/User.js";
 import {
   canSellerGoLive,
   discoverLiveSessions,
@@ -17,18 +17,18 @@ import {
   placeBid,
   resolveLivePermissionMode,
   serializeLiveSession,
-} from '../services/liveCommerceService';
-import { clearWebRTCRoom } from '../socket/webrtcSignaling';
-import { getLiveChatHistory } from '../services/liveCommerceChat';
-import { notifySellerWentLive } from '../services/liveCommerceNotify';
-import { Product } from '../models/Product';
-import { StreamProviderFactory } from '../streaming/StreamProviderFactory';
+} from "../services/liveCommerceService.js";
+import { clearWebRTCRoom } from "../socket/webrtcSignaling.js";
+import { getLiveChatHistory } from "../services/liveCommerceChat.js";
+import { notifySellerWentLive } from "../services/liveCommerceNotify.js";
+import { Product } from "../models/Product.js";
+import { StreamProviderFactory } from "../streaming/StreamProviderFactory.js";
 import {
   attachStreamToSession,
   endStreamForSession,
   getDefaultProvider,
-} from '../streaming/streamSessionService';
-import { assertProviderAllowed, getStreamingConfig, PROVIDER_LABELS } from '../streaming/streamingSettings';
+} from "../streaming/streamSessionService.js";
+import { assertProviderAllowed, getStreamingConfig, PROVIDER_LABELS } from "../streaming/streamingSettings.js";
 
 const router = Router();
 
@@ -89,7 +89,7 @@ router.post('/seller/end-stale-live', authenticate, async (req: AuthenticatedReq
     if (!req.user || req.user.role !== 'seller') {
       return res.status(403).json({ message: 'Seller only' });
     }
-    const { endStaleSellerLiveSessions } = await import('../services/liveSellerPresence');
+    const { endStaleSellerLiveSessions } = await import("../services/liveSellerPresence.js");
     const ended = await endStaleSellerLiveSessions(req.user.id);
     return res.json({ success: true, ended });
   } catch (err: any) {
@@ -107,7 +107,7 @@ router.get('/seller/live-status', authenticate, async (req: AuthenticatedRequest
     const settings = await getLiveCommerceSettings();
     const permissionMode = resolveLivePermissionMode(settings);
     const { getSellerActiveLiveSessionId, endStaleSellerLiveSessions } = await import(
-      '../services/liveSellerPresence'
+      "../services/liveSellerPresence.js"
     );
     let activeId = await getSellerActiveLiveSessionId(req.user.id);
     if (!activeId) {
@@ -180,7 +180,7 @@ router.post('/session', authenticate, async (req: AuthenticatedRequest, res: Res
     const gate = await canSellerGoLive(req.user.id);
     if (!gate.ok) return res.status(403).json({ message: gate.reason });
 
-    const { forceEndSellerLiveSessions } = await import('../services/liveSellerPresence');
+    const { forceEndSellerLiveSessions } = await import("../services/liveSellerPresence.js");
     await forceEndSellerLiveSessions(req.user.id);
 
     const body = req.body as CreateLiveSessionBody;
@@ -205,7 +205,7 @@ router.post('/session', authenticate, async (req: AuthenticatedRequest, res: Res
     if (!title) return res.status(400).json({ message: 'title is required' });
 
     const sessionMode = parseSessionMode(modeInput);
-    const { isSystemFeatureEnabled } = await import('../services/systemFeatureSettings.service');
+    const { isSystemFeatureEnabled } = await import("../services/systemFeatureSettings.service.js");
     if (
       (sessionMode === 'auction' || sessionMode === 'flash_deal') &&
       !(await isSystemFeatureEnabled('live_commerce_auctions'))
@@ -444,7 +444,7 @@ router.post(
       if (!req.user || req.user.role !== 'seller') {
         return res.status(403).json({ message: 'Seller only' });
       }
-      const { touchSellerHeartbeat } = await import('../services/liveSellerPresence');
+      const { touchSellerHeartbeat } = await import("../services/liveSellerPresence.js");
       const result = await touchSellerHeartbeat(req.params.sessionId, req.user.id);
       if (!result.ok) return res.status(404).json({ message: 'Live session not found' });
       return res.json({ ok: true });
@@ -462,7 +462,7 @@ router.post('/session/:sessionId/stream/end', authenticate, async (req: Authenti
     if (String(session.sellerId) !== req.user.id) return res.status(403).json({ message: 'Access denied' });
 
     const ended = await endStreamForSession(String(session._id));
-    const { clearSellerPresence } = await import('../services/liveSellerPresence');
+    const { clearSellerPresence } = await import("../services/liveSellerPresence.js");
     clearSellerPresence(String(session._id));
     return res.json({ success: true, session: serializeLiveSession(ended) });
   } catch (err: any) {

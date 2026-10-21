@@ -1,7 +1,7 @@
 import {
   getNotificationEventDefinition,
   sanitizeCustomEventKey,
-} from '../constants/notificationEvents';
+} from "../constants/notificationEvents.js";
 
 interface NotificationCopyGenerateInput {
   prompt: string;

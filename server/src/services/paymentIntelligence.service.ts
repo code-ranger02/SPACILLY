@@ -1,7 +1,7 @@
-import { Order } from '../models/Order';
-import { initializePayment, finalizeSuccessfulEscrowPayment } from './paymentService';
-import { selectOptimalGateway } from './paymentOptimizer';
-import { orderPayAmount, orderPayCurrency } from './orderPayMoney';
+import { Order } from "../models/Order.js";
+import { initializePayment, finalizeSuccessfulEscrowPayment } from "./paymentService.js";
+import { selectOptimalGateway } from "./paymentOptimizer.js";
+import { orderPayAmount, orderPayCurrency } from "./orderPayMoney.js";
 
 function mapProcessorToMethod(proc: string): 'flutterwave' | 'momo' | 'stripe' | 'paypal' | 'airtel' {
   const p = String(proc).toLowerCase();

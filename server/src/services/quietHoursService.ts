@@ -1,4 +1,4 @@
-import { localParts } from './timezoneService';
+import { localParts } from "./timezoneService.js";
 
 function parseHm(hm: string): { h: number; m: number } {
   const [h, m] = String(hm || '22:00').split(':').map((x) => Number(x) || 0);

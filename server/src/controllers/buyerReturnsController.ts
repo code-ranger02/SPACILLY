@@ -1,16 +1,16 @@
 import crypto from 'crypto';
 import mongoose from 'mongoose';
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { Order } from '../models/Order';
-import { Product } from '../models/Product';
-import { Dispute } from '../models/Dispute';
-import { ReturnCase } from '../models/ReturnCase';
-import { evaluateReturnPolicy } from '../services/returnsPolicy.service';
-import { deliverBuyerNotification } from '../services/buyerNotificationService';
-import { deliverSellerNotification } from '../services/sellerNotificationService';
-import { User } from '../models/User';
-import { ProductReview } from '../models/ProductReview';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { Order } from "../models/Order.js";
+import { Product } from "../models/Product.js";
+import { Dispute } from "../models/Dispute.js";
+import { ReturnCase } from "../models/ReturnCase.js";
+import { evaluateReturnPolicy } from "../services/returnsPolicy.service.js";
+import { deliverBuyerNotification } from "../services/buyerNotificationService.js";
+import { deliverSellerNotification } from "../services/sellerNotificationService.js";
+import { User } from "../models/User.js";
+import { ProductReview } from "../models/ProductReview.js";
 
 const REASONS: Record<string, string> = {
   wrong_item: 'Wrong item received',
@@ -605,7 +605,7 @@ export async function listMyReviews(req: AuthenticatedRequest, res: Response) {
 
 export async function submitRewardedReview(req: AuthenticatedRequest, res: Response) {
   try {
-    const { isSystemFeatureEnabled } = await import('../services/systemFeatureSettings.service');
+    const { isSystemFeatureEnabled } = await import("../services/systemFeatureSettings.service.js");
     if (!(await isSystemFeatureEnabled('product_reviews'))) {
       return res.status(503).json({
         message: 'Product reviews are temporarily disabled',

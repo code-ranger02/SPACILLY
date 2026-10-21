@@ -1,9 +1,9 @@
 import cron from 'node-cron';
-import { SellerSubscription } from '../models/SellerSubscription';
-import { calculateRenewalDate } from '../utils/subscriptionTransformers';
-import { chargeDefaultPaymentMethodForSubscription } from '../services/subscriptionBilling.service';
-import { evaluateEffectivePrice } from '../services/subscriptionPlan.service';
-import { deliverSellerNotification } from '../services/sellerNotificationService';
+import { SellerSubscription } from "../models/SellerSubscription.js";
+import { calculateRenewalDate } from "../utils/subscriptionTransformers.js";
+import { chargeDefaultPaymentMethodForSubscription } from "../services/subscriptionBilling.service.js";
+import { evaluateEffectivePrice } from "../services/subscriptionPlan.service.js";
+import { deliverSellerNotification } from "../services/sellerNotificationService.js";
 
 function ensurePaymentMethodsArray(paymentMethods: unknown): any[] {
   if (!paymentMethods) return [];
@@ -39,7 +39,7 @@ cron.schedule('15 7 * * *', async () => {
         const plan = subscription.current_plan as Record<string, any>;
         const cycle = plan?.billing_cycle === 'annual' ? 'annual' : 'monthly';
         const discountApplied = plan?.discount_applied;
-        const catalogPlan = await import('../models/SubscriptionPlan').then((m) =>
+        const catalogPlan = await import("../models/SubscriptionPlan.js").then((m) =>
           m.getPlanByTierId(String(plan?.tier_id || '')),
         );
         const amount = catalogPlan

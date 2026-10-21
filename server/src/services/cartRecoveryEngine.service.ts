@@ -1,20 +1,20 @@
 import mongoose from 'mongoose';
-import { AbandonedCart, IAbandonedCartTimelineEvent } from '../models/AbandonedCart';
+import { AbandonedCart, IAbandonedCartTimelineEvent } from "../models/AbandonedCart.js";
 import {
   getOrCreateCartSettings,
   settingsToClient,
   type DelayUnit,
   type ICartSettingsClient,
   type IRecoveryStepConfig,
-} from '../models/AbandonedCartSettings';
-import { AbandonedCartQueue } from '../models/AbandonedCartQueue';
-import { RecommendationActivity } from '../models/RecommendationActivity';
-import { User } from '../models/User';
-import { scheduleNextReminderAt } from './timingOptimizer';
-import { getOrCreateCartStrategy } from '../models/AbandonedCartStrategy';
-import { computeEngagementPattern } from './engagementLearning';
-import { websocketService } from './websocketService';
-import { assertBuyerMarketingEligible } from './marketingRecipient.service';
+} from "../models/AbandonedCartSettings.js";
+import { AbandonedCartQueue } from "../models/AbandonedCartQueue.js";
+import { RecommendationActivity } from "../models/RecommendationActivity.js";
+import { User } from "../models/User.js";
+import { scheduleNextReminderAt } from "./timingOptimizer.js";
+import { getOrCreateCartStrategy } from "../models/AbandonedCartStrategy.js";
+import { computeEngagementPattern } from "./engagementLearning.js";
+import { websocketService } from "./websocketService.js";
+import { assertBuyerMarketingEligible } from "./marketingRecipient.service.js";
 
 export function delayToMs(value: number, unit: string): number {
   const u = String(unit || 'minute').toLowerCase();
@@ -145,8 +145,8 @@ export async function computeScheduledSendAt(params: {
     aiSuggestedSendAt = schedule.scheduledAt;
     delayMinutes = schedule.delayMinutes;
   } else if (settings.quietHours?.enabled) {
-    const { applyQuietHours } = await import('./quietHoursService');
-    const { resolveUserTimezone } = await import('./timezoneService');
+    const { applyQuietHours } = await import("./quietHoursService.js");
+    const { resolveUserTimezone } = await import("./timezoneService.js");
     const tz = settings.timezoneMode === 'utc' ? 'UTC' : resolveUserTimezone(params.user as any);
     const quiet = applyQuietHours({
       at: scheduledSendAt,

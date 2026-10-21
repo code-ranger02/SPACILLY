@@ -1,4 +1,4 @@
-import type { ModelTier } from '../types';
+import type { ModelTier } from "../types.js";
 
 /** Default Google model IDs — override via TIER1_MODELS, TIER2_MODELS, TIER3_MODELS (comma-separated). */
 const DEFAULT_TIER1 = [

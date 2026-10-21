@@ -1,10 +1,10 @@
 import mongoose from 'mongoose';
-import { Order } from '../models/Order';
-import { Product } from '../models/Product';
-import { User } from '../models/User';
-import { initializePayment } from './paymentService';
-import { getMomoResolvedConfig } from './paymentGatewayCredentials.service';
-import { getPlatformSalesTaxRate, computeSalesTax } from './platformTax.service';
+import { Order } from "../models/Order.js";
+import { Product } from "../models/Product.js";
+import { User } from "../models/User.js";
+import { initializePayment } from "./paymentService.js";
+import { getMomoResolvedConfig } from "./paymentGatewayCredentials.service.js";
+import { getPlatformSalesTaxRate, computeSalesTax } from "./platformTax.service.js";
 
 export type ShippingSpeed = 'standard' | 'express' | 'international';
 
@@ -97,7 +97,7 @@ export async function performCheckoutSingleProduct(
       return { ok: false, error: 'Product is not available' };
     }
 
-    const { isProductBuyerVisible } = await import('../utils/publicProductQuery');
+    const { isProductBuyerVisible } = await import("../utils/publicProductQuery.js");
     if (!isProductBuyerVisible(product)) {
       return { ok: false, error: 'Product is not available for purchase' };
     }
@@ -171,7 +171,7 @@ export async function performCheckoutSingleProduct(
 
     await order.save();
 
-    const { enqueueIntelligenceIndex } = await import('../queues/intelligenceIndex.queue');
+    const { enqueueIntelligenceIndex } = await import("../queues/intelligenceIndex.queue.js");
     enqueueIntelligenceIndex('order', order._id.toString(), 'created');
 
     const paymentInit = await initializePayment(

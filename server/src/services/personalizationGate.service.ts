@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { BuyerInsightProfile } from '../models/BuyerInsightProfile';
+import { BuyerInsightProfile } from "../models/BuyerInsightProfile.js";
 
 function getIntEnv(name: string, fallback: number) {
   const n = Number(process.env[name]);

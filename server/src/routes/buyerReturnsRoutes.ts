@@ -2,8 +2,8 @@ import { Router, Request } from 'express';
 import multer from 'multer';
 import path from 'path';
 import rateLimit from 'express-rate-limit';
-import { authenticate } from '../middleware/auth';
-import { cloudinaryUploadBuffers } from '../middleware/cloudinaryMemoryUpload';
+import { authenticate } from "../middleware/auth.js";
+import { cloudinaryUploadBuffers } from "../middleware/cloudinaryMemoryUpload.js";
 import {
   addReturnCaseMessage,
   aiAssistReturnDescription,
@@ -18,7 +18,7 @@ import {
   listMyReviews,
   submitSatisfactionResponse,
   uploadReturnEvidence,
-} from '../controllers/buyerReturnsController';
+} from "../controllers/buyerReturnsController.js";
 
 const router = Router();
 

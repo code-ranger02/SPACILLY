@@ -1,16 +1,16 @@
 import { Server as HttpServer } from 'http';
 import { Server as SocketIOServer, Socket } from 'socket.io';
 import jwt from 'jsonwebtoken';
-import { AuthTokenPayload } from '../utils/generateToken';
-import { MessageThread, Message } from '../models/MessageThread';
-import { User } from '../models/User';
+import { AuthTokenPayload } from "../utils/generateToken.js";
+import { MessageThread, Message } from "../models/MessageThread.js";
+import { User } from "../models/User.js";
 import mongoose from 'mongoose';
-import { getAllowedCorsOrigins } from '../config/publicEnv';
-import { attachSystemMonitorNamespaces } from '../socket/systemMonitorSockets';
-import { attachLiveCommerceSockets } from '../socket/liveCommerceSockets';
-import { socketPresenceRegister, socketPresenceUnregister } from './socketRegistry';
+import { getAllowedCorsOrigins } from "../config/publicEnv.js";
+import { attachSystemMonitorNamespaces } from "../socket/systemMonitorSockets.js";
+import { attachLiveCommerceSockets } from "../socket/liveCommerceSockets.js";
+import { socketPresenceRegister, socketPresenceUnregister } from "./socketRegistry.js";
 
-import { getJwtSecret } from '../config/jwtSecret';
+import { getJwtSecret } from "../config/jwtSecret.js";
 
 interface AuthenticatedSocket extends Socket {
   userId?: string;

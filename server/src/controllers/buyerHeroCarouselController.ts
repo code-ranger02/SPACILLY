@@ -1,6 +1,6 @@
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { BuyerHeroCarouselConfig, IHeroCarouselSlide } from '../models/BuyerHeroCarouselConfig';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { BuyerHeroCarouselConfig, IHeroCarouselSlide } from "../models/BuyerHeroCarouselConfig.js";
 
 export const DEFAULT_HERO_CAROUSEL_SLIDES: IHeroCarouselSlide[] = [
   {

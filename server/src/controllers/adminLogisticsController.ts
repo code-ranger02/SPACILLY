@@ -1,15 +1,15 @@
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { DeliveryPartner } from '../models/DeliveryPartner';
-import { ShippingZone } from '../models/ShippingZone';
-import { FleetDriver } from '../models/FleetDriver';
-import { LogisticsWarehouse } from '../models/LogisticsWarehouse';
-import { ReturnShipment } from '../models/ReturnShipment';
-import { LogisticsSettings } from '../models/LogisticsSettings';
-import { LogisticsRole } from '../models/LogisticsRole';
-import { LogisticsIntegration } from '../models/LogisticsIntegration';
-import { LogisticsException } from '../models/LogisticsException';
-import { Shipment } from '../models/Tracking';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { DeliveryPartner } from "../models/DeliveryPartner.js";
+import { ShippingZone } from "../models/ShippingZone.js";
+import { FleetDriver } from "../models/FleetDriver.js";
+import { LogisticsWarehouse } from "../models/LogisticsWarehouse.js";
+import { ReturnShipment } from "../models/ReturnShipment.js";
+import { LogisticsSettings } from "../models/LogisticsSettings.js";
+import { LogisticsRole } from "../models/LogisticsRole.js";
+import { LogisticsIntegration } from "../models/LogisticsIntegration.js";
+import { LogisticsException } from "../models/LogisticsException.js";
+import { Shipment } from "../models/Tracking.js";
 import mongoose from 'mongoose';
 
 function ensureAdmin(req: AuthenticatedRequest, res: Response): boolean {
@@ -311,7 +311,7 @@ export async function getShipments(req: AuthenticatedRequest, res: Response) {
 
     // If search is not an ObjectId, also search by orderNumber via Order
     if (search && list.length === 0) {
-      const { Order } = await import('../models/Order');
+      const { Order } = await import("../models/Order.js");
       const orders = await Order.find({
         $or: [
           { orderNumber: new RegExp(search, 'i') },

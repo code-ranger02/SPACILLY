@@ -16,9 +16,9 @@
  */
 
 import mongoose from 'mongoose';
-import { CoOccurrenceEdge, type CoOccurrenceSource } from '../../models/CoOccurrenceEdge';
-import { Product } from '../../models/Product';
-import { CategoryAdjacency } from '../../models/CategoryAdjacency';
+import { CoOccurrenceEdge, type CoOccurrenceSource } from "../../models/CoOccurrenceEdge.js";
+import { Product } from "../../models/Product.js";
+import { CategoryAdjacency } from "../../models/CategoryAdjacency.js";
 
 const HALF_LIFE_DAYS = 60; // decay constant — edges lose half their weight every 60 days
 const SOURCE_WEIGHTS: Record<CoOccurrenceSource, number> = {

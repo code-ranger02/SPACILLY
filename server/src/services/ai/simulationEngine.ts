@@ -16,22 +16,22 @@
  */
 
 import mongoose from 'mongoose';
-import { Product } from '../../models/Product';
-import { ProductSignalSnapshot } from '../../models/ProductSignalSnapshot';
-import { SellerTrustProfile } from '../../models/SellerTrustProfile';
-import { SellerSubscription } from '../../models/SellerSubscription';
+import { Product } from "../../models/Product.js";
+import { ProductSignalSnapshot } from "../../models/ProductSignalSnapshot.js";
+import { SellerTrustProfile } from "../../models/SellerTrustProfile.js";
+import { SellerSubscription } from "../../models/SellerSubscription.js";
 import {
   getMarketplaceAIConfig,
   type IMarketplaceAIConfig,
   type IRankingWeights,
   type ISliders,
   type ISponsoredConfig,
-} from '../../models/MarketplaceAIConfig';
+} from "../../models/MarketplaceAIConfig.js";
 import {
   rankProducts,
   type RankingContext,
   type RankedProduct,
-} from './rankingEngine';
+} from "./rankingEngine.js";
 
 export interface SimulationInput {
   /** Optional partial overrides. */

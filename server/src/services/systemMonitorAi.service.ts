@@ -1,4 +1,4 @@
-import type { SystemAlert } from './systemMonitor.service';
+import type { SystemAlert } from "./systemMonitor.service.js";
 
 export interface AlertDiagnosis {
   summary: string;

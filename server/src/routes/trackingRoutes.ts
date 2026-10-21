@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
-import { authenticate, authorize } from '../middleware/auth';
+import { authenticate, authorize } from "../middleware/auth.js";
 import {
   trackOrder,
   getMyOrders,
@@ -8,7 +8,7 @@ import {
   updateShipmentLocation,
   confirmDelivery,
   recordFailedDelivery,
-} from '../controllers/trackingController';
+} from "../controllers/trackingController.js";
 
 const router = Router();
 

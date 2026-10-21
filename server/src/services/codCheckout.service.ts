@@ -1,8 +1,8 @@
-import { Order } from '../models/Order';
-import { ShippingZone } from '../models/ShippingZone';
-import { getPlatformShippingPolicy } from './platformShippingPolicy.service';
-import { decrementInventoryForPaidOrder } from './inventory.service';
-import { deliverSellerNotification } from './sellerNotificationService';
+import { Order } from "../models/Order.js";
+import { ShippingZone } from "../models/ShippingZone.js";
+import { getPlatformShippingPolicy } from "./platformShippingPolicy.service.js";
+import { decrementInventoryForPaidOrder } from "./inventory.service.js";
+import { deliverSellerNotification } from "./sellerNotificationService.js";
 
 export function isCodPaymentMethod(method: unknown): boolean {
   const m = String(method || '').toLowerCase().replace(/[\s-]+/g, '_');
@@ -10,7 +10,7 @@ export function isCodPaymentMethod(method: unknown): boolean {
 }
 
 export async function isCodAllowedForDestination(countryCode: string): Promise<boolean> {
-  const { isSystemFeatureEnabled } = await import('./systemFeatureSettings.service');
+  const { isSystemFeatureEnabled } = await import("./systemFeatureSettings.service.js");
   if (!(await isSystemFeatureEnabled('cod_checkout'))) return false;
   const policy = await getPlatformShippingPolicy();
   if (policy.codEnabled === false) return false;

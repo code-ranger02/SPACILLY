@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
-import { getOrCreateCartStrategy } from '../models/AbandonedCartStrategy';
-import { computeEngagementPattern } from './engagementLearning';
-import { scheduleNextReminderAt } from './timingOptimizer';
-import { getNextJourneyAction } from './recoveryJourneyEngine';
-import { resolveUserTimezone } from './timezoneService';
+import { getOrCreateCartStrategy } from "../models/AbandonedCartStrategy.js";
+import { computeEngagementPattern } from "./engagementLearning.js";
+import { scheduleNextReminderAt } from "./timingOptimizer.js";
+import { getNextJourneyAction } from "./recoveryJourneyEngine.js";
+import { resolveUserTimezone } from "./timezoneService.js";
 
 export async function shouldSendReminderNow(params: {
   userId: string;

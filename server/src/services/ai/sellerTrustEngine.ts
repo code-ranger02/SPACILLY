@@ -13,13 +13,13 @@
  */
 
 import mongoose from 'mongoose';
-import { SellerTrustProfile } from '../../models/SellerTrustProfile';
-import { Order } from '../../models/Order';
-import { ProductReview } from '../../models/ProductReview';
-import { FraudAlert } from '../../models/FraudAlert';
-import { SuspiciousReview } from '../../models/SuspiciousReview';
-import { RefundRequest } from '../../models/RefundRequest';
-import { Dispute } from '../../models/Dispute';
+import { SellerTrustProfile } from "../../models/SellerTrustProfile.js";
+import { Order } from "../../models/Order.js";
+import { ProductReview } from "../../models/ProductReview.js";
+import { FraudAlert } from "../../models/FraudAlert.js";
+import { SuspiciousReview } from "../../models/SuspiciousReview.js";
+import { RefundRequest } from "../../models/RefundRequest.js";
+import { Dispute } from "../../models/Dispute.js";
 
 export type TrustTier = 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond';
 
@@ -176,7 +176,7 @@ export async function evaluateSeller(
   // Account age — try `User.createdAt`; default to 90 days when missing.
   let accountAgeDays = 90;
   try {
-    const User = (await import('../../models/User')).User;
+    const User = (await import("../../models/User.js")).User;
     const u = await User.findById(sellerObjectId).select('createdAt').lean();
     if ((u as any)?.createdAt) {
       accountAgeDays = (Date.now() - new Date((u as any).createdAt).getTime()) / 86_400_000;

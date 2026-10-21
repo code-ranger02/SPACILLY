@@ -1,16 +1,16 @@
 import { Response } from 'express';
 import bcrypt from 'bcryptjs';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { TransactionLog } from '../models/TransactionLog';
-import { Order } from '../models/Order';
-import { SellerWallet } from '../models/SellerWallet';
-import { PayoutRequest } from '../models/PayoutRequest';
-import { RefundRequest } from '../models/RefundRequest';
-import { Chargeback } from '../models/Chargeback';
-import { TaxRule } from '../models/TaxRule';
-import { PaymentGatewayConfig } from '../models/PaymentGatewayConfig';
-import { PAYMENT_GATEWAY_REGISTRY } from '../financial/paymentGatewayRegistry';
-import { ensureCorePaymentGateways } from '../services/paymentGateway.service';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { TransactionLog } from "../models/TransactionLog.js";
+import { Order } from "../models/Order.js";
+import { SellerWallet } from "../models/SellerWallet.js";
+import { PayoutRequest } from "../models/PayoutRequest.js";
+import { RefundRequest } from "../models/RefundRequest.js";
+import { Chargeback } from "../models/Chargeback.js";
+import { TaxRule } from "../models/TaxRule.js";
+import { PaymentGatewayConfig } from "../models/PaymentGatewayConfig.js";
+import { PAYMENT_GATEWAY_REGISTRY } from "../financial/paymentGatewayRegistry.js";
+import { ensureCorePaymentGateways } from "../services/paymentGateway.service.js";
 import {
   appendGatewayHealthLog,
   buildAirtelDraftConfigFromMerged,
@@ -26,11 +26,11 @@ import {
   testGatewayByKey,
   type AirtelResolvedConfig,
   type CredentialProfile,
-} from '../services/paymentGatewayCredentials.service';
-import { decryptCredentialsJson } from '../services/paymentSecretsCrypto.service';
-import { FinanceSettings } from '../models/FinanceSettings';
-import { EscrowWallet } from '../models/EscrowWallet';
-import { User } from '../models/User';
+} from "../services/paymentGatewayCredentials.service.js";
+import { decryptCredentialsJson } from "../services/paymentSecretsCrypto.service.js";
+import { FinanceSettings } from "../models/FinanceSettings.js";
+import { EscrowWallet } from "../models/EscrowWallet.js";
+import { User } from "../models/User.js";
 import mongoose from 'mongoose';
 
 /** Prevent ReDoS / accidental regex breakage when search is used in RegExp */

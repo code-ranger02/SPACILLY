@@ -1,8 +1,8 @@
 import { Response } from 'express';
 import mongoose from 'mongoose';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { SellerSettings, IIdentityKyc } from '../models/SellerSettings';
-import { User } from '../models/User';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { SellerSettings, IIdentityKyc } from "../models/SellerSettings.js";
+import { User } from "../models/User.js";
 import {
   verifyDocumentImages,
   fetchImageBuffer,
@@ -13,11 +13,11 @@ import {
   MicroblinkApiError,
   getMicroblinkDiagnostics,
   microblinkUpstreamHint,
-} from '../services/microblink.service';
-import { uploadAnyBufferToCloudinary } from '../utils/uploadToCloudinary';
-import { recalculateSellerTrust } from '../services/productVerification.service';
-import { emitSellerKycUpdated } from '../services/sellerKycRealtime.service';
-import { publishEligibleProductsAfterKyc } from '../services/sellerKyc.service';
+} from "../services/microblink.service.js";
+import { uploadAnyBufferToCloudinary } from "../utils/uploadToCloudinary.js";
+import { recalculateSellerTrust } from "../services/productVerification.service.js";
+import { emitSellerKycUpdated } from "../services/sellerKycRealtime.service.js";
+import { publishEligibleProductsAfterKyc } from "../services/sellerKyc.service.js";
 
 const getSellerId = (req: AuthenticatedRequest): mongoose.Types.ObjectId | null => {
   if (!req.user?.id) return null;

@@ -8,23 +8,23 @@
 import fs from 'fs';
 import path from 'path';
 import { GoogleGenerativeAI, FunctionCallingMode, SchemaType } from '@google/generative-ai';
-import { determineTaskComplexity } from '../ai-assistant/engine/complexity';
-import { neverStopExecute } from '../ai-assistant/engine/neverStop';
+import { determineTaskComplexity } from "../ai-assistant/engine/complexity.js";
+import { neverStopExecute } from "../ai-assistant/engine/neverStop.js";
 import {
   getModelBlacklist,
   getModelScorer,
   getAiMetrics,
-} from '../ai-assistant/singleton';
+} from "../ai-assistant/singleton.js";
 import mongoose from 'mongoose';
-import { getServerUrl } from '../config/publicEnv';
-import { Order } from '../models/Order';
-import { Product } from '../models/Product';
-import { Dispute } from '../models/Dispute';
+import { getServerUrl } from "../config/publicEnv.js";
+import { Order } from "../models/Order.js";
+import { Product } from "../models/Product.js";
+import { Dispute } from "../models/Dispute.js";
 import {
   performCheckoutSingleProduct,
   type CommerceCheckoutProvider,
   type ShippingSpeed,
-} from './commerceCheckout.helper';
+} from "./commerceCheckout.helper.js";
 
 type AgentRole = 'guest' | 'buyer' | 'seller' | 'admin';
 

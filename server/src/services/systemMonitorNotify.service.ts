@@ -1,12 +1,12 @@
-import { sendNotificationEmail, isEmailConfigured } from './emailService';
+import { sendNotificationEmail, isEmailConfigured } from "./emailService.js";
 import {
   getPersistedMonitorSettings,
   markNotified,
   getLastNotifiedMap,
-} from './systemMonitorConfig.service';
-import type { SystemAlert } from './systemMonitor.service';
-import { diagnoseSystemAlert } from './systemMonitorAi.service';
-import { getClientUrl } from '../config/publicEnv';
+} from "./systemMonitorConfig.service.js";
+import type { SystemAlert } from "./systemMonitor.service.js";
+import { diagnoseSystemAlert } from "./systemMonitorAi.service.js";
+import { getClientUrl } from "../config/publicEnv.js";
 
 function alertDedupeKey(alert: SystemAlert): string {
   if (alert.id === 'a-ok') return '';

@@ -1,4 +1,4 @@
-import type { SpacillyShippingMethodKey } from '../types/spacillyShipping.types';
+import type { SpacillyShippingMethodKey } from "../types/spacillyShipping.types.js";
 
 export type OrderOptimizationStrategy = 'lowest_cost' | 'fastest_delivery' | 'green_shipping';
 

@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { Order } from '../models/Order';
+import { Order } from "../models/Order.js";
 
 function daysBetween(a: Date, b: Date): number {
   return Math.max(1, Math.round((b.getTime() - a.getTime()) / (1000 * 60 * 60 * 24)));

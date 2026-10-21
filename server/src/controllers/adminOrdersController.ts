@@ -1,9 +1,9 @@
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { Order } from '../models/Order';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { Order } from "../models/Order.js";
 import mongoose from 'mongoose';
-import { notifyBuyerOrderStatusChange } from '../services/orderInboxNotifications';
-import { completeAdminOrder } from '../services/orderLifecycle.service';
+import { notifyBuyerOrderStatusChange } from "../services/orderInboxNotifications.js";
+import { completeAdminOrder } from "../services/orderLifecycle.service.js";
 
 function ensureAdmin(req: AuthenticatedRequest, res: Response): boolean {
   if (!req.user || req.user.role !== 'admin') {

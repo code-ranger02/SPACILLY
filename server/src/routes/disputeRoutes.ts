@@ -1,14 +1,14 @@
 import { Router, Request } from 'express';
 import multer from 'multer';
 import path from 'path';
-import { authenticate, authorize, AuthenticatedRequest } from '../middleware/auth';
-import { cloudinaryUploadBuffers } from '../middleware/cloudinaryMemoryUpload';
+import { authenticate, authorize, AuthenticatedRequest } from "../middleware/auth.js";
+import { cloudinaryUploadBuffers } from "../middleware/cloudinaryMemoryUpload.js";
 import {
   getDisputes,
   getDispute,
   submitSellerResponse,
   uploadEvidence,
-} from '../controllers/disputeController';
+} from "../controllers/disputeController.js";
 
 type FileFilterCallback = ((error: Error) => void) | ((error: null, acceptFile: boolean) => void);
 

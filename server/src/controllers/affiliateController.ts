@@ -1,6 +1,6 @@
 import { Response } from 'express';
 import mongoose from 'mongoose';
-import { AuthenticatedRequest } from '../middleware/auth';
+import { AuthenticatedRequest } from "../middleware/auth.js";
 import {
   Affiliate,
   AffiliateLink,
@@ -9,11 +9,11 @@ import {
   IAffiliate,
   IAffiliateLink,
   IAffiliateCommission,
-} from '../models/Affiliate';
-import { User } from '../models/User';
-import { Product } from '../models/Product';
-import { Order } from '../models/Order';
-import { getClientUrl } from '../config/publicEnv';
+} from "../models/Affiliate.js";
+import { User } from "../models/User.js";
+import { Product } from "../models/Product.js";
+import { Order } from "../models/Order.js";
+import { getClientUrl } from "../config/publicEnv.js";
 
 // Default commission rates by category
 const DEFAULT_COMMISSION_RATES: { [key: string]: number } = {

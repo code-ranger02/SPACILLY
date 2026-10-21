@@ -1,12 +1,12 @@
 import { Response } from 'express';
 import mongoose from 'mongoose';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { PushDevice } from '../models/PushDevice';
-import { WebPushSubscription } from '../models/WebPushSubscription';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { PushDevice } from "../models/PushDevice.js";
+import { WebPushSubscription } from "../models/WebPushSubscription.js";
 import {
   getWebPushPublicKey,
   isWebPushConfigured,
-} from '../services/pushNotificationService';
+} from "../services/pushNotificationService.js";
 
 function clean(v: unknown): string {
   return String(v ?? '').trim().slice(0, 512);

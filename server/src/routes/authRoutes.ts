@@ -24,14 +24,14 @@ import {
   checkPendingRequest,
   approveDeviceByEmail,
   sessionBootstrap,
-} from '../controllers/authController';
+} from "../controllers/authController.js";
 import {
   webauthnRegisterOptions,
   webauthnRegisterVerify,
   webauthnLoginOptions,
   webauthnLoginVerify,
-} from '../controllers/webauthnController';
-import { authenticate } from '../middleware/auth';
+} from "../controllers/webauthnController.js";
+import { authenticate } from "../middleware/auth.js";
 
 const router = Router();
 

@@ -1,14 +1,14 @@
 import { Router } from 'express';
-import { authenticate, authorize } from '../middleware/auth';
-import { requireSuperAdmin } from '../middleware/adminAccess';
-import { getAdminHomePromoBanners, putAdminHomePromoBanners } from '../controllers/buyerHomePromoController';
-import { getAdminHeroCarousel, putAdminHeroCarousel } from '../controllers/buyerHeroCarouselController';
+import { authenticate, authorize } from "../middleware/auth.js";
+import { requireSuperAdmin } from "../middleware/adminAccess.js";
+import { getAdminHomePromoBanners, putAdminHomePromoBanners } from "../controllers/buyerHomePromoController.js";
+import { getAdminHeroCarousel, putAdminHeroCarousel } from "../controllers/buyerHeroCarouselController.js";
 import {
   getAdminHomeLayout,
   postAdminHomeLayoutPublish,
   postAdminHomeLayoutReset,
   putAdminHomeLayoutDraft,
-} from '../controllers/buyerHomeLayoutController';
+} from "../controllers/buyerHomeLayoutController.js";
 
 const router = Router();
 

@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import path from 'path';
-import { Dispute } from '../models/Dispute';
-import { Order } from '../models/Order';
-import { User } from '../models/User';
+import { Dispute } from "../models/Dispute.js";
+import { Order } from "../models/Order.js";
+import { User } from "../models/User.js";
 
 // Load environment variables
 dotenv.config({ path: path.join(__dirname, '../../.env') });

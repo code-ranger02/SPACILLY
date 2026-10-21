@@ -1,14 +1,14 @@
 import mongoose from 'mongoose';
-import { Product } from '../models/Product';
-import { SellerSettings } from '../models/SellerSettings';
-import { getMicroblinkRegionConfig } from './microblink.service';
-import { websocketService } from './websocketService';
+import { Product } from "../models/Product.js";
+import { SellerSettings } from "../models/SellerSettings.js";
+import { getMicroblinkRegionConfig } from "./microblink.service.js";
+import { websocketService } from "./websocketService.js";
 import {
   getSellerKycStatus,
   publishEligibleProductsAfterKyc,
   type SellerKycStatusPayload,
   type SellerVerificationDisplayStatus,
-} from './sellerKyc.service';
+} from "./sellerKyc.service.js";
 
 export type SellerKycRealtimePhase = 'document' | 'face' | 'platform';
 

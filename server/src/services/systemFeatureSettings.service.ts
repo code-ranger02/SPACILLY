@@ -1,17 +1,17 @@
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
-import { User } from '../models/User';
-import { MarketplaceAIConfig } from '../models/MarketplaceAIConfig';
-import { LiveCommerceSettings } from '../models/LiveCommerceSettings';
-import { AdminIntelligenceConfig } from '../models/AdminIntelligenceConfig';
-import { PlatformShippingPolicy } from '../models/PlatformShippingPolicy';
+import { User } from "../models/User.js";
+import { MarketplaceAIConfig } from "../models/MarketplaceAIConfig.js";
+import { LiveCommerceSettings } from "../models/LiveCommerceSettings.js";
+import { AdminIntelligenceConfig } from "../models/AdminIntelligenceConfig.js";
+import { PlatformShippingPolicy } from "../models/PlatformShippingPolicy.js";
 import {
   SYSTEM_FEATURE_BY_KEY,
   SYSTEM_FEATURE_REGISTRY,
   DISABLE_ACKNOWLEDGMENT,
   type SystemFeatureDefinition,
-} from '../constants/systemFeatureRegistry';
-import { getSystemFeatureSettingsDoc } from '../models/SystemFeatureSettings';
+} from "../constants/systemFeatureRegistry.js";
+import { getSystemFeatureSettingsDoc } from "../models/SystemFeatureSettings.js";
 
 const UNLOCK_TTL_MS = 5 * 60 * 1000;
 const MAX_AUDIT_ENTRIES = 200;

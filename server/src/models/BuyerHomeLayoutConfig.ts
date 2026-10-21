@@ -1,5 +1,5 @@
 import mongoose, { Document, Model, Schema } from 'mongoose';
-import type { HomeLayoutSectionId, HomeSectionLayoutEntry } from '../constants/buyerHomeLayoutDefaults';
+import type { HomeLayoutSectionId, HomeSectionLayoutEntry } from "../constants/buyerHomeLayoutDefaults.js";
 
 export interface IBuyerHomeLayoutConfig extends Omit<Document, '_id'> {
   _id: 'default';

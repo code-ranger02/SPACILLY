@@ -1,11 +1,11 @@
 import { Router } from 'express';
-import { authenticate, authorize } from '../middleware/auth';
+import { authenticate, authorize } from "../middleware/auth.js";
 import {
   searchArticles,
   getArticle,
   submitArticleFeedback,
   getArticlesByCategory,
-} from '../controllers/knowledgeBaseController';
+} from "../controllers/knowledgeBaseController.js";
 
 const router = Router();
 

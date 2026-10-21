@@ -1,17 +1,17 @@
 import { Router } from 'express';
-import { authenticate, authorize } from '../middleware/auth';
-import { requireSuperAdmin } from '../middleware/adminAccess';
+import { authenticate, authorize } from "../middleware/auth.js";
+import { requireSuperAdmin } from "../middleware/adminAccess.js";
 import {
   getAdminSystemFeatures,
   patchAdminSystemFeatures,
   postSystemFeaturesUnlock,
-} from '../controllers/adminSystemFeaturesController';
+} from "../controllers/adminSystemFeaturesController.js";
 import {
   getAdminHomeLayout,
   postAdminHomeLayoutPublish,
   postAdminHomeLayoutReset,
   putAdminHomeLayoutDraft,
-} from '../controllers/buyerHomeLayoutController';
+} from "../controllers/buyerHomeLayoutController.js";
 
 const router = Router();
 

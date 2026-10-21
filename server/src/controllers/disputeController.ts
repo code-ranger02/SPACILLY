@@ -1,6 +1,6 @@
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { Dispute } from '../models/Dispute';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { Dispute } from "../models/Dispute.js";
 import mongoose from 'mongoose';
 
 const getSellerId = (req: AuthenticatedRequest): mongoose.Types.ObjectId | null => {

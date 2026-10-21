@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { authenticate, authorize } from '../middleware/auth';
+import { authenticate, authorize } from "../middleware/auth.js";
 import {
   getPartners,
   createPartner,
@@ -30,17 +30,17 @@ import {
   getExceptions,
   createException,
   updateExceptionStatus,
-} from '../controllers/adminLogisticsController';
+} from "../controllers/adminLogisticsController.js";
 import {
   adminListDestinations,
   adminCreateDestination,
   adminUpdateDestination,
   adminDeleteDestination,
-} from '../controllers/deliveryDestinationController';
+} from "../controllers/deliveryDestinationController.js";
 import {
   adminGetPlatformPolicy,
   adminUpdatePlatformPolicy,
-} from '../controllers/platformShippingPolicyController';
+} from "../controllers/platformShippingPolicyController.js";
 
 const router = Router();
 

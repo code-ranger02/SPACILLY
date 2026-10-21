@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
-import { LiveSessionComment, ILiveSessionComment } from '../models/LiveSessionComment';
-import { LiveCommerceSession } from '../models/LiveCommerceSession';
-import { User } from '../models/User';
+import { LiveSessionComment, ILiveSessionComment } from "../models/LiveSessionComment.js";
+import { LiveCommerceSession } from "../models/LiveCommerceSession.js";
+import { User } from "../models/User.js";
 
 const MAX_TEXT = 500;
 const HISTORY_LIMIT = 80;
@@ -71,7 +71,7 @@ export async function postLiveChatMessage(input: {
 
   const session = await LiveCommerceSession.findById(input.sessionId).lean();
   if (!session || session.status !== 'live') return null;
-  const { isSystemFeatureEnabled } = await import('./systemFeatureSettings.service');
+  const { isSystemFeatureEnabled } = await import("./systemFeatureSettings.service.js");
   if (!(await isSystemFeatureEnabled('live_commerce_chat'))) return null;
   if (session.features?.chat === false) return null;
 

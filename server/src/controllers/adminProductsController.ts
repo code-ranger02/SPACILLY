@@ -1,7 +1,7 @@
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { Product } from '../models/Product';
-import { User } from '../models/User';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { Product } from "../models/Product.js";
+import { User } from "../models/User.js";
 import mongoose from 'mongoose';
 
 function ensureAdmin(req: AuthenticatedRequest, res: Response): boolean {

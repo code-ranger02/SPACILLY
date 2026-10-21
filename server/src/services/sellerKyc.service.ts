@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
-import { User } from '../models/User';
-import { SellerSettings, IIdentityKyc, IIdentityKycTrustBonuses } from '../models/SellerSettings';
-import { Product } from '../models/Product';
+import { User } from "../models/User.js";
+import { SellerSettings, IIdentityKyc, IIdentityKycTrustBonuses } from "../models/SellerSettings.js";
+import { Product } from "../models/Product.js";
 
 export type KycStepId = 'phone' | 'email' | 'document' | 'face' | 'business';
 

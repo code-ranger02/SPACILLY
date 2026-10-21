@@ -1,15 +1,15 @@
 import { Response } from 'express';
 import mongoose from 'mongoose';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { Product } from '../models/Product';
-import { ProductReview } from '../models/ProductReview';
-import { ProductWishlist } from '../models/ProductWishlist';
-import { ProductVerification } from '../models/ProductVerification';
-import { recordRecommendationActivity } from '../services/recommendationEmail.service';
-import { buyerVisibleProductFilter, isProductBuyerVisible } from '../utils/publicProductQuery';
-import { ensureProductHasSlug } from '../utils/productSlug';
-import { buildCategorySlugFilter } from '../constants/storefrontCategories';
-import { withResolvedProductPrice } from '../utils/productPricing';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { Product } from "../models/Product.js";
+import { ProductReview } from "../models/ProductReview.js";
+import { ProductWishlist } from "../models/ProductWishlist.js";
+import { ProductVerification } from "../models/ProductVerification.js";
+import { recordRecommendationActivity } from "../services/recommendationEmail.service.js";
+import { buyerVisibleProductFilter, isProductBuyerVisible } from "../utils/publicProductQuery.js";
+import { ensureProductHasSlug } from "../utils/productSlug.js";
+import { buildCategorySlugFilter } from "../constants/storefrontCategories.js";
+import { withResolvedProductPrice } from "../utils/productPricing.js";
 
 /** Public product listing & detail (buyer-visible + SEO slugs). */
 
@@ -382,7 +382,7 @@ export async function getProductBySlug(req: AuthenticatedRequest, res: Response)
  */
 export async function toggleWishlist(req: AuthenticatedRequest, res: Response) {
   try {
-    const { isSystemFeatureEnabled } = await import('../services/systemFeatureSettings.service');
+    const { isSystemFeatureEnabled } = await import("../services/systemFeatureSettings.service.js");
     if (!(await isSystemFeatureEnabled('product_wishlist'))) {
       return res.status(503).json({ message: 'Wishlist is temporarily disabled', code: 'FEATURE_DISABLED' });
     }
@@ -435,7 +435,7 @@ export async function listUserWishlist(req: AuthenticatedRequest, res: Response)
     if (!req.user?.id) {
       return res.status(401).json({ message: 'Authentication required' });
     }
-    const { isSystemFeatureEnabled } = await import('../services/systemFeatureSettings.service');
+    const { isSystemFeatureEnabled } = await import("../services/systemFeatureSettings.service.js");
     if (!(await isSystemFeatureEnabled('product_wishlist'))) {
       return res.json({ success: true, items: [] });
     }

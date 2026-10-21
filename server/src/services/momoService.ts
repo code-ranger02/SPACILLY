@@ -1,7 +1,7 @@
 import axios, { AxiosError } from 'axios';
 import { randomUUID } from 'crypto';
-import { getMomoResolvedConfig, type MomoResolvedConfig } from './paymentGatewayCredentials.service';
-import { getServerUrl, isProductionNodeEnv } from '../config/publicEnv';
+import { getMomoResolvedConfig, type MomoResolvedConfig } from "./paymentGatewayCredentials.service.js";
+import { getServerUrl, isProductionNodeEnv } from "../config/publicEnv.js";
 
 type MomoTokenResponse = {
   access_token: string;

@@ -1,13 +1,13 @@
-import { PlatformShippingPolicy, IPlatformShippingPolicy } from '../models/PlatformShippingPolicy';
-import { ShippingZone } from '../models/ShippingZone';
-import { DeliveryDestination } from '../models/DeliveryDestination';
+import { PlatformShippingPolicy, IPlatformShippingPolicy } from "../models/PlatformShippingPolicy.js";
+import { ShippingZone } from "../models/ShippingZone.js";
+import { DeliveryDestination } from "../models/DeliveryDestination.js";
 import {
   ensureDefaultDeliveryDestinations,
   ensureDefaultPlatformZones,
   findDeliveryDestination,
-} from './deliveryDestination.service';
-import { invalidatePlatformTaxCache } from './platformTax.service';
-import type { SpacillySellerShippingConfig, SpacillyShippingMethodRule } from '../types/spacillyShipping.types';
+} from "./deliveryDestination.service.js";
+import { invalidatePlatformTaxCache } from "./platformTax.service.js";
+import type { SpacillySellerShippingConfig, SpacillyShippingMethodRule } from "../types/spacillyShipping.types.js";
 
 const POLICY_ID = 'platform-rw';
 

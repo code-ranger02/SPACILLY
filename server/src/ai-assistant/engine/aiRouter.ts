@@ -1,17 +1,17 @@
-import { determineTaskComplexity } from './complexity';
-import { ModelBlacklist } from './blacklist';
-import { ModelScorer } from './scorer';
-import { neverStopExecute } from './neverStop';
+import { determineTaskComplexity } from "./complexity.js";
+import { ModelBlacklist } from "./blacklist.js";
+import { ModelScorer } from "./scorer.js";
+import { neverStopExecute } from "./neverStop.js";
 import {
   generateText,
   generateWithSystemInstruction,
   embedText,
-} from '../services/geminiClient';
-import { SemanticCache } from '../cache/semanticCache';
-import { normalizePromptForCache } from '../cache/normalize';
-import { logger } from '../observability/logger';
-import type { MetricsRegistry } from '../observability/metrics';
-import type { ModelTier, TaskComplexityResult } from '../types';
+} from "../services/geminiClient.js";
+import { SemanticCache } from "../cache/semanticCache.js";
+import { normalizePromptForCache } from "../cache/normalize.js";
+import { logger } from "../observability/logger.js";
+import type { MetricsRegistry } from "../observability/metrics.js";
+import type { ModelTier, TaskComplexityResult } from "../types.js";
 
 const BUSY_MESSAGE =
   'All AI models are currently busy. Please try again shortly.';

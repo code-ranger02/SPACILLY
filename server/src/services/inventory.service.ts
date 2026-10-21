@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
-import { Order } from '../models/Order';
-import { Product } from '../models/Product';
-import { StockHistory, StockHistoryCreateInput } from '../models/StockHistory';
-import { websocketService } from './websocketService';
+import { Order } from "../models/Order.js";
+import { Product } from "../models/Product.js";
+import { StockHistory, StockHistoryCreateInput } from "../models/StockHistory.js";
+import { websocketService } from "./websocketService.js";
 
 export class InventoryOutOfStockError extends Error {
   constructor(message = 'Out of stock') {

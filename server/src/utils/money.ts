@@ -1,4 +1,4 @@
-import { convertUsdToCurrency, isSupportedDisplayCurrency } from '../services/exchangeRate.service';
+import { convertUsdToCurrency, isSupportedDisplayCurrency } from "../services/exchangeRate.service.js";
 
 export function formatMoney(amount: number, currency: string) {
   const code = String(currency || 'USD').toUpperCase();

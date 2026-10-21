@@ -1,11 +1,11 @@
-import { getFlutterwaveClient } from '../config/flutterwave';
-import { Order } from '../models/Order';
-import { SellerWallet } from '../models/SellerWallet';
-import { EscrowWallet } from '../models/EscrowWallet';
-import { TransactionLog } from '../models/TransactionLog';
-import { notifyOrderLifecycle } from './orderLifecycleNotifications.service';
-import { sendNotification } from './notificationService';
-import { restoreInventoryForOrder } from './inventory.service';
+import { getFlutterwaveClient } from "../config/flutterwave.js";
+import { Order } from "../models/Order.js";
+import { SellerWallet } from "../models/SellerWallet.js";
+import { EscrowWallet } from "../models/EscrowWallet.js";
+import { TransactionLog } from "../models/TransactionLog.js";
+import { notifyOrderLifecycle } from "./orderLifecycleNotifications.service.js";
+import { sendNotification } from "./notificationService.js";
+import { restoreInventoryForOrder } from "./inventory.service.js";
 import mongoose from 'mongoose';
 
 export async function scheduleAutoRelease(orderId: string) {

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { MarketingCoupon } from '../models/MarketingCoupon';
+import { MarketingCoupon } from "../models/MarketingCoupon.js";
 
 /** Public coupon validation for buyer cart (no auth). */
 export async function validateCoupon(req: Request, res: Response) {

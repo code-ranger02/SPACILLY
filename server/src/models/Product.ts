@@ -284,14 +284,14 @@ productSchema.pre('validate', async function ensureSlug() {
   const slugExisting = String(doc.slug || '').trim().toLowerCase();
   if (slugExisting) return;
   const idStr = doc._id ? String(doc._id) : new mongoose.Types.ObjectId().toString();
-  const { defaultSlugBaseFromNameAndId, ensureUniqueProductSlug } = await import('../utils/productSlug');
+  const { defaultSlugBaseFromNameAndId, ensureUniqueProductSlug } = await import("../utils/productSlug.js");
   const base = defaultSlugBaseFromNameAndId(name, idStr);
   doc.slug = await ensureUniqueProductSlug(base, doc._id);
 });
 
 productSchema.pre('validate', async function syncCategorySlug() {
   const doc = this as HydratedDocument<IProduct>;
-  const { resolveCategorySlugFromProductLabel } = await import('../constants/storefrontCategories');
+  const { resolveCategorySlugFromProductLabel } = await import("../constants/storefrontCategories.js");
   const cat = String(doc.category || '').trim();
   if (!cat) {
     doc.categorySlug = undefined;

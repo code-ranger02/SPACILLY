@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { authenticate, authorize } from '../middleware/auth';
+import { authenticate, authorize } from "../middleware/auth.js";
 import {
   getSubscriptionPlans,
   getCurrentSubscription,
@@ -15,7 +15,7 @@ import {
   updatePayoutSchedule,
   getB2BPaymentRequests,
   submitB2BPaymentRequest,
-} from '../controllers/subscriptionController';
+} from "../controllers/subscriptionController.js";
 
 const router = Router();
 

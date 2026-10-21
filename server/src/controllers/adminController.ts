@@ -1,15 +1,15 @@
 import { Response } from 'express';
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { User } from '../models/User';
-import { assertSuperAdmin } from '../services/adminAccess.service';
-import { Order } from '../models/Order';
-import { Product } from '../models/Product';
-import { Dispute } from '../models/Dispute';
-import { SupportTicket } from '../models/SupportTicket';
-import { SellerSettings } from '../models/SellerSettings';
-import { getMicroblinkRegionConfig } from '../services/microblink.service';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { User } from "../models/User.js";
+import { assertSuperAdmin } from "../services/adminAccess.service.js";
+import { Order } from "../models/Order.js";
+import { Product } from "../models/Product.js";
+import { Dispute } from "../models/Dispute.js";
+import { SupportTicket } from "../models/SupportTicket.js";
+import { SellerSettings } from "../models/SellerSettings.js";
+import { getMicroblinkRegionConfig } from "../services/microblink.service.js";
 
 /**
  * Get user statistics for dashboard
@@ -435,7 +435,7 @@ export async function updateUser(req: AuthenticatedRequest, res: Response) {
         }
       }
       if (user.role === 'admin' && role !== 'admin' && req.user?.id !== userId) {
-        const targetSuper = (await import('../services/adminAccess.service')).resolveAdminAccess(
+        const targetSuper = (await import("../services/adminAccess.service.js")).resolveAdminAccess(
           user,
         );
         if (targetSuper?.isSuperAdmin) {
@@ -968,7 +968,7 @@ export async function updateSellerStatus(req: AuthenticatedRequest, res: Respons
     await seller.save();
 
     if (verificationStatus) {
-      const { emitSellerKycUpdated } = await import('../services/sellerKycRealtime.service');
+      const { emitSellerKycUpdated } = await import("../services/sellerKycRealtime.service.js");
       void emitSellerKycUpdated(String(sellerId), 'platform').catch((err) =>
         console.error('emitSellerKycUpdated platform:', err),
       );
@@ -1102,7 +1102,7 @@ export async function updateSeller(req: AuthenticatedRequest, res: Response) {
     await seller.save();
 
     if (sellerVerificationStatus !== undefined) {
-      const { emitSellerKycUpdated } = await import('../services/sellerKycRealtime.service');
+      const { emitSellerKycUpdated } = await import("../services/sellerKycRealtime.service.js");
       void emitSellerKycUpdated(String(sellerId), 'platform').catch((err) =>
         console.error('emitSellerKycUpdated platform:', err),
       );

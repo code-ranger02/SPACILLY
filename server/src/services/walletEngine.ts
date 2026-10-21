@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { InternalWallet, InternalWalletType } from '../models/InternalWallet';
+import { InternalWallet, InternalWalletType } from "../models/InternalWallet.js";
 
 export async function getOrCreateWallet(userId: string, walletType: InternalWalletType, currency = 'USD') {
   const uid = new mongoose.Types.ObjectId(userId);

@@ -1,6 +1,6 @@
 import NodeCache from 'node-cache';
 import crypto from 'crypto';
-import { isRedisEnabled, redisDelPattern, redisGet, redisSet } from './redisClient';
+import { isRedisEnabled, redisDelPattern, redisGet, redisSet } from "./redisClient.js";
 
 const memory = new NodeCache({ stdTTL: 45, checkperiod: 90, maxKeys: 500 });
 

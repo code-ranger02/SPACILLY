@@ -30,16 +30,16 @@ import {
   getMarketplaceAIConfig,
   type IMarketplaceAIConfig,
   type IRankingWeights,
-} from '../../models/MarketplaceAIConfig';
-import { type IBuyerLifecycle, type LifecycleState } from '../../models/BuyerLifecycle';
-import { type IBuyerTrustProfile } from '../../models/BuyerTrustProfile';
-import { type BuyerIntentMode, type EngagementLevel } from '../../models/BuyerSessionIntent';
-import { planHomepage, type OrchestrationPlan } from './homepageOrchestrator';
-import { getDamping } from './stabilityController';
-import { getLifecycle, lifecycleEmphasis } from './lifecycleEngine';
-import { getBuyerTrust } from './buyerTrustEngine';
-import { getEconomicSummary } from './economicEngine';
-import type { FeedSectionId } from './homeFeedService';
+} from "../../models/MarketplaceAIConfig.js";
+import { type IBuyerLifecycle, type LifecycleState } from "../../models/BuyerLifecycle.js";
+import { type IBuyerTrustProfile } from "../../models/BuyerTrustProfile.js";
+import { type BuyerIntentMode, type EngagementLevel } from "../../models/BuyerSessionIntent.js";
+import { planHomepage, type OrchestrationPlan } from "./homepageOrchestrator.js";
+import { getDamping } from "./stabilityController.js";
+import { getLifecycle, lifecycleEmphasis } from "./lifecycleEngine.js";
+import { getBuyerTrust } from "./buyerTrustEngine.js";
+import { getEconomicSummary } from "./economicEngine.js";
+import type { FeedSectionId } from "./homeFeedService.js";
 
 export interface MarketplaceDirective {
   config: IMarketplaceAIConfig;

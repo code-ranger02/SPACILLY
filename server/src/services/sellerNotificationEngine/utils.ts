@@ -3,7 +3,7 @@ import type {
   SellerNotificationEvent,
   SellerNotificationTone,
   SellerNotificationCopy,
-} from './types';
+} from "./types.js";
 
 export function orderRef(ctx: SellerNotificationContext): string {
   return ctx.orderNumber ? `#${ctx.orderNumber}` : 'this order';

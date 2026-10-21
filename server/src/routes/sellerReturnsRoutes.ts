@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { authenticate, authorize } from '../middleware/auth';
-import { addReturnCaseStaffMessage, sellerListReturnCases, updateReturnCaseStatus } from '../controllers/returnsManagementController';
+import { authenticate, authorize } from "../middleware/auth.js";
+import { addReturnCaseStaffMessage, sellerListReturnCases, updateReturnCaseStatus } from "../controllers/returnsManagementController.js";
 
 const router = Router();
 

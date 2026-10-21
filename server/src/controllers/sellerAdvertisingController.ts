@@ -1,7 +1,7 @@
 import { Response } from 'express';
 import { z } from 'zod';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { SellerAdvertisingLead } from '../models/SellerAdvertisingLead';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { SellerAdvertisingLead } from "../models/SellerAdvertisingLead.js";
 
 const leadSchema = z.object({
   companyName: z.string().min(1).max(200),

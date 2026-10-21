@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
-import { LiveCommerceSession } from '../models/LiveCommerceSession';
-import { endStreamForSession } from '../streaming/streamSessionService';
-import { broadcastLiveEnded } from '../socket/liveCommerceSockets';
+import { LiveCommerceSession } from "../models/LiveCommerceSession.js";
+import { endStreamForSession } from "../streaming/streamSessionService.js";
+import { broadcastLiveEnded } from "../socket/liveCommerceSockets.js";
 
 /** YouTube-style: ~3 missed 10s heartbeats before auto-end */
 const HEARTBEAT_TIMEOUT_MS = 90_000;

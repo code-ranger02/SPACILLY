@@ -6,8 +6,8 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import bcrypt from 'bcryptjs';
-import { MessageThread, Message } from '../models/MessageThread';
-import { User } from '../models/User';
+import { MessageThread, Message } from "../models/MessageThread.js";
+import { User } from "../models/User.js";
 
 import dotenv from 'dotenv';
 import path from 'path';

@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import type { Request } from 'express';
-import { authenticate, authorize, AuthenticatedRequest } from '../middleware/auth';
+import { authenticate, authorize, AuthenticatedRequest } from "../middleware/auth.js";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const { uploadBlogThumbnail, deleteImage } = require('../../config/cloudinary');
+const { uploadBlogThumbnail, deleteImage } = require("../../config/cloudinary.js");
 import {
   getBlogPosts,
   getBlogPostBySlug,
@@ -16,7 +16,7 @@ import {
   likeBlogPost,
   addComment,
   updateCommentStatus,
-} from '../controllers/blogController';
+} from "../controllers/blogController.js";
 
 const router = Router();
 
@@ -58,7 +58,7 @@ router.post(
       const { slug } = req.params;
       const thumbnailUrl = req.file.path;
 
-      const { BlogPost } = await import('../models/Blog');
+      const { BlogPost } = await import("../models/Blog.js");
       const blogPost = await BlogPost.findOne({ slug });
 
       if (!blogPost) {

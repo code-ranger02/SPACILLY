@@ -4,4 +4,4 @@
 export {
   getFlutterwaveClient,
   invalidateFlutterwaveClientCache,
-} from '../services/paymentGatewayCredentials.service';
+} from "../services/paymentGatewayCredentials.service.js";

@@ -1,5 +1,5 @@
 import mongoose, { Document, Schema } from 'mongoose';
-import type { StreamProviderType } from '../streaming/types';
+import type { StreamProviderType } from "../streaming/types.js";
 
 export type LivePermissionMode = 'allowlist' | 'verified_sellers';
 

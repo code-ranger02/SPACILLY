@@ -1,11 +1,11 @@
 import { Response, Request } from 'express';
 import mongoose from 'mongoose';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { DeliveryDestination } from '../models/DeliveryDestination';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { DeliveryDestination } from "../models/DeliveryDestination.js";
 import {
   ensureDefaultDeliveryDestinations,
   findDeliveryDestination,
-} from '../services/deliveryDestination.service';
+} from "../services/deliveryDestination.service.js";
 
 function mapDestination(doc: any) {
   return {

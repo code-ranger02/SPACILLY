@@ -8,10 +8,10 @@ import {
   ISellerPayoutMethod,
   ITeamMember,
   IVerificationDocuments,
-} from '../models/SellerSettings';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { User } from '../models/User';
-import { encrypt, decrypt, maskAccountNumber, maskRoutingNumber } from '../utils/encryption';
+} from "../models/SellerSettings.js";
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { User } from "../models/User.js";
+import { encrypt, decrypt, maskAccountNumber, maskRoutingNumber } from "../utils/encryption.js";
 
 // Helper to get seller ID from request
 const getSellerId = (req: AuthenticatedRequest): mongoose.Types.ObjectId | null => {

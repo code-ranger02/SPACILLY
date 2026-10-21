@@ -20,10 +20,10 @@
  */
 
 import mongoose from 'mongoose';
-import { Product } from '../../models/Product';
-import { Order } from '../../models/Order';
-import { RecommendationActivity } from '../../models/RecommendationActivity';
-import { MarketHealth, type ICategoryHealth, getMarketHealth } from '../../models/MarketHealth';
+import { Product } from "../../models/Product.js";
+import { Order } from "../../models/Order.js";
+import { RecommendationActivity } from "../../models/RecommendationActivity.js";
+import { MarketHealth, type ICategoryHealth, getMarketHealth } from "../../models/MarketHealth.js";
 
 const DAYS = 86_400_000;
 

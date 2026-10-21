@@ -1,8 +1,8 @@
 import cron from 'node-cron';
-import { Order } from '../models/Order';
-import { EscrowWallet } from '../models/EscrowWallet';
-import { autoReleaseEscrow } from '../services/escrowService';
-import { sendAdminReport } from '../services/notificationService';
+import { Order } from "../models/Order.js";
+import { EscrowWallet } from "../models/EscrowWallet.js";
+import { autoReleaseEscrow } from "../services/escrowService.js";
+import { sendAdminReport } from "../services/notificationService.js";
 
 // Run every hour — check for eligible auto-releases
 cron.schedule('0 * * * *', async () => {

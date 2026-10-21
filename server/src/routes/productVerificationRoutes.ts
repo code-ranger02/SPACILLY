@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { authenticate, authorize } from '../middleware/auth';
+import { authenticate, authorize } from "../middleware/auth.js";
 import {
   createOrUpdateVerificationRecord,
   getSellerTrustProfile,
@@ -8,7 +8,7 @@ import {
   previewVerificationDraft,
   runAiVerification,
   updateSellerTrustScore,
-} from '../controllers/productVerificationController';
+} from "../controllers/productVerificationController.js";
 
 const router = Router();
 

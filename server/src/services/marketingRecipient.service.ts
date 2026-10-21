@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
-import { User } from '../models/User';
-import { RecommendationEmailPreference } from '../models/RecommendationEmailPreference';
-import { getDailyMarketingEmailCap } from '../models/MarketingAutomationSettings';
-import { RecommendationEmailHistory } from '../models/RecommendationEmailHistory';
+import { User } from "../models/User.js";
+import { RecommendationEmailPreference } from "../models/RecommendationEmailPreference.js";
+import { getDailyMarketingEmailCap } from "../models/MarketingAutomationSettings.js";
+import { RecommendationEmailHistory } from "../models/RecommendationEmailHistory.js";
 
 export type MarketingEligibilityReason =
   | 'ok'
@@ -85,7 +85,7 @@ export async function assertBuyerMarketingEligible(
   return {
     ok: true,
     reason: 'ok',
-    user: user as MarketingEligibility['user'],
+    user: user as unknown as MarketingEligibility['user'],
   };
 }
 

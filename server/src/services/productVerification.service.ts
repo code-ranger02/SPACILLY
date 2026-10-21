@@ -1,16 +1,16 @@
-import { Product } from '../models/Product';
-import { ProductVerification } from '../models/ProductVerification';
-import { SellerTrustProfile } from '../models/SellerTrustProfile';
-import { SellerSettings } from '../models/SellerSettings';
-import { Order } from '../models/Order';
-import { Dispute } from '../models/Dispute';
+import { Product } from "../models/Product.js";
+import { ProductVerification } from "../models/ProductVerification.js";
+import { SellerTrustProfile } from "../models/SellerTrustProfile.js";
+import { SellerSettings } from "../models/SellerSettings.js";
+import { Order } from "../models/Order.js";
+import { Dispute } from "../models/Dispute.js";
 import mongoose from 'mongoose';
 import {
   evaluateTrustDraft,
   type TrustDraftInput,
   type TrustEvaluationResult,
   MIN_TRUST_TO_SUBMIT,
-} from './trustVerification.engine';
+} from "./trustVerification.engine.js";
 
 function norm(s: unknown) {
   return String(s || '').trim().toLowerCase();

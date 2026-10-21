@@ -1,11 +1,11 @@
 import { Response } from 'express';
 import mongoose from 'mongoose';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { Order } from '../models/Order';
-import { Product } from '../models/Product';
-import { Dispute } from '../models/Dispute';
-import { User } from '../models/User';
-import { SellerRating } from '../models/SellerRating';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { Order } from "../models/Order.js";
+import { Product } from "../models/Product.js";
+import { Dispute } from "../models/Dispute.js";
+import { User } from "../models/User.js";
+import { SellerRating } from "../models/SellerRating.js";
 
 const getSellerId = (req: AuthenticatedRequest): mongoose.Types.ObjectId | null => {
   if (!req.user?.id) return null;

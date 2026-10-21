@@ -1,4 +1,4 @@
-import { StubProvider } from './StubProvider';
+import { StubProvider } from "./StubProvider.js";
 
 export class LiveKitProvider extends StubProvider {
   constructor() {

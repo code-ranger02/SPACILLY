@@ -1,10 +1,10 @@
 import { Response } from 'express';
 import mongoose from 'mongoose';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { Order } from '../models/Order';
-import { Shipment, TrackingEvent, Courier, TrackingStatus } from '../models/Tracking';
-import { User } from '../models/User';
-import { Product } from '../models/Product';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { Order } from "../models/Order.js";
+import { Shipment, TrackingEvent, Courier, TrackingStatus } from "../models/Tracking.js";
+import { User } from "../models/User.js";
+import { Product } from "../models/Product.js";
 
 function normalizePhone(value: string | undefined | null): string {
   return String(value || '').replace(/\D/g, '');

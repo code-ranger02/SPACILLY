@@ -1,14 +1,14 @@
-import { PaymentGatewayConfig } from '../models/PaymentGatewayConfig';
+import { PaymentGatewayConfig } from "../models/PaymentGatewayConfig.js";
 import {
   ensureAllPaymentGateways,
   isGatewayFullyConfigured,
   suggestedWebhookUrlForGateway,
-} from './paymentGatewayCredentials.service';
+} from "./paymentGatewayCredentials.service.js";
 import {
   PAYMENT_GATEWAY_REGISTRY,
   gatewayKeyFromCheckoutMethod,
-} from '../financial/paymentGatewayRegistry';
-import { decryptCredentialsJson } from './paymentSecretsCrypto.service';
+} from "../financial/paymentGatewayRegistry.js";
+import { decryptCredentialsJson } from "./paymentSecretsCrypto.service.js";
 
 export class PaymentGatewayDisabledError extends Error {
   readonly code = 'PAYMENT_GATEWAY_DISABLED' as const;
@@ -110,11 +110,11 @@ export async function getPublicCheckoutGatewayList(): Promise<
     const enabled = await flagFor(g.key as PaymentGatewayKey);
     if (!enabled) continue;
     if (g.key === 'mtn_momo') {
-      const { isSystemFeatureEnabled } = await import('./systemFeatureSettings.service');
+      const { isSystemFeatureEnabled } = await import("./systemFeatureSettings.service.js");
       if (!(await isSystemFeatureEnabled('momo_payments'))) continue;
     }
     if (g.key === 'airtel_money') {
-      const { isSystemFeatureEnabled } = await import('./systemFeatureSettings.service');
+      const { isSystemFeatureEnabled } = await import("./systemFeatureSettings.service.js");
       if (!(await isSystemFeatureEnabled('airtel_payments'))) continue;
     }
     rows.push({

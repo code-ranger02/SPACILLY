@@ -1,8 +1,8 @@
-import { PaymentGatewayMetric } from '../models/PaymentGatewayMetric';
-import { TransactionLog } from '../models/TransactionLog';
-import { getPublicGatewayFlags } from './paymentGateway.service';
-import { PAYMENT_GATEWAY_REGISTRY } from '../financial/paymentGatewayRegistry';
-import type { CheckoutPaymentProcessor } from './paymentService';
+import { PaymentGatewayMetric } from "../models/PaymentGatewayMetric.js";
+import { TransactionLog } from "../models/TransactionLog.js";
+import { getPublicGatewayFlags } from "./paymentGateway.service.js";
+import { PAYMENT_GATEWAY_REGISTRY } from "../financial/paymentGatewayRegistry.js";
+import type { CheckoutPaymentProcessor } from "./paymentService.js";
 
 export type GatewayCandidate = {
   gateway: CheckoutPaymentProcessor;

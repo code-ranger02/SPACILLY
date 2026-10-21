@@ -1,7 +1,7 @@
 /**
  * HTML email templates — responsive layout, varied copy via copyEngine.
  */
-import { timeGreeting, pickCta } from './copyEngine';
+import { timeGreeting, pickCta } from "./copyEngine.js";
 import {
   renderAction,
   renderBodyParagraphs,
@@ -10,14 +10,14 @@ import {
   renderProductGrid,
   renderUnsubscribeLinks,
   type ProductCardInput,
-} from './components';
-import { renderEmailDocument, type EmailAccent } from './layout';
-import { toAbsoluteEmailUrl } from './emailUrls';
-import { getRichNotificationEmailHtml } from './notificationEmail';
+} from "./components.js";
+import { renderEmailDocument, type EmailAccent } from "./layout.js";
+import { toAbsoluteEmailUrl } from "./emailUrls.js";
+import { getRichNotificationEmailHtml } from "./notificationEmail.js";
 
-export { getRichNotificationEmailHtml } from './notificationEmail';
-export type { RichNotificationOptions } from './notificationEmail';
-export type { ProductCardInput } from './components';
+export { getRichNotificationEmailHtml } from "./notificationEmail.js";
+export type { RichNotificationOptions } from "./notificationEmail.js";
+export type { ProductCardInput } from "./components.js";
 
 function doc(appName: string, headline: string, accent: EmailAccent, body: string, opts?: { subtitle?: string; preheader?: string; footerNote?: string }) {
   return renderEmailDocument({

@@ -1,5 +1,5 @@
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../middleware/auth';
+import { AuthenticatedRequest } from "../middleware/auth.js";
 import mongoose from 'mongoose';
 
 const getSellerId = (req: AuthenticatedRequest): mongoose.Types.ObjectId | null => {

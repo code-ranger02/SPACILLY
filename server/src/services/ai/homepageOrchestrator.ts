@@ -16,9 +16,9 @@
  * via `MarketplaceAIConfig.sliders.aiAutonomyLevel`.
  */
 
-import type { BuyerIntentMode } from '../../models/BuyerSessionIntent';
-import type { IMarketplaceAIConfig } from '../../models/MarketplaceAIConfig';
-import type { FeedSectionId } from './homeFeedService';
+import type { BuyerIntentMode } from "../../models/BuyerSessionIntent.js";
+import type { IMarketplaceAIConfig } from "../../models/MarketplaceAIConfig.js";
+import type { FeedSectionId } from "./homeFeedService.js";
 
 export interface OrchestrationPlan {
   /** Ordered section ids to render top-to-bottom. */

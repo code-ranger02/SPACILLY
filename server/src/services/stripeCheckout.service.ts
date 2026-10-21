@@ -1,8 +1,8 @@
 import Stripe from 'stripe';
-import { getClientUrl } from '../config/publicEnv';
-import { Order, IOrder } from '../models/Order';
-import { orderPayAmount, orderPayCurrency } from './orderPayMoney';
-import { getStripeCredentialsResolved } from './paymentGatewayCredentials.service';
+import { getClientUrl } from "../config/publicEnv.js";
+import { Order, IOrder } from "../models/Order.js";
+import { orderPayAmount, orderPayCurrency } from "./orderPayMoney.js";
+import { getStripeCredentialsResolved } from "./paymentGatewayCredentials.service.js";
 
 function stripeUnitAmount(currency: string, amount: number): number {
   const c = currency.toUpperCase();
@@ -122,7 +122,7 @@ export async function processStripeCheckoutSession(sessionId: string): Promise<{
   const raw = session.amount_total ?? 0;
   const paidAmount = zeroDecimal.has(cur) ? raw : raw / 100;
 
-  const { finalizeSuccessfulEscrowPayment } = await import('./paymentService');
+  const { finalizeSuccessfulEscrowPayment } = await import("./paymentService.js");
   await finalizeSuccessfulEscrowPayment(orderId, {
     provider: 'stripe',
     paidAmount,

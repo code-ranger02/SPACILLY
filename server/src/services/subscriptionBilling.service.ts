@@ -1,4 +1,4 @@
-import { assertPaymentGatewayEnabled } from './paymentGateway.service';
+import { assertPaymentGatewayEnabled } from "./paymentGateway.service.js";
 import {
   assertMomoCallbackUrlProductionSafe,
   getRequestToPayStatus,
@@ -6,10 +6,10 @@ import {
   newMomoReferenceId,
   normalizeMomoMsisdn,
   requestToPay,
-} from './momoService';
-import { getMomoResolvedConfig } from './paymentGatewayCredentials.service';
-import { getRateForCurrency } from './exchangeRate.service';
-import { simulatePayment, type PaymentResponse } from './paymentSimulator';
+} from "./momoService.js";
+import { getMomoResolvedConfig } from "./paymentGatewayCredentials.service.js";
+import { getRateForCurrency } from "./exchangeRate.service.js";
+import { simulatePayment, type PaymentResponse } from "./paymentSimulator.js";
 
 /** ISO 4217 zero-decimal currencies (MTN MoMo expects integer strings for these). */
 const ZERO_DECIMAL_CURRENCIES = new Set([

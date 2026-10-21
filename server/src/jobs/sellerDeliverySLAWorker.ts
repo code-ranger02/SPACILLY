@@ -1,5 +1,5 @@
-import { Order } from '../models/Order';
-import { evaluateOrderDeliverySLA } from '../services/sellerDeliverySLA.service';
+import { Order } from "../models/Order.js";
+import { evaluateOrderDeliverySLA } from "../services/sellerDeliverySLA.service.js";
 
 const TICK_MS = Number(process.env.ORDER_SLA_TICK_MS || 60 * 60 * 1000);
 

@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
-import { LiveCommerceSession } from '../models/LiveCommerceSession';
-import { User } from '../models/User';
-import { createSystemInboxAndFanout } from './systemInboxFanout';
-import { safeSendPushToUser } from './pushNotificationService';
+import { LiveCommerceSession } from "../models/LiveCommerceSession.js";
+import { User } from "../models/User.js";
+import { createSystemInboxAndFanout } from "./systemInboxFanout.js";
+import { safeSendPushToUser } from "./pushNotificationService.js";
 
 /**
  * Notify buyers when a seller goes live (in-app + push + real-time fan-out).

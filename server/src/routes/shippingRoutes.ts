@@ -1,11 +1,11 @@
 import { Router } from 'express';
-import { authenticate } from '../middleware/auth';
-import { postShippingEstimatePublic, postShippingQuote } from '../controllers/shippingQuoteController';
+import { authenticate } from "../middleware/auth.js";
+import { postShippingEstimatePublic, postShippingQuote } from "../controllers/shippingQuoteController.js";
 import {
   listPublicDestinations,
   resolveDestination,
-} from '../controllers/deliveryDestinationController';
-import { getPublicPlatformContext } from '../controllers/platformShippingPolicyController';
+} from "../controllers/deliveryDestinationController.js";
+import { getPublicPlatformContext } from "../controllers/platformShippingPolicyController.js";
 
 const router = Router();
 

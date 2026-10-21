@@ -1,5 +1,5 @@
 import { Router, Response } from 'express';
-import { authenticate, authorize, AuthenticatedRequest } from '../middleware/auth';
+import { authenticate, authorize, AuthenticatedRequest } from "../middleware/auth.js";
 import {
   getSystemHealth,
   getApiMonitoringList,
@@ -16,12 +16,12 @@ import {
   getTerminalBuffers,
   executeTerminalAction,
   type TerminalActionId,
-} from '../services/systemMonitor.service';
-import { SYSTEM_MONITOR_GUIDE } from '../content/systemMonitorGuide';
+} from "../services/systemMonitor.service.js";
+import { SYSTEM_MONITOR_GUIDE } from "../content/systemMonitorGuide.js";
 import {
   diagnoseSystemAlert,
   sendTestOpsNotification,
-} from '../services/systemMonitorNotify.service';
+} from "../services/systemMonitorNotify.service.js";
 
 const router = Router();
 

@@ -1,10 +1,10 @@
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../middleware/auth';
+import { AuthenticatedRequest } from "../middleware/auth.js";
 import {
   getPlatformShippingContext,
   getPlatformShippingPolicy,
   updatePlatformShippingPolicy,
-} from '../services/platformShippingPolicy.service';
+} from "../services/platformShippingPolicy.service.js";
 
 /** GET /api/shipping/platform-context — buyers, sellers, checkout */
 export async function getPublicPlatformContext(_req: unknown, res: Response) {

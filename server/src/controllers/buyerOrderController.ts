@@ -1,47 +1,47 @@
 import { Response } from 'express';
 import mongoose from 'mongoose';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { Order, OrderStatus } from '../models/Order';
-import { Product } from '../models/Product';
-import { AbandonedCart } from '../models/AbandonedCart';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { Order, OrderStatus } from "../models/Order.js";
+import { Product } from "../models/Product.js";
+import { AbandonedCart } from "../models/AbandonedCart.js";
 import {
   cancelPendingQueueJobs,
   appendTimeline,
   emitRecoveryEvent,
-} from '../services/cartRecoveryEngine.service';
-import { recordRecommendationActivity } from '../services/recommendationEmail.service';
-import { restoreInventoryForOrder } from '../services/inventory.service';
-import { convertUsdToCurrency, detectCurrencyFromRequest } from '../services/exchangeRate.service';
-import { SharedCart } from '../models/SharedCart';
-import { orchestrateCheckoutPlan } from '../services/orderOrchestrationService';
-import { buildReorderSuggestion, explainCheckoutShipping } from '../services/cartAIService';
-import { splitOrderGroups } from '../services/fulfillmentEngine';
-import { createLockerAccess } from '../services/lockerService';
-import { digitalEscrowReleaseEligibleAt } from '../services/digitalDeliveryService';
-import { predictCancellationReason } from '../services/cancellationIntelligence.service';
-import { deliverSellerNotification } from '../services/sellerNotificationService';
-import { verifyPickupProof } from '../services/pickupVerificationService';
-import { releaseEscrow } from '../services/escrowService';
-import { completeAdminOrder } from '../services/orderLifecycle.service';
+} from "../services/cartRecoveryEngine.service.js";
+import { recordRecommendationActivity } from "../services/recommendationEmail.service.js";
+import { restoreInventoryForOrder } from "../services/inventory.service.js";
+import { convertUsdToCurrency, detectCurrencyFromRequest } from "../services/exchangeRate.service.js";
+import { SharedCart } from "../models/SharedCart.js";
+import { orchestrateCheckoutPlan } from "../services/orderOrchestrationService.js";
+import { buildReorderSuggestion, explainCheckoutShipping } from "../services/cartAIService.js";
+import { splitOrderGroups } from "../services/fulfillmentEngine.js";
+import { createLockerAccess } from "../services/lockerService.js";
+import { digitalEscrowReleaseEligibleAt } from "../services/digitalDeliveryService.js";
+import { predictCancellationReason } from "../services/cancellationIntelligence.service.js";
+import { deliverSellerNotification } from "../services/sellerNotificationService.js";
+import { verifyPickupProof } from "../services/pickupVerificationService.js";
+import { releaseEscrow } from "../services/escrowService.js";
+import { completeAdminOrder } from "../services/orderLifecycle.service.js";
 import {
   buildShipmentGroupsFromLines,
   computeShippingForOrderGroup,
   fingerprintShippingAddress,
-} from '../services/spacillyShipping.service';
-import type { SpacillyShippingMethodKey } from '../types/spacillyShipping.types';
+} from "../services/spacillyShipping.service.js";
+import type { SpacillyShippingMethodKey } from "../types/spacillyShipping.types.js";
 import {
   evaluateOrderDeliverySLA,
   resolveEstimatedDeliveryAt,
-} from '../services/sellerDeliverySLA.service';
+} from "../services/sellerDeliverySLA.service.js";
 import {
   finalizeCodOrders,
   isCodAllowedForDestination,
   isCodPaymentMethod,
   orderIsCashOnDelivery,
-} from '../services/codCheckout.service';
-import { getPlatformSalesTaxRate, computeSalesTax } from '../services/platformTax.service';
-import { canBuyerCancelWithRefund, refundPaidOrder } from '../services/orderRefund.service';
-import type { ProductVariant } from '../models/Product';
+} from "../services/codCheckout.service.js";
+import { getPlatformSalesTaxRate, computeSalesTax } from "../services/platformTax.service.js";
+import { canBuyerCancelWithRefund, refundPaidOrder } from "../services/orderRefund.service.js";
+import type { ProductVariant } from "../models/Product.js";
 
 type CheckoutProductMeta = {
   sellerId: mongoose.Types.ObjectId;
@@ -672,7 +672,7 @@ export async function createOrder(req: AuthenticatedRequest, res: Response) {
       if (allProductIds.length >= 2) {
         // Dynamic import keeps the marketplace AI module optional at runtime
         // — if the file is missing the checkout still succeeds.
-        const mod = await import('../services/ai/coOccurrenceEngine');
+        const mod = await import("../services/ai/coOccurrenceEngine.js");
         void mod.recordBasketPurchase(allProductIds).catch(() => undefined);
       }
     } catch {

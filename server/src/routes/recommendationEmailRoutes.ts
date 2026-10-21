@@ -1,12 +1,12 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import mongoose from 'mongoose';
-import { authenticate, AuthenticatedRequest } from '../middleware/auth';
-import { RecommendationEmailPreference } from '../models/RecommendationEmailPreference';
-import { RecommendationEmailHistory } from '../models/RecommendationEmailHistory';
-import { recordRecommendationActivity, getOrCreateRecommendationPreference } from '../services/recommendationEmail.service';
-import { User } from '../models/User';
-import { getClientUrl } from '../config/publicEnv';
+import { authenticate, AuthenticatedRequest } from "../middleware/auth.js";
+import { RecommendationEmailPreference } from "../models/RecommendationEmailPreference.js";
+import { RecommendationEmailHistory } from "../models/RecommendationEmailHistory.js";
+import { recordRecommendationActivity, getOrCreateRecommendationPreference } from "../services/recommendationEmail.service.js";
+import { User } from "../models/User.js";
+import { getClientUrl } from "../config/publicEnv.js";
 
 const router = Router();
 const CLIENT_URL = getClientUrl();

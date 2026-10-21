@@ -1,6 +1,6 @@
 import axios, { AxiosError } from 'axios';
 import { randomUUID } from 'crypto';
-import { getAirtelCredentialsResolved, type AirtelResolvedConfig } from './paymentGatewayCredentials.service';
+import { getAirtelCredentialsResolved, type AirtelResolvedConfig } from "./paymentGatewayCredentials.service.js";
 
 type TokenResponse = { access_token?: string; token_type?: string; expires_in?: number };
 

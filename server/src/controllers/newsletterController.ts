@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
-import { NewsletterSubscription } from '../models/NewsletterSubscription';
-import { User } from '../models/User';
-import { sendNewsletterWelcomeEmail } from '../services/emailService';
+import { NewsletterSubscription } from "../models/NewsletterSubscription.js";
+import { User } from "../models/User.js";
+import { sendNewsletterWelcomeEmail } from "../services/emailService.js";
 
 const subscribeBodySchema = z.object({
   email: z.string().trim().email('Invalid email').max(320),

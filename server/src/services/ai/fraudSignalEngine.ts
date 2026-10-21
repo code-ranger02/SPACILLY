@@ -14,10 +14,10 @@
  * when at least two independent signals trip simultaneously.
  */
 
-import { ProductReview } from '../../models/ProductReview';
-import { ProductSignalSnapshot } from '../../models/ProductSignalSnapshot';
-import { Product } from '../../models/Product';
-import { RecommendationActivity } from '../../models/RecommendationActivity';
+import { ProductReview } from "../../models/ProductReview.js";
+import { ProductSignalSnapshot } from "../../models/ProductSignalSnapshot.js";
+import { Product } from "../../models/Product.js";
+import { RecommendationActivity } from "../../models/RecommendationActivity.js";
 import type { Types } from 'mongoose';
 
 interface ReviewRow {

@@ -1,8 +1,8 @@
 import { Response } from 'express';
 import mongoose from 'mongoose';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { BlogPost, IBlogPost, BlogStatus, BlogCategory } from '../models/Blog';
-import { User } from '../models/User';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { BlogPost, IBlogPost, BlogStatus, BlogCategory } from "../models/Blog.js";
+import { User } from "../models/User.js";
 
 /**
  * Calculate reading time from content

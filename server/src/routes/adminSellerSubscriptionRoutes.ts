@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { authenticate, authorize } from '../middleware/auth';
+import { authenticate, authorize } from "../middleware/auth.js";
 import {
   adminListSubscriptionPlans,
   adminListAllSubscriptionPlans,
@@ -18,7 +18,7 @@ import {
   adminOverrideSellerLimits,
   adminApplySellerCoupon,
   adminRetrySellerPayment,
-} from '../controllers/adminSellerSubscriptionController';
+} from "../controllers/adminSellerSubscriptionController.js";
 
 const router = Router();
 

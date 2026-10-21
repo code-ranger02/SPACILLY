@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { cacheMiddleware } from '../middleware/cache';
-import { listCategories, getCategoryPublic } from '../controllers/categoryController';
+import { cacheMiddleware } from "../middleware/cache.js";
+import { listCategories, getCategoryPublic } from "../controllers/categoryController.js";
 
 const router = Router();
 

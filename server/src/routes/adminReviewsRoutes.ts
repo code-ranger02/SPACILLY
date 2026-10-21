@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { authenticate, authorize } from '../middleware/auth';
+import { authenticate, authorize } from "../middleware/auth.js";
 import {
   getDashboard,
   getReviews,
@@ -22,7 +22,7 @@ import {
   updateIntegrationSettings,
   getModuleSettings,
   updateModuleSettings,
-} from '../controllers/adminReviewsController';
+} from "../controllers/adminReviewsController.js";
 
 const router = Router();
 

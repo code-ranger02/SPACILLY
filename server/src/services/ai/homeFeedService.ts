@@ -19,31 +19,31 @@
  */
 
 import mongoose from 'mongoose';
-import { Product, type IProduct } from '../../models/Product';
-import { buyerUpcomingProductFilter } from '../../utils/publicProductQuery';
-import { BuyerInsightProfile } from '../../models/BuyerInsightProfile';
-import { BuyerSessionIntent } from '../../models/BuyerSessionIntent';
-import { ProductSignalSnapshot } from '../../models/ProductSignalSnapshot';
-import { SellerTrustProfile } from '../../models/SellerTrustProfile';
-import { SellerSubscription } from '../../models/SellerSubscription';
+import { Product, type IProduct } from "../../models/Product.js";
+import { buyerUpcomingProductFilter } from "../../utils/publicProductQuery.js";
+import { BuyerInsightProfile } from "../../models/BuyerInsightProfile.js";
+import { BuyerSessionIntent } from "../../models/BuyerSessionIntent.js";
+import { ProductSignalSnapshot } from "../../models/ProductSignalSnapshot.js";
+import { SellerTrustProfile } from "../../models/SellerTrustProfile.js";
+import { SellerSubscription } from "../../models/SellerSubscription.js";
 import {
   getMarketplaceAIConfig,
   type IMarketplaceAIConfig,
-} from '../../models/MarketplaceAIConfig';
+} from "../../models/MarketplaceAIConfig.js";
 import {
   rankProducts,
   diversifyRanked,
   computePsychologyBadges,
   type RankingContext,
   type RankedProduct,
-} from './rankingEngine';
-import { getTrendingProductIds } from './trendDetectionEngine';
-import { getSponsoredCandidates, planSponsoredSlots } from './sponsoredAdEngine';
-import { applyFairness, commitImpressionCounters } from './fairnessEngine';
-import { expandCategories } from './categoryAdjacencyEngine';
-import { bootstrapSessionIfNew } from './coldStartEngine';
-import { resolveCanonicalProductPriceUsd } from '../../utils/productPricing';
-import { decideMarketplaceDirective, type MarketplaceDirective } from './marketplaceOrchestrator';
+} from "./rankingEngine.js";
+import { getTrendingProductIds } from "./trendDetectionEngine.js";
+import { getSponsoredCandidates, planSponsoredSlots } from "./sponsoredAdEngine.js";
+import { applyFairness, commitImpressionCounters } from "./fairnessEngine.js";
+import { expandCategories } from "./categoryAdjacencyEngine.js";
+import { bootstrapSessionIfNew } from "./coldStartEngine.js";
+import { resolveCanonicalProductPriceUsd } from "../../utils/productPricing.js";
+import { decideMarketplaceDirective, type MarketplaceDirective } from "./marketplaceOrchestrator.js";
 
 export type FeedSectionId =
   | 'hero'
@@ -544,7 +544,7 @@ async function buildHeroSection(
   // Sponsored injection — gated by the directive's sponsored cap.
   const sponsoredIds = new Set<string>();
   const sponsoredCards: RankedProduct[] = [];
-  const { isSystemFeatureEnabled } = await import('../systemFeatureSettings.service');
+  const { isSystemFeatureEnabled } = await import("../systemFeatureSettings.service.js");
   const sponsoredFeatureOn = await isSystemFeatureEnabled('marketplace_ai_sponsored');
   const sponsoredEnabled =
     sponsoredFeatureOn && (directive ? directive.sponsored.enabled : cfg.sponsored?.enabled !== false);
@@ -604,7 +604,7 @@ async function buildHeroSection(
  * post-processed by the Fairness Engine.
  */
 export async function buildHomeFeed(input: HomeFeedInput): Promise<HomeFeedResult> {
-  const { isSystemFeatureEnabled } = await import('../systemFeatureSettings.service');
+  const { isSystemFeatureEnabled } = await import("../systemFeatureSettings.service.js");
   if (!(await isSystemFeatureEnabled('marketplace_ai_recommendations'))) {
     return {
       config: { mode: 'balanced', confidence: 0 },

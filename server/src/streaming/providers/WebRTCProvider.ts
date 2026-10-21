@@ -1,4 +1,4 @@
-import type { StreamCreateOptions, StreamCreateResult, StreamProvider } from '../types';
+import type { StreamCreateOptions, StreamCreateResult, StreamProvider } from "../types.js";
 
 /**
  * WebRTC — signaling-only on server; media flows peer-to-peer via STUN.

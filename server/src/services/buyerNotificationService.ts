@@ -1,19 +1,19 @@
 import mongoose from 'mongoose';
-import { User } from '../models/User';
+import { User } from "../models/User.js";
 import {
   generateBuyerNotificationCopy,
   type BuyerNotificationContext,
   type BuyerNotificationEvent,
-} from './buyerNotificationAssistant.service';
-import { createSystemInboxAndFanout } from './systemInboxFanout';
-import { safeSendPushToUser } from './pushNotificationService';
-import { sendRichNotificationEmail, isEmailConfigured } from './emailService';
-import { buyerEventCategory, buyerEventAccent } from '../email/eventCategories';
-import { enhanceTransactionalEmailCopy } from '../email/emailCopyAi.service';
-import { getClientUrl } from '../config/publicEnv';
-import { pickVisualVariant } from '../utils/notificationVisual';
-import { prepareInAppNotificationPayload } from '../utils/notificationDisplay';
-import { normalizeMediaUrls } from '../email/emailUrls';
+} from "./buyerNotificationAssistant.service.js";
+import { createSystemInboxAndFanout } from "./systemInboxFanout.js";
+import { safeSendPushToUser } from "./pushNotificationService.js";
+import { sendRichNotificationEmail, isEmailConfigured } from "./emailService.js";
+import { buyerEventCategory, buyerEventAccent } from "../email/eventCategories.js";
+import { enhanceTransactionalEmailCopy } from "../email/emailCopyAi.service.js";
+import { getClientUrl } from "../config/publicEnv.js";
+import { pickVisualVariant } from "../utils/notificationVisual.js";
+import { prepareInAppNotificationPayload } from "../utils/notificationDisplay.js";
+import { normalizeMediaUrls } from "../email/emailUrls.js";
 
 type EmailPref = 'orderUpdates' | 'promotions' | 'securityAlerts';
 type PushPref = 'orderUpdates' | 'messages' | 'promotions';
@@ -45,7 +45,7 @@ async function buyerChannels(
   const user = await User.findById(buyerId).select('email notifications').lean();
   if (!user) return { inapp: false, push: false, email: false };
 
-  const n = (user as { notifications?: Record<string, Record<string, boolean>> }).notifications;
+  const n = (user as unknown as { notifications?: Record<string, Record<string, boolean>> }).notifications;
   const emailKey = EVENT_EMAIL[event] || 'orderUpdates';
   const pushKey = EVENT_PUSH[event] || 'orderUpdates';
 

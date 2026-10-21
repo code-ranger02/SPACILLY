@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
-import { Order } from '../models/Order';
-import type { IOrder } from '../models/Order';
-import { releaseEscrow } from './escrowService';
-import { notifyOrderLifecycle } from './orderLifecycleNotifications.service';
-import { orderIsCashOnDelivery } from './codCheckout.service';
+import { Order } from "../models/Order.js";
+import type { IOrder } from "../models/Order.js";
+import { releaseEscrow } from "./escrowService.js";
+import { notifyOrderLifecycle } from "./orderLifecycleNotifications.service.js";
+import { orderIsCashOnDelivery } from "./codCheckout.service.js";
 
 export type CompleteOrderOptions = {
   /** Attempt Flutterwave payout / escrow release */

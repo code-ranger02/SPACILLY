@@ -1,16 +1,16 @@
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../middleware/auth';
+import { AuthenticatedRequest } from "../middleware/auth.js";
 import mongoose from 'mongoose';
-import { ProductReview } from '../models/ProductReview';
-import { SuspiciousReview } from '../models/SuspiciousReview';
-import { SellerRating } from '../models/SellerRating';
-import { SellerReviewResponse } from '../models/SellerReviewResponse';
-import { ReviewMedia } from '../models/ReviewMedia';
-import { ReviewModuleSettings } from '../models/ReviewModuleSettings';
-import { ReviewRequestSettings } from '../models/ReviewRequestSettings';
-import { AIReviewSettings } from '../models/AIReviewSettings';
-import { ReviewIntegrationSettings } from '../models/ReviewIntegrationSettings';
-import { ReviewModerationSettings } from '../models/ReviewModerationSettings';
+import { ProductReview } from "../models/ProductReview.js";
+import { SuspiciousReview } from "../models/SuspiciousReview.js";
+import { SellerRating } from "../models/SellerRating.js";
+import { SellerReviewResponse } from "../models/SellerReviewResponse.js";
+import { ReviewMedia } from "../models/ReviewMedia.js";
+import { ReviewModuleSettings } from "../models/ReviewModuleSettings.js";
+import { ReviewRequestSettings } from "../models/ReviewRequestSettings.js";
+import { AIReviewSettings } from "../models/AIReviewSettings.js";
+import { ReviewIntegrationSettings } from "../models/ReviewIntegrationSettings.js";
+import { ReviewModerationSettings } from "../models/ReviewModerationSettings.js";
 
 function ensureAdmin(req: AuthenticatedRequest, res: Response): boolean {
   if (!req.user || req.user.role !== 'admin') {

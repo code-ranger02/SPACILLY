@@ -5,7 +5,7 @@ dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 
 import express, { Request, Response } from 'express';
 import axios from 'axios';
-import { getServerUrl } from '../config/publicEnv';
+import { getServerUrl } from "../config/publicEnv.js";
 
 /**
  * SEO SSR server (SEO-only renderer for crawlers behind a reverse-proxy).

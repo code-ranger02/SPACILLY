@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { authenticate, optionalAuthenticate } from '../middleware/auth';
-import { postAiAgent, postAiCheckout } from '../controllers/aiAgentController';
+import { authenticate, optionalAuthenticate } from "../middleware/auth.js";
+import { postAiAgent, postAiCheckout } from "../controllers/aiAgentController.js";
 
 const router = Router();
 

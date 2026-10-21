@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Lock } from 'lucide-react';
 import BuyerLayout from '../buyer/BuyerLayout';
 import { useTranslation } from '../../i18n/useTranslation';
+import BrandLogo from '../BrandLogo';
 
 /**
  * Distraction-free checkout shell: no storefront navbar, bottom nav, or footer.
@@ -52,12 +53,7 @@ export default function CheckoutFocusLayout({
           </button>
 
           <Link to="/" className="justify-self-center" aria-label="Spacilly home">
-            <img
-              src="/logo.jpg"
-              alt="Spacilly"
-              className="h-9 w-9 rounded-full object-cover"
-              style={{ boxShadow: 'var(--shadow-card)' }}
-            />
+            <BrandLogo className="h-9 max-w-[160px]" />
           </Link>
 
           <div

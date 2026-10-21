@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { authenticate } from '../middleware/auth';
+import { authenticate } from "../middleware/auth.js";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const { uploadAvatar: uploadAvatarMiddleware } = require('../../config/cloudinary');
+const { uploadAvatar: uploadAvatarMiddleware } = require("../../config/cloudinary.js");
 import {
   getProfile,
   getPublicProfile,
@@ -24,7 +24,7 @@ import {
   disable2FA,
   get2FAStatus,
   getLoginHistory,
-} from '../controllers/profileController';
+} from "../controllers/profileController.js";
 
 const router = Router();
 

@@ -1,9 +1,9 @@
-import { ComplianceProfile } from '../models/ComplianceProfile';
-import { User } from '../models/User';
-import { createSystemInboxAndFanout } from '../services/systemInboxFanout';
-import { sendRichNotificationEmail, isEmailConfigured } from '../services/emailService';
-import { pickCta } from '../email/copyEngine';
-import { getClientUrl } from '../config/publicEnv';
+import { ComplianceProfile } from "../models/ComplianceProfile.js";
+import { User } from "../models/User.js";
+import { createSystemInboxAndFanout } from "../services/systemInboxFanout.js";
+import { sendRichNotificationEmail, isEmailConfigured } from "../services/emailService.js";
+import { pickCta } from "../email/copyEngine.js";
+import { getClientUrl } from "../config/publicEnv.js";
 
 let started = false;
 

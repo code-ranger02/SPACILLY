@@ -2,12 +2,12 @@
  * Per-buyer recommendation email scheduling from profile + activity (not one shared batch time).
  */
 import mongoose from 'mongoose';
-import { RecommendationActivity } from '../models/RecommendationActivity';
-import { RecommendationEmailHistory } from '../models/RecommendationEmailHistory';
-import { RecommendationEmailPreference } from '../models/RecommendationEmailPreference';
-import { BuyerInsightProfile } from '../models/BuyerInsightProfile';
-import { getDailyMarketingEmailCap } from '../models/MarketingAutomationSettings';
-import type { BuyerSegment } from '../models/BuyerInsightProfile';
+import { RecommendationActivity } from "../models/RecommendationActivity.js";
+import { RecommendationEmailHistory } from "../models/RecommendationEmailHistory.js";
+import { RecommendationEmailPreference } from "../models/RecommendationEmailPreference.js";
+import { BuyerInsightProfile } from "../models/BuyerInsightProfile.js";
+import { getDailyMarketingEmailCap } from "../models/MarketingAutomationSettings.js";
+import type { BuyerSegment } from "../models/BuyerInsightProfile.js";
 
 export const RECOMMENDATION_LANE_CAMPAIGNS = [
   'recommendation',

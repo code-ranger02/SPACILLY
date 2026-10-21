@@ -1,7 +1,7 @@
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { User } from '../models/User';
-import { SellerSettings } from '../models/SellerSettings';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { User } from "../models/User.js";
+import { SellerSettings } from "../models/SellerSettings.js";
 
 function getSellerId(req: AuthenticatedRequest): string | null {
   return req.user?.id || null;

@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
-import { BuyerCloudCart, ICloudCartLine, ICartDeviceSession, CartDevicePlatform } from '../models/BuyerCloudCart';
-import { Product } from '../models/Product';
+import { BuyerCloudCart, ICloudCartLine, ICartDeviceSession, CartDevicePlatform } from "../models/BuyerCloudCart.js";
+import { Product } from "../models/Product.js";
 
 export type ClientCartLine = {
   id?: string;

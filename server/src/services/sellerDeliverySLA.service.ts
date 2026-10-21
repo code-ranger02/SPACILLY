@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
-import { Order } from '../models/Order';
-import { SellerRating } from '../models/SellerRating';
-import { User } from '../models/User';
+import { Order } from "../models/Order.js";
+import { SellerRating } from "../models/SellerRating.js";
+import { User } from "../models/User.js";
 
 const SLA_OVERDUE_GRACE_HOURS = Number(process.env.ORDER_SLA_OVERDUE_GRACE_HOURS || 48);
 const SLA_SEVERE_OVERDUE_DAYS = Number(process.env.ORDER_SLA_SEVERE_OVERDUE_DAYS || 7);
@@ -99,7 +99,9 @@ export async function applySellerDeliveryPenalty(params: {
   if (!cfg) return;
 
   const sellerOid = new mongoose.Types.ObjectId(params.sellerId);
-  const seller = await User.findById(sellerOid).select('fullName storeName email').lean();
+  const seller = await User.findById(sellerOid).select('fullName storeName email').lean() as
+    | { fullName?: string; storeName?: string; email?: string }
+    | null;
   if (!seller) return;
 
   let rating = await SellerRating.findOne({ sellerId: sellerOid });

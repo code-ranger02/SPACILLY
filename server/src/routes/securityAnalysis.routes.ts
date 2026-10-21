@@ -1,5 +1,5 @@
 import { Router, Response } from 'express';
-import { authenticate, authorize, AuthenticatedRequest } from '../middleware/auth';
+import { authenticate, authorize, AuthenticatedRequest } from "../middleware/auth.js";
 import {
   getSecurityOverview,
   getSecurityFindings,
@@ -7,17 +7,17 @@ import {
   getSecurityEvents,
   getComplianceOwasp,
   runSecurityScan,
-} from '../services/securityAnalysis.service';
-import { getAuthSecurityEvents, getUserSellerBehavior } from '../services/systemMonitor.service';
+} from "../services/securityAnalysis.service.js";
+import { getAuthSecurityEvents, getUserSellerBehavior } from "../services/systemMonitor.service.js";
 import {
   getIntelligenceSnapshot,
   recordTelemetry,
   logAdminSessionViewerAccess,
   getSessionSubjectDetailForAdmin,
   type UserRole,
-} from '../services/securityIntelligence.service';
-import { ApiConfiguration } from '../models/ApiConfiguration';
-import { getServerUrl, isProductionNodeEnv } from '../config/publicEnv';
+} from "../services/securityIntelligence.service.js";
+import { ApiConfiguration } from "../models/ApiConfiguration.js";
+import { getServerUrl, isProductionNodeEnv } from "../config/publicEnv.js";
 
 const router = Router();
 

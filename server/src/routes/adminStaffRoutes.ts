@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { authenticate, authorize } from '../middleware/auth';
-import { attachAdminAccess, requireSuperAdmin } from '../middleware/adminAccess';
+import { authenticate, authorize } from "../middleware/auth.js";
+import { attachAdminAccess, requireSuperAdmin } from "../middleware/adminAccess.js";
 import {
   createAdminStaff,
   deactivateAdminStaff,
@@ -9,7 +9,7 @@ import {
   listAdminStaff,
   listAdminStaffAudit,
   updateAdminStaff,
-} from '../controllers/adminStaffController';
+} from "../controllers/adminStaffController.js";
 
 const router = Router();
 

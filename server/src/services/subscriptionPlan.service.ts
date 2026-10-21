@@ -1,4 +1,4 @@
-import { SubscriptionPlans, IPlan, ISubscriptionPlansDocument } from '../models/SubscriptionPlan';
+import { SubscriptionPlans, IPlan, ISubscriptionPlansDocument } from "../models/SubscriptionPlan.js";
 
 export type BillingCycleChoice = 'monthly' | 'annual';
 

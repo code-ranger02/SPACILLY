@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
-import { validateCoupon } from '../controllers/couponPublicController';
+import { validateCoupon } from "../controllers/couponPublicController.js";
 
 const router = Router();
 

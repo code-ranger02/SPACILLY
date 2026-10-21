@@ -2,8 +2,8 @@ import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import fs from 'fs';
 import path from 'path';
-import { getAIRouter } from '../ai-assistant/singleton';
-import { getJwtSecret } from '../config/jwtSecret';
+import { getAIRouter } from "../ai-assistant/singleton.js";
+import { getJwtSecret } from "../config/jwtSecret.js";
 
 type UserRole = 'guest' | 'buyer' | 'seller' | 'admin';
 

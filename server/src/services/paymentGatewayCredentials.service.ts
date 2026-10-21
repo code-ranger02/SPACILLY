@@ -1,13 +1,13 @@
 import Flutterwave from 'flutterwave-node-v3';
 import axios from 'axios';
-import { PaymentGatewayConfig } from '../models/PaymentGatewayConfig';
-import { encryptCredentialsJson, decryptCredentialsJson } from './paymentSecretsCrypto.service';
-import { getServerUrl } from '../config/publicEnv';
+import { PaymentGatewayConfig } from "../models/PaymentGatewayConfig.js";
+import { encryptCredentialsJson, decryptCredentialsJson } from "./paymentSecretsCrypto.service.js";
+import { getServerUrl } from "../config/publicEnv.js";
 import {
   PAYMENT_GATEWAY_REGISTRY,
   allCanonicalGatewayKeys,
   type CanonicalGatewayKey,
-} from '../financial/paymentGatewayRegistry';
+} from "../financial/paymentGatewayRegistry.js";
 
 export type { CanonicalGatewayKey };
 export { PAYMENT_GATEWAY_REGISTRY as GATEWAY_REGISTRY };
@@ -16,7 +16,7 @@ function clearMomoTokenCacheSafe(): void {
   try {
     // Avoid static circular import: momoService ↔ paymentGatewayCredentials
     // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { clearMomoTokenCache } = require('./momoService') as typeof import('./momoService');
+    const { clearMomoTokenCache } = require("./momoService.js") as typeof import('./momoService');
     clearMomoTokenCache();
   } catch {
     /* ignore */
@@ -678,15 +678,15 @@ export async function testGatewayByKey(
     return testMomoConnectionWithConfig(cfg);
   }
   if (key === 'stripe') {
-    const { testStripeConnection } = await import('./stripeCheckout.service');
+    const { testStripeConnection } = await import("./stripeCheckout.service.js");
     return testStripeConnection();
   }
   if (key === 'paypal') {
-    const { testPayPalConnection } = await import('./paypalCheckout.service');
+    const { testPayPalConnection } = await import("./paypalCheckout.service.js");
     return testPayPalConnection();
   }
   if (key === 'airtel_money') {
-    const { testAirtelConnection } = await import('./airtelMoney.service');
+    const { testAirtelConnection } = await import("./airtelMoney.service.js");
     return testAirtelConnection(opts?.airtelOverride);
   }
   if (profile === 'generic_api_secret') {

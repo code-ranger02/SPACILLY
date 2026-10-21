@@ -1,15 +1,15 @@
 import mongoose from 'mongoose';
-import { User } from '../models/User';
-import { Order } from '../models/Order';
-import { Product } from '../models/Product';
-import { TransactionLog } from '../models/TransactionLog';
-import { FleetDriver } from '../models/FleetDriver';
-import { SupportTicket } from '../models/SupportTicket';
-import { SellerSubscription } from '../models/SellerSubscription';
-import { Dispute } from '../models/Dispute';
-import type { IntelligenceEntityType, IntelligenceSearchDocument } from './intelligenceSearch.types';
-import { escapeRegex } from './queryClassifier';
-import { ensureIntelligenceIndex, getMeilisearchClient, INTELLIGENCE_INDEX } from './meilisearchClient';
+import { User } from "../models/User.js";
+import { Order } from "../models/Order.js";
+import { Product } from "../models/Product.js";
+import { TransactionLog } from "../models/TransactionLog.js";
+import { FleetDriver } from "../models/FleetDriver.js";
+import { SupportTicket } from "../models/SupportTicket.js";
+import { SellerSubscription } from "../models/SellerSubscription.js";
+import { Dispute } from "../models/Dispute.js";
+import type { IntelligenceEntityType, IntelligenceSearchDocument } from "./intelligenceSearch.types.js";
+import { escapeRegex } from "./queryClassifier.js";
+import { ensureIntelligenceIndex, getMeilisearchClient, INTELLIGENCE_INDEX } from "./meilisearchClient.js";
 
 const BATCH = 200;
 
@@ -235,7 +235,7 @@ export async function syncIntelligenceIndex(opts?: { perType?: number }): Promis
 
   const index = client.index(INTELLIGENCE_INDEX);
   await index.addDocuments(docs, { primaryKey: 'id' });
-  const { invalidateSearchCache } = await import('./searchCache');
+  const { invalidateSearchCache } = await import("./searchCache.js");
   await invalidateSearchCache();
   return { indexed: docs.length };
 }
@@ -641,7 +641,7 @@ export async function upsertIntelligenceDocuments(docs: IntelligenceSearchDocume
   await ensureIntelligenceIndex();
   const index = client.index(INTELLIGENCE_INDEX);
   await index.addDocuments(docs, { primaryKey: 'id' });
-  const { invalidateSearchCache } = await import('./searchCache');
+  const { invalidateSearchCache } = await import("./searchCache.js");
   await invalidateSearchCache();
 }
 

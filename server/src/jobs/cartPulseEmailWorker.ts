@@ -1,26 +1,26 @@
 import mongoose from 'mongoose';
-import { RecommendationActivity } from '../models/RecommendationActivity';
-import { Product } from '../models/Product';
-import { User } from '../models/User';
-import { BuyerInsightProfile } from '../models/BuyerInsightProfile';
-import { RecommendationEmailHistory } from '../models/RecommendationEmailHistory';
-import { isEmailConfigured, sendRecommendationDealsEmail } from '../services/emailService';
-import { generateMarketingEmailCopy } from '../email/emailCopyAi.service';
-import { buildMarketingEmailContent } from '../email/marketingEmailBuilder';
-import { getClientUrl } from '../config/publicEnv';
-import { getPersonalizationGate } from '../services/personalizationGate.service';
+import { RecommendationActivity } from "../models/RecommendationActivity.js";
+import { Product } from "../models/Product.js";
+import { User } from "../models/User.js";
+import { BuyerInsightProfile } from "../models/BuyerInsightProfile.js";
+import { RecommendationEmailHistory } from "../models/RecommendationEmailHistory.js";
+import { isEmailConfigured, sendRecommendationDealsEmail } from "../services/emailService.js";
+import { generateMarketingEmailCopy } from "../email/emailCopyAi.service.js";
+import { buildMarketingEmailContent } from "../email/marketingEmailBuilder.js";
+import { getClientUrl } from "../config/publicEnv.js";
+import { getPersonalizationGate } from "../services/personalizationGate.service.js";
 import {
   isMarketingFlowEnabled,
   isMarketingFlowPushEnabled,
   recordFlowRun,
-} from '../models/MarketingAutomationSettings';
-import { safeSendPushToUser } from '../services/pushNotificationService';
-import { assertBuyerMarketingEligible } from '../services/marketingRecipient.service';
+} from "../models/MarketingAutomationSettings.js";
+import { safeSendPushToUser } from "../services/pushNotificationService.js";
+import { assertBuyerMarketingEligible } from "../services/marketingRecipient.service.js";
 import {
   assertRecommendationLaneSend,
   getRecentMarketingCopyContext,
-} from '../services/marketingEmailOrchestration.service';
-import { marketingDayKey } from '../email/copyEngine';
+} from "../services/marketingEmailOrchestration.service.js";
+import { marketingDayKey } from "../email/copyEngine.js";
 
 const CLIENT_URL = getClientUrl();
 const APP_NAME = process.env.APP_NAME || 'Spacilly';
@@ -264,7 +264,7 @@ async function sendCartPulse(userId: string, lastCartAddAt: Date): Promise<'sent
 async function tick(): Promise<{ sent: number; skipped: number; failed: number }> {
   const stats = { sent: 0, skipped: 0, failed: 0 };
   if (!isEmailConfigured()) return stats;
-  const { isSystemFeatureEnabled } = await import('../services/systemFeatureSettings.service');
+  const { isSystemFeatureEnabled } = await import("../services/systemFeatureSettings.service.js");
   if (!(await isSystemFeatureEnabled('recommendation_emails'))) return stats;
   if (!(await isMarketingFlowEnabled('cart_pulse'))) return stats;
 

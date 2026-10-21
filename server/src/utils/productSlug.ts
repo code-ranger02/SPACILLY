@@ -23,7 +23,7 @@ export async function ensureUniqueProductSlug(
   base: string,
   excludeId?: mongoose.Types.ObjectId | string,
 ): Promise<string> {
-  const { Product } = await import('../models/Product');
+  const { Product } = await import("../models/Product.js");
   let slug = base;
   let n = 0;
   // eslint-disable-next-line no-constant-condition
@@ -47,7 +47,7 @@ export async function ensureProductHasSlug(product: {
   name?: string;
   slug?: string;
 }): Promise<string | undefined> {
-  const { Product } = await import('../models/Product');
+  const { Product } = await import("../models/Product.js");
   const existing = (product.slug || '').trim().toLowerCase();
   if (existing) return existing;
   const name = String(product?.name || '').trim();

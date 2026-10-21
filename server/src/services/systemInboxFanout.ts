@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
-import { User } from '../models/User';
-import { SystemNotification } from '../models/SystemNotification';
-import { websocketService } from './websocketService';
+import { User } from "../models/User.js";
+import { SystemNotification } from "../models/SystemNotification.js";
+import { websocketService } from "./websocketService.js";
 
 const MAX_FANOUT_USERS = 25_000;
 

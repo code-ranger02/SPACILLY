@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { authenticate } from '../middleware/auth';
-import { authorize } from '../middleware/auth';
+import { authenticate } from "../middleware/auth.js";
+import { authorize } from "../middleware/auth.js";
 import {
   getDashboard,
   getPayouts,
@@ -26,7 +26,7 @@ import {
   getFinanceSettings,
   updateFinanceSettings,
   getSellersList,
-} from '../controllers/adminFinanceController';
+} from "../controllers/adminFinanceController.js";
 
 const router = Router();
 

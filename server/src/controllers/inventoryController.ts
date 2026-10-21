@@ -1,23 +1,23 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import { AuthenticatedRequest } from '../middleware/auth';
+import { AuthenticatedRequest } from "../middleware/auth.js";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const { deleteImage } = require('../../config/cloudinary');
-import { Product } from '../models/Product';
-import { ProductVerification } from '../models/ProductVerification';
-import { assertCanCreateProduct } from '../services/subscriptionEntitlements.service';
-import { Warehouse } from '../models/Warehouse';
-import { StockHistory } from '../models/StockHistory';
+const { deleteImage } = require("../../config/cloudinary.js");
+import { Product } from "../models/Product.js";
+import { ProductVerification } from "../models/ProductVerification.js";
+import { assertCanCreateProduct } from "../services/subscriptionEntitlements.service.js";
+import { Warehouse } from "../models/Warehouse.js";
+import { StockHistory } from "../models/StockHistory.js";
 import {
   evaluateProductTrustForSeller,
   runProductVerification,
-} from '../services/productVerification.service';
-import type { TrustDraftInput } from '../services/trustVerification.engine';
-import { convertListingToUsd, isSupportedDisplayCurrency } from '../services/exchangeRate.service';
+} from "../services/productVerification.service.js";
+import type { TrustDraftInput } from "../services/trustVerification.engine.js";
+import { convertListingToUsd, isSupportedDisplayCurrency } from "../services/exchangeRate.service.js";
 import {
   isSellerKycVerified,
   resolvePublicationStatusForSeller,
-} from '../services/sellerKyc.service';
+} from "../services/sellerKyc.service.js";
 
 const CATEGORY_ATTRIBUTES = {
   size_and_color: [
@@ -412,7 +412,7 @@ export async function createProduct(req: AuthenticatedRequest, res: Response) {
     const limitCheck = await assertCanCreateProduct(String(sellerId));
     if (!limitCheck.ok) {
       if (limitCheck.code === 'PRODUCT_LIMIT' && limitCheck.entitlements) {
-        const { deliverSellerNotification } = await import('../services/sellerNotificationService');
+        const { deliverSellerNotification } = await import("../services/sellerNotificationService.js");
         void deliverSellerNotification(
           'subscription_limit_reached',
           {
@@ -503,7 +503,7 @@ export async function createProduct(req: AuthenticatedRequest, res: Response) {
       warehouseId: wid,
     });
 
-    const { enqueueIntelligenceIndex } = await import('../queues/intelligenceIndex.queue');
+    const { enqueueIntelligenceIndex } = await import("../queues/intelligenceIndex.queue.js");
     enqueueIntelligenceIndex('product', String(product._id), 'created');
 
     // Optional: create initial stock history record if stock > 0

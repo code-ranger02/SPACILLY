@@ -1,21 +1,21 @@
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../middleware/auth';
+import { AuthenticatedRequest } from "../middleware/auth.js";
 import {
   getOrCreateCartSettings,
   settingsToClient,
   defaultRecoverySteps,
   type IRecoveryStepConfig,
-} from '../models/AbandonedCartSettings';
-import { getOrCreateCartStrategy, strategyToClient } from '../models/AbandonedCartStrategy';
+} from "../models/AbandonedCartSettings.js";
+import { getOrCreateCartStrategy, strategyToClient } from "../models/AbandonedCartStrategy.js";
 import {
   cancelPendingQueueJobs,
   getRecoveryAnalytics,
   regenerateQueueFromSettings,
   simulateRecoveryEstimate,
-} from '../services/cartRecoveryEngine.service';
-import { simulateTimingPrediction } from '../services/timingOptimizer';
-import { AbandonedCart } from '../models/AbandonedCart';
-import { AbandonedCartQueue } from '../models/AbandonedCartQueue';
+} from "../services/cartRecoveryEngine.service.js";
+import { simulateTimingPrediction } from "../services/timingOptimizer.js";
+import { AbandonedCart } from "../models/AbandonedCart.js";
+import { AbandonedCartQueue } from "../models/AbandonedCartQueue.js";
 
 function ensureAdmin(req: AuthenticatedRequest, res: Response): boolean {
   if (!req.user || req.user.role !== 'admin') {
@@ -216,7 +216,7 @@ export async function saveCartJourney(req: AuthenticatedRequest, res: Response) 
     if (!journey || !Array.isArray((journey as any).nodes)) {
       return res.status(400).json({ message: 'journey with nodes[] is required' });
     }
-    const { getOrCreateCartStrategy: getStrategy, AbandonedCartStrategy } = await import('../models/AbandonedCartStrategy');
+    const { getOrCreateCartStrategy: getStrategy, AbandonedCartStrategy } = await import("../models/AbandonedCartStrategy.js");
     const doc = await getStrategy();
     (doc as any).journey = journey;
     await doc.save();

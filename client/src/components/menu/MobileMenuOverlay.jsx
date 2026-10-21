@@ -34,6 +34,7 @@ import { useAuthStore } from '../../stores/authStore';
 import { useBuyerCart } from '../../stores/buyerCartStore';
 import { useWishlistStore } from '../../stores/wishlistStore';
 import { useNotificationStore } from '../../stores/notificationStore';
+import BrandLogo from '../BrandLogo';
 
 const EASE = [0.22, 1, 0.36, 1];
 
@@ -809,10 +810,7 @@ export default function MobileMenuOverlay() {
               >
                 <header className="mmo-header">
                   <div className="mmo-brand-row">
-                    <span className="mmo-logo-mark">S</span>
-                    <span className="mmo-brand-text">
-                      SPAC<span className="mmo-brand-accent">ILLY</span>
-                    </span>
+                    <BrandLogo className="h-9 max-w-[150px]" />
                   </div>
 
                   <button

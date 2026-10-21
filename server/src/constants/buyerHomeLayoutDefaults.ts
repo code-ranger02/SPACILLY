@@ -132,8 +132,8 @@ export function mergeLayoutOverrides(
     const entry = next[key];
     if (!entry) continue;
     out[key] = {
-      mobile: { ...out[key]?.mobile, ...entry.mobile },
-      desktop: { ...out[key]?.desktop, ...entry.desktop },
+      mobile: { ...out[key]?.mobile, ...entry.mobile } as HomeSectionLayoutSettings,
+      desktop: { ...out[key]?.desktop, ...entry.desktop } as HomeSectionLayoutSettings,
     };
   }
   return out;

@@ -1,7 +1,7 @@
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { ComplianceProfile } from '../models/ComplianceProfile';
-import type { IComplianceProfile } from '../models/ComplianceProfile';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { ComplianceProfile } from "../models/ComplianceProfile.js";
+import type { IComplianceProfile } from "../models/ComplianceProfile.js";
 
 const DEFINITIONS = [
   { key: 'personal_data', title: 'Personal data', description: 'Any information relating to an identified or identifiable natural person.' },

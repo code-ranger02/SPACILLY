@@ -1,10 +1,10 @@
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { SystemNotification } from '../models/SystemNotification';
-import { User } from '../models/User';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { SystemNotification } from "../models/SystemNotification.js";
+import { User } from "../models/User.js";
 import mongoose from 'mongoose';
-import { fanoutAfterSystemInboxCreate } from '../services/systemInboxFanout';
-import { checkSellerShippingReminders } from '../services/sellerNotificationService';
+import { fanoutAfterSystemInboxCreate } from "../services/systemInboxFanout.js";
+import { checkSellerShippingReminders } from "../services/sellerNotificationService.js";
 
 const getCurrentUserOid = (req: AuthenticatedRequest): mongoose.Types.ObjectId | null => {
   if (!req.user?.id) return null;

@@ -7,6 +7,7 @@ import CartSummary from '../components/cart/CartSummary';
 import RecommendedProducts from '../components/cart/RecommendedProducts';
 import { useBuyerCart } from '../stores/buyerCartStore';
 import { useTranslation } from '../i18n/useTranslation';
+import BrandLogo from '../components/BrandLogo';
 
 import { SERVER_URL } from '../lib/config';
 
@@ -103,13 +104,10 @@ export default function Cart() {
           className="absolute bottom-8 left-8 z-10"
         >
           <Link to="/">
-            <img
-              src="/logo.jpg"
-              alt="Spacilly"
-              className="h-12 w-12 rounded-full object-cover"
+            <BrandLogo
+              className="h-12 max-w-[160px] rounded-md bg-white p-1"
               style={{
                 boxShadow: '0 4px 20px rgba(0,0,0,0.35)',
-                border: '2px solid rgba(255,255,255,0.6)',
               }}
             />
           </Link>

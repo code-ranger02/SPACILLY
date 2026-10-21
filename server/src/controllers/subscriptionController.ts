@@ -1,8 +1,8 @@
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { getPlansFromDB, getPlanByTierId, SubscriptionPlans } from '../models/SubscriptionPlan';
-import { SellerSubscription, ISellerSubscription } from '../models/SellerSubscription';
-import { User } from '../models/User';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { getPlansFromDB, getPlanByTierId, SubscriptionPlans } from "../models/SubscriptionPlan.js";
+import { SellerSubscription, ISellerSubscription } from "../models/SellerSubscription.js";
+import { User } from "../models/User.js";
 import {
   transformPlanToTier,
   transformInvoiceToFrontend,
@@ -11,16 +11,16 @@ import {
   formatDate,
   calculateRenewalDate,
   calculateProratedAmount,
-} from '../utils/subscriptionTransformers';
-import { simulateTokenizePaymentMethod, validateCardNumber, validateExpiryDate } from '../services/paymentSimulator';
-import { chargeDefaultPaymentMethodForSubscription } from '../services/subscriptionBilling.service';
+} from "../utils/subscriptionTransformers.js";
+import { simulateTokenizePaymentMethod, validateCardNumber, validateExpiryDate } from "../services/paymentSimulator.js";
+import { chargeDefaultPaymentMethodForSubscription } from "../services/subscriptionBilling.service.js";
 import {
   evaluateEffectivePrice,
   planFeaturesFromPlan,
   type BillingCycleChoice,
-} from '../services/subscriptionPlan.service';
-import { getSellerEntitlements } from '../services/subscriptionEntitlements.service';
-import { deliverSellerNotification } from '../services/sellerNotificationService';
+} from "../services/subscriptionPlan.service.js";
+import { getSellerEntitlements } from "../services/subscriptionEntitlements.service.js";
+import { deliverSellerNotification } from "../services/sellerNotificationService.js";
 import mongoose from 'mongoose';
 
 /**
@@ -122,7 +122,10 @@ export async function getCurrentSubscription(req: AuthenticatedRequest, res: Res
     }
 
     const entitlements = await getSellerEntitlements(req.user.id);
-    const currentPlan = transformCurrentPlanToFrontend(subscription as ISellerSubscription, entitlements || undefined);
+    const currentPlan = transformCurrentPlanToFrontend(
+      subscription as ISellerSubscription,
+      entitlements ? (entitlements as unknown as Record<string, unknown>) : undefined,
+    );
 
     res.json({
       subscription: {
@@ -346,7 +349,7 @@ export async function addPaymentMethod(req: AuthenticatedRequest, res: Response)
       return res.status(401).json({ message: 'Authentication required' });
     }
 
-    const { isSystemFeatureEnabled } = await import('../services/systemFeatureSettings.service');
+    const { isSystemFeatureEnabled } = await import("../services/systemFeatureSettings.service.js");
     if (!(await isSystemFeatureEnabled('seller_subscriptions'))) {
       return res.status(503).json({
         message: 'Subscription billing is temporarily disabled by the platform.',
@@ -993,7 +996,7 @@ export async function upgradeSubscription(req: AuthenticatedRequest, res: Respon
       return res.status(401).json({ message: 'Authentication required' });
     }
 
-    const { isSystemFeatureEnabled } = await import('../services/systemFeatureSettings.service');
+    const { isSystemFeatureEnabled } = await import("../services/systemFeatureSettings.service.js");
     if (!(await isSystemFeatureEnabled('seller_subscriptions'))) {
       return res.status(503).json({
         message: 'New subscription purchases are temporarily disabled by the platform.',
@@ -1619,7 +1622,7 @@ export async function submitB2BPaymentRequest(req: AuthenticatedRequest, res: Re
       return res.status(401).json({ message: 'Authentication required' });
     }
 
-    const { isSystemFeatureEnabled } = await import('../services/systemFeatureSettings.service');
+    const { isSystemFeatureEnabled } = await import("../services/systemFeatureSettings.service.js");
     if (!(await isSystemFeatureEnabled('seller_subscriptions'))) {
       return res.status(503).json({
         message: 'Subscription billing requests are temporarily disabled by the platform.',

@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { authenticate, authorize } from '../middleware/auth';
-import { getKycQueues, getSellerKycQueueDetail } from '../controllers/adminKycQueueController';
+import { authenticate, authorize } from "../middleware/auth.js";
+import { getKycQueues, getSellerKycQueueDetail } from "../controllers/adminKycQueueController.js";
 
 const router = Router();
 

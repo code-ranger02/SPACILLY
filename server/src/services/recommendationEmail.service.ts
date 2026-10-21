@@ -1,31 +1,31 @@
 import crypto from 'crypto';
 import mongoose from 'mongoose';
-import { Product } from '../models/Product';
-import { Order } from '../models/Order';
-import { User } from '../models/User';
-import { RecommendationActivity, RecommendationActivityType } from '../models/RecommendationActivity';
-import { RecommendationEmailPreference } from '../models/RecommendationEmailPreference';
-import { RecommendationEmailHistory } from '../models/RecommendationEmailHistory';
-import { generateMarketingEmailCopy } from '../email/emailCopyAi.service';
-import { buildMarketingEmailContent } from '../email/marketingEmailBuilder';
-import { sendRecommendationDealsEmail } from './emailService';
-import { getClientUrl } from '../config/publicEnv';
-import { buyerVisibleProductFilter } from '../utils/publicProductQuery';
-import { getPersonalizationGate } from './personalizationGate.service';
+import { Product } from "../models/Product.js";
+import { Order } from "../models/Order.js";
+import { User } from "../models/User.js";
+import { RecommendationActivity, RecommendationActivityType } from "../models/RecommendationActivity.js";
+import { RecommendationEmailPreference } from "../models/RecommendationEmailPreference.js";
+import { RecommendationEmailHistory } from "../models/RecommendationEmailHistory.js";
+import { generateMarketingEmailCopy } from "../email/emailCopyAi.service.js";
+import { buildMarketingEmailContent } from "../email/marketingEmailBuilder.js";
+import { sendRecommendationDealsEmail } from "./emailService.js";
+import { getClientUrl } from "../config/publicEnv.js";
+import { buyerVisibleProductFilter } from "../utils/publicProductQuery.js";
+import { getPersonalizationGate } from "./personalizationGate.service.js";
 import {
   isMarketingFlowEnabled,
   isMarketingFlowPushEnabled,
   recordFlowRun,
-} from '../models/MarketingAutomationSettings';
-import { safeSendPushToUser } from './pushNotificationService';
-import { assertBuyerMarketingEligible } from './marketingRecipient.service';
+} from "../models/MarketingAutomationSettings.js";
+import { safeSendPushToUser } from "./pushNotificationService.js";
+import { assertBuyerMarketingEligible } from "./marketingRecipient.service.js";
 import {
   assertRecommendationLaneSend,
   getBuyerMarketingActivityTier,
   getRecentMarketingCopyContext,
   listBuyersInRecommendationSendWindow,
-} from './marketingEmailOrchestration.service';
-import { marketingDayKey } from '../email/copyEngine';
+} from "./marketingEmailOrchestration.service.js";
+import { marketingDayKey } from "../email/copyEngine.js";
 
 const CLIENT_URL = getClientUrl();
 const APP_NAME = process.env.APP_NAME || 'Spacilly';

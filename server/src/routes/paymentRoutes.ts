@@ -1,22 +1,22 @@
 import { Router, Response } from 'express';
 import rateLimit from 'express-rate-limit';
-import { authenticate, authorize, AuthenticatedRequest } from '../middleware/auth';
+import { authenticate, authorize, AuthenticatedRequest } from "../middleware/auth.js";
 import {
   initializePayment,
   verifyPayment,
   syncMomoOrderPayment,
   syncAirtelOrderPayment,
   handleMomoCallbackPayload,
-} from '../services/paymentService';
-import { processStripeCheckoutSession } from '../services/stripeCheckout.service';
-import { capturePayPalOrder } from '../services/paypalCheckout.service';
+} from "../services/paymentService.js";
+import { processStripeCheckoutSession } from "../services/stripeCheckout.service.js";
+import { capturePayPalOrder } from "../services/paypalCheckout.service.js";
 import {
   assertPaymentGatewayEnabled,
   PaymentGatewayDisabledError,
-} from '../services/paymentGateway.service';
-import { partialReleaseEscrow, releaseEscrow } from '../services/escrowService';
-import { raiseDispute, resolveDispute } from '../services/disputeService';
-import { selectOptimalGateway, markGatewayDown } from '../services/paymentOptimizer';
+} from "../services/paymentGateway.service.js";
+import { partialReleaseEscrow, releaseEscrow } from "../services/escrowService.js";
+import { raiseDispute, resolveDispute } from "../services/disputeService.js";
+import { selectOptimalGateway, markGatewayDown } from "../services/paymentOptimizer.js";
 import {
   optimizeGatewayForOrder,
   initializeSmartPayment,
@@ -24,14 +24,14 @@ import {
   setupSplitSchedule,
   setupCryptoPayment,
   confirmCryptoPayment,
-} from '../services/paymentIntelligence.service';
-import { buildBnplPlan, attachBnplToOrder } from '../services/creditService';
-import { getWalletSummary, creditWallet, transferWallets } from '../services/walletEngine';
-import { Order } from '../models/Order';
-import { User } from '../models/User';
-import { SellerWallet } from '../models/SellerWallet';
-import { TransactionLog } from '../models/TransactionLog';
-import { SellerSettings } from '../models/SellerSettings';
+} from "../services/paymentIntelligence.service.js";
+import { buildBnplPlan, attachBnplToOrder } from "../services/creditService.js";
+import { getWalletSummary, creditWallet, transferWallets } from "../services/walletEngine.js";
+import { Order } from "../models/Order.js";
+import { User } from "../models/User.js";
+import { SellerWallet } from "../models/SellerWallet.js";
+import { TransactionLog } from "../models/TransactionLog.js";
+import { SellerSettings } from "../models/SellerSettings.js";
 import mongoose from 'mongoose';
 import crypto from 'crypto';
 
@@ -734,6 +734,9 @@ router.post(
         return res.status(400).json({ message: 'Invalid resolution' });
       }
 
+      if (!req.user?.id) {
+        return res.status(401).json({ message: 'Authentication required' });
+      }
       await resolveDispute(disputeId, resolution, req.user.id);
       return res.json({ message: 'Dispute resolved' });
     } catch (err: any) {

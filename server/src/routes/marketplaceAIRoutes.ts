@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { authenticate, optionalAuthenticate, authorize } from '../middleware/auth';
+import { authenticate, optionalAuthenticate, authorize } from "../middleware/auth.js";
 import {
   getHomeFeed,
   getHomeFeedSection,
@@ -33,7 +33,7 @@ import {
   getProductNeighboursController,
   getRecommendationsForUser,
   getCollusionClustersController,
-} from '../controllers/marketplaceAIController';
+} from "../controllers/marketplaceAIController.js";
 
 /**
  * Two routers, mounted separately:

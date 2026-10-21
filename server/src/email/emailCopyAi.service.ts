@@ -16,11 +16,11 @@ import {
   winbackIntro,
   winbackSubject,
   type EmailCategory,
-} from './copyEngine';
+} from "./copyEngine.js";
 import {
   shouldUseGeminiMarketingCopy,
   shouldUseGeminiTransactionalPolish,
-} from './emailNotificationPolicy.service';
+} from "./emailNotificationPolicy.service.js";
 
 const GEMINI_API_KEY = String(process.env.GEMINI_API_KEY || '').trim();
 const EMAIL_COPY_MODEL = String(

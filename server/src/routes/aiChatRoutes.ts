@@ -1,7 +1,7 @@
 import { Request, Response, Router } from 'express';
-import { optionalAuthenticate } from '../middleware/auth';
-import { postAiChat } from '../controllers/aiChatController';
-import { getAiMetrics } from '../ai-assistant/singleton';
+import { optionalAuthenticate } from "../middleware/auth.js";
+import { postAiChat } from "../controllers/aiChatController.js";
+import { getAiMetrics } from "../ai-assistant/singleton.js";
 
 const router = Router();
 

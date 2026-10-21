@@ -2,22 +2,22 @@ import { Server, type Namespace } from 'socket.io';
 import jwt from 'jsonwebtoken';
 import type { Socket } from 'socket.io';
 import mongoose from 'mongoose';
-import { LiveCommerceSession } from '../models/LiveCommerceSession';
-import { Product } from '../models/Product';
-import { attachWebRTCSignaling, onWebRTCViewerJoined, onWebRTCSellerDetected } from './webrtcSignaling';
+import { LiveCommerceSession } from "../models/LiveCommerceSession.js";
+import { Product } from "../models/Product.js";
+import { attachWebRTCSignaling, onWebRTCViewerJoined, onWebRTCSellerDetected } from "./webrtcSignaling.js";
 import {
   getLiveChatHistory,
   postLiveChatMessage,
   resolveDisplayName,
-} from '../services/liveCommerceChat';
+} from "../services/liveCommerceChat.js";
 import {
   cancelSellerDisconnect,
   registerSellerPresence,
   scheduleSellerDisconnect,
   touchSellerHeartbeat,
-} from '../services/liveSellerPresence';
+} from "../services/liveSellerPresence.js";
 
-import { getJwtSecret } from '../config/jwtSecret';
+import { getJwtSecret } from "../config/jwtSecret.js";
 
 type LiveSocket = Socket & {
   userId?: string;

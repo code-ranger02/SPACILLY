@@ -8,8 +8,8 @@ import { EventEmitter } from 'node:events';
 import { execSync } from 'child_process';
 import type { Request } from 'express';
 import mongoose from 'mongoose';
-import { ingestRequestBurst } from './securityIntelligence.service';
-import { isEmailConfigured } from './emailService';
+import { ingestRequestBurst } from "./securityIntelligence.service.js";
+import { isEmailConfigured } from "./emailService.js";
 
 /** Payload for real-time API row streaming (SOC-style). */
 export interface ApiRequestEventPayload {
@@ -538,7 +538,7 @@ function recomputeAlerts(h: SystemHealthPayload, apis: ApiEndpointStat[]) {
     });
   }
   alertsCache = next.slice(0, 12);
-  void import('./systemMonitorNotify.service')
+  void import("./systemMonitorNotify.service.js")
     .then(({ notifyAdminsOfAlerts }) => notifyAdminsOfAlerts(alertsCache))
     .catch((err) => console.warn('[systemMonitor] alert notify skipped:', err?.message));
 }
@@ -972,7 +972,7 @@ let notificationSettings: MonitorNotificationSettings = {
 /** Load thresholds + notification contacts from MongoDB (call after DB connect). */
 export async function hydrateMonitorSettingsFromDb(): Promise<void> {
   try {
-    const { getPersistedMonitorSettings } = await import('./systemMonitorConfig.service');
+    const { getPersistedMonitorSettings } = await import("./systemMonitorConfig.service.js");
     const persisted = await getPersistedMonitorSettings();
     settings = {
       monitoringEnabled: persisted.monitoringEnabled,
@@ -1007,7 +1007,7 @@ export async function updateMonitorSettingsAsync(
   const { notifications: _n, ...thresholdPatch } = patch;
   settings = { ...settings, ...thresholdPatch };
   try {
-    const { savePersistedMonitorSettings } = await import('./systemMonitorConfig.service');
+    const { savePersistedMonitorSettings } = await import("./systemMonitorConfig.service.js");
     await savePersistedMonitorSettings({
       ...settings,
       notifications: notificationSettings,

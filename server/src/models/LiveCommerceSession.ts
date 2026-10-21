@@ -1,5 +1,5 @@
 import mongoose, { Document, Schema } from 'mongoose';
-import type { StreamProviderType } from '../streaming/types';
+import type { StreamProviderType } from "../streaming/types.js";
 
 export type LiveSessionMode = 'showcase' | 'auction' | 'flash_deal' | 'private';
 export type LiveSessionStatus =

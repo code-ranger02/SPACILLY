@@ -40,6 +40,8 @@ function checkPasswordReqs(pw: string) {
 }
 
 import { API_BASE_URL } from '../lib/config';
+// @ts-ignore Temporary: BrandLogo is implemented in JS
+import BrandLogo from './BrandLogo';
 const API_BASE = API_BASE_URL;
 
 // ── Left branded panel (desktop only) ─────────────────────────────────────────
@@ -47,7 +49,7 @@ function LeftPanel() {
   return (
     <div className="auth-modal-aside hidden md:flex flex-col justify-between p-8 w-[40%] min-w-0 relative overflow-hidden">
       <div className="relative z-10">
-        <div className="spacilly-logo-font text-white font-bold text-2xl tracking-tight">Spacilly</div>
+        <BrandLogo className="h-10 max-w-[180px] rounded-md bg-white p-1" />
         <p className="text-white/90 text-sm mt-2">Smart shopping. Trusted sellers.</p>
       </div>
       <ul className="auth-modal-trust relative z-10 space-y-2.5">

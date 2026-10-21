@@ -1,15 +1,15 @@
 import bcrypt from 'bcryptjs';
 import { Response } from 'express';
 import { z } from 'zod';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { User } from '../models/User';
-import { AdminStaffAudit } from '../models/AdminStaffAudit';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { User } from "../models/User.js";
+import { AdminStaffAudit } from "../models/AdminStaffAudit.js";
 import {
   ADMIN_SCOPES,
   ADMIN_STAFF_PRESETS,
   type AdminScope,
   type AdminStaffPreset,
-} from '../constants/adminScopes';
+} from "../constants/adminScopes.js";
 import {
   assertSuperAdmin,
   buildAdminAccessFromPreset,
@@ -17,7 +17,7 @@ import {
   getAdminAccessForUserId,
   logAdminStaffAction,
   resolveAdminAccess,
-} from '../services/adminAccess.service';
+} from "../services/adminAccess.service.js";
 
 const createStaffSchema = z.object({
   fullName: z.string().min(2).max(100),

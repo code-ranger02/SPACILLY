@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
-import { Order } from '../models/Order';
-import { Dispute } from '../models/Dispute';
-import { BuyerTrustProfile } from '../models/BuyerTrustProfile';
-import { SellerTrustProfile } from '../models/SellerTrustProfile';
+import { Order } from "../models/Order.js";
+import { Dispute } from "../models/Dispute.js";
+import { BuyerTrustProfile } from "../models/BuyerTrustProfile.js";
+import { SellerTrustProfile } from "../models/SellerTrustProfile.js";
 
 function clamp(n: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, n));

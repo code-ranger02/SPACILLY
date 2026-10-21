@@ -1,4 +1,4 @@
-import { upsertBuyerInsightProfilesBatch } from '../services/buyerInsight.service';
+import { upsertBuyerInsightProfilesBatch } from "../services/buyerInsight.service.js";
 
 const APP_NAME = process.env.APP_NAME || 'Spacilly';
 

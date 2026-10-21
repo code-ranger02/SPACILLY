@@ -1,14 +1,14 @@
 import mongoose from 'mongoose';
-import { User } from '../models/User';
-import { Order } from '../models/Order';
-import { Product } from '../models/Product';
-import { TransactionLog } from '../models/TransactionLog';
-import { SupportTicket } from '../models/SupportTicket';
-import { Dispute } from '../models/Dispute';
-import { FleetDriver } from '../models/FleetDriver';
-import { SellerSubscription } from '../models/SellerSubscription';
-import type { IntelligenceEntityType, IntelligenceSearchDocument, QueryIntent } from './intelligenceSearch.types';
-import { escapeRegex } from './queryClassifier';
+import { User } from "../models/User.js";
+import { Order } from "../models/Order.js";
+import { Product } from "../models/Product.js";
+import { TransactionLog } from "../models/TransactionLog.js";
+import { SupportTicket } from "../models/SupportTicket.js";
+import { Dispute } from "../models/Dispute.js";
+import { FleetDriver } from "../models/FleetDriver.js";
+import { SellerSubscription } from "../models/SellerSubscription.js";
+import type { IntelligenceEntityType, IntelligenceSearchDocument, QueryIntent } from "./intelligenceSearch.types.js";
+import { escapeRegex } from "./queryClassifier.js";
 import {
   buildUserDocsFromRows,
   mapOrderDoc,
@@ -18,7 +18,7 @@ import {
   mapVehicleDoc,
   mapSubscriptionDoc,
   mapDisputeDoc,
-} from './intelligenceIndex.service';
+} from "./intelligenceIndex.service.js";
 
 const MAX_GRAPH = 16;
 

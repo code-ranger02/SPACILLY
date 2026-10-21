@@ -1,12 +1,12 @@
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { handleAgentChat, AgentContext } from '../services/GeminiAgentService';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { handleAgentChat, AgentContext } from "../services/GeminiAgentService.js";
 import {
   normalizeCommerceProvider,
   performCheckoutSingleProduct,
   type CommerceCheckoutProvider,
   type ShippingSpeed,
-} from '../services/commerceCheckout.helper';
+} from "../services/commerceCheckout.helper.js";
 
 function roleFromUser(role?: string) {
   if (role === 'admin') return 'admin';

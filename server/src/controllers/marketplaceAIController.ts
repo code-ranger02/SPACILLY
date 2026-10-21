@@ -17,51 +17,51 @@
 
 import { Response } from 'express';
 import mongoose from 'mongoose';
-import type { AuthenticatedRequest } from '../middleware/auth';
+import type { AuthenticatedRequest } from "../middleware/auth.js";
 import {
   MarketplaceAIConfig,
   applyPreset,
   getMarketplaceAIConfig,
   invalidateMarketplaceAIConfigCache,
   type MarketplaceMode,
-} from '../models/MarketplaceAIConfig';
-import { buildHomeFeed, buildHomeSection, type FeedSectionId } from '../services/ai/homeFeedService';
-import { trackBehavior, type BehaviorEvent } from '../services/ai/sessionIntentService';
-import { recomputeAllProductSignals } from '../services/ai/trendDetectionEngine';
-import { recomputeAllFraudRisks } from '../services/ai/fraudSignalEngine';
-import { refreshSellerTrust } from '../services/ai/sellerTrustEngine';
-import { ProductSignalSnapshot } from '../models/ProductSignalSnapshot';
-import { SellerTrustProfile } from '../models/SellerTrustProfile';
-import { BuyerInsightProfile } from '../models/BuyerInsightProfile';
-import { BuyerSessionIntent } from '../models/BuyerSessionIntent';
-import { CoOccurrenceEdge } from '../models/CoOccurrenceEdge';
-import { CategoryAdjacency } from '../models/CategoryAdjacency';
-import { ProductIntelligence } from '../models/ProductIntelligence';
-import { listRules } from '../services/ai/eventRuleEngine';
-import { recomputeCategoryAdjacency, getRelated } from '../services/ai/coOccurrenceEngine';
-import { bootstrapManual } from '../services/ai/categoryAdjacencyEngine';
-import { planHomepage } from '../services/ai/homepageOrchestrator';
-import { decideMarketplaceDirective } from '../services/ai/marketplaceOrchestrator';
-import { getMarketHealth } from '../models/MarketHealth';
-import { runStabilityTick, invalidateDampingCache } from '../services/ai/stabilityController';
-import { recomputeEconomicHealth, getEconomicSummary } from '../services/ai/economicEngine';
-import { refreshLifecycle, refreshActiveLifecycles } from '../services/ai/lifecycleEngine';
-import { refreshBuyerTrust, refreshActiveBuyerTrust } from '../services/ai/buyerTrustEngine';
+} from "../models/MarketplaceAIConfig.js";
+import { buildHomeFeed, buildHomeSection, type FeedSectionId } from "../services/ai/homeFeedService.js";
+import { trackBehavior, type BehaviorEvent } from "../services/ai/sessionIntentService.js";
+import { recomputeAllProductSignals } from "../services/ai/trendDetectionEngine.js";
+import { recomputeAllFraudRisks } from "../services/ai/fraudSignalEngine.js";
+import { refreshSellerTrust } from "../services/ai/sellerTrustEngine.js";
+import { ProductSignalSnapshot } from "../models/ProductSignalSnapshot.js";
+import { SellerTrustProfile } from "../models/SellerTrustProfile.js";
+import { BuyerInsightProfile } from "../models/BuyerInsightProfile.js";
+import { BuyerSessionIntent } from "../models/BuyerSessionIntent.js";
+import { CoOccurrenceEdge } from "../models/CoOccurrenceEdge.js";
+import { CategoryAdjacency } from "../models/CategoryAdjacency.js";
+import { ProductIntelligence } from "../models/ProductIntelligence.js";
+import { listRules } from "../services/ai/eventRuleEngine.js";
+import { recomputeCategoryAdjacency, getRelated } from "../services/ai/coOccurrenceEngine.js";
+import { bootstrapManual } from "../services/ai/categoryAdjacencyEngine.js";
+import { planHomepage } from "../services/ai/homepageOrchestrator.js";
+import { decideMarketplaceDirective } from "../services/ai/marketplaceOrchestrator.js";
+import { getMarketHealth } from "../models/MarketHealth.js";
+import { runStabilityTick, invalidateDampingCache } from "../services/ai/stabilityController.js";
+import { recomputeEconomicHealth, getEconomicSummary } from "../services/ai/economicEngine.js";
+import { refreshLifecycle, refreshActiveLifecycles } from "../services/ai/lifecycleEngine.js";
+import { refreshBuyerTrust, refreshActiveBuyerTrust } from "../services/ai/buyerTrustEngine.js";
 import {
   recomputeRuleEffectiveness,
   listTroubledRules,
   resetRule,
-} from '../services/ai/ruleEffectivenessTracker';
-import { runSimulation } from '../services/ai/simulationEngine';
+} from "../services/ai/ruleEffectivenessTracker.js";
+import { runSimulation } from "../services/ai/simulationEngine.js";
 import {
   getProductNeighbours,
   recommendForUser,
   findCollusionClusters,
   getGraphStats,
-} from '../services/ai/marketGraphService';
-import { BuyerLifecycle } from '../models/BuyerLifecycle';
-import { BuyerTrustProfile } from '../models/BuyerTrustProfile';
-import { RuleEffectiveness } from '../models/RuleEffectiveness';
+} from "../services/ai/marketGraphService.js";
+import { BuyerLifecycle } from "../models/BuyerLifecycle.js";
+import { BuyerTrustProfile } from "../models/BuyerTrustProfile.js";
+import { RuleEffectiveness } from "../models/RuleEffectiveness.js";
 
 /* ─────────────────────── BUYER ENDPOINTS ─────────────────────── */
 

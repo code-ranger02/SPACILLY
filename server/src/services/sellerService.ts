@@ -1,6 +1,6 @@
-import { getFlutterwaveClient } from '../config/flutterwave';
-import { SellerWallet } from '../models/SellerWallet';
-import { IUser } from '../models/User';
+import { getFlutterwaveClient } from "../config/flutterwave.js";
+import { SellerWallet } from "../models/SellerWallet.js";
+import { IUser } from "../models/User.js";
 
 interface SellerSubaccountInput {
   _id: string;

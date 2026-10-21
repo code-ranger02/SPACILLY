@@ -305,7 +305,7 @@ export function evaluateTrustDraft(input: TrustDraftInput): TrustEvaluationResul
         key: 'video',
         label: 'Video match',
         state: 'ok',
-        detail: `Video aligns with images (similarity ${similarity.toFixed(2)}).`,
+        detail: `Video aligns with images (similarity ${(similarity ?? 0).toFixed(2)}).`,
       });
     }
   } else {

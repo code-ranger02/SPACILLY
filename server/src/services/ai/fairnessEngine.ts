@@ -16,9 +16,9 @@
  * tick. The engine never blocks an item — it only re-ranks.
  */
 
-import type { IBuyerSessionIntent } from '../../models/BuyerSessionIntent';
-import type { RankedProduct } from './rankingEngine';
-import type { IProduct } from '../../models/Product';
+import type { IBuyerSessionIntent } from "../../models/BuyerSessionIntent.js";
+import type { RankedProduct } from "./rankingEngine.js";
+import type { IProduct } from "../../models/Product.js";
 
 export interface FairnessOptions {
   /** Max products per seller in a single section (default 2). */

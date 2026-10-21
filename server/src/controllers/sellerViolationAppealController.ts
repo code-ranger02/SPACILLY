@@ -1,8 +1,8 @@
 import { Response } from 'express';
 import { z } from 'zod';
 import mongoose from 'mongoose';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { SellerViolationAppeal } from '../models/SellerViolationAppeal';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { SellerViolationAppeal } from "../models/SellerViolationAppeal.js";
 
 const appealSchema = z.object({
   ticketNumber: z.string().min(4, 'Ticket number is required').max(64),
@@ -62,7 +62,7 @@ export async function submitViolationAppeal(req: AuthenticatedRequest, res: Resp
     });
   } catch (err: unknown) {
     if (err instanceof z.ZodError) {
-      return res.status(400).json({ message: err.errors[0]?.message || 'Invalid appeal data' });
+      return res.status(400).json({ message: err.issues[0]?.message || 'Invalid appeal data' });
     }
     console.error('[sellerViolationAppeal] submit', err);
     return res.status(500).json({ message: 'Failed to submit appeal' });

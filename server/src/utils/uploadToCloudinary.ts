@@ -1,5 +1,5 @@
 import streamifier from 'streamifier';
-import { cloudinary, isCloudinaryConfigured } from '../services/cloudinary';
+import { cloudinary, isCloudinaryConfigured } from "../services/cloudinary.js";
 
 export async function uploadBufferToCloudinary(args: {
   buffer: Buffer;

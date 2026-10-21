@@ -1,10 +1,10 @@
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { Dispute } from '../models/Dispute';
-import { Order } from '../models/Order';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { Dispute } from "../models/Dispute.js";
+import { Order } from "../models/Order.js";
 import mongoose from 'mongoose';
-import { recalculateSellerTrust } from '../services/productVerification.service';
-import { evaluateReturnPolicy } from '../services/returnsPolicy.service';
+import { recalculateSellerTrust } from "../services/productVerification.service.js";
+import { evaluateReturnPolicy } from "../services/returnsPolicy.service.js";
 
 const getBuyerId = (req: AuthenticatedRequest): mongoose.Types.ObjectId | null => {
   if (!req.user?.id) return null;

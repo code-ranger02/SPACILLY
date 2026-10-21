@@ -1,10 +1,10 @@
 import { Response } from 'express';
 import { z } from 'zod';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { MessageThread, Message, IMessageThread, IMessage } from '../models/MessageThread';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { MessageThread, Message, IMessageThread, IMessage } from "../models/MessageThread.js";
 import mongoose from 'mongoose';
-import { websocketService } from '../services/websocketService';
-import { deliverSellerNotification } from '../services/sellerNotificationService';
+import { websocketService } from "../services/websocketService.js";
+import { deliverSellerNotification } from "../services/sellerNotificationService.js";
 
 // Helper to get buyer ID from request
 const getBuyerId = (req: AuthenticatedRequest): mongoose.Types.ObjectId | null => {

@@ -1,7 +1,7 @@
 import jwt, { SignOptions } from 'jsonwebtoken';
 import crypto from 'crypto';
-import { IUser } from '../models/User';
-import { getJwtSecret } from '../config/jwtSecret';
+import { IUser } from "../models/User.js";
+import { getJwtSecret } from "../config/jwtSecret.js";
 const JWT_EXPIRES_IN = (process.env.JWT_EXPIRES_IN || '7d') as SignOptions['expiresIn'];
 const TWOFA_PENDING_EXPIRY = '5m';
 

@@ -21,6 +21,7 @@ import { useImmersiveSearch } from '../stores/immersiveSearchStore';
 import { useScrollChrome } from '../stores/scrollChromeStore';
 import { useMotionUi } from '../stores/motionUiStore';
 import MobileBuyerTopBar from './buyer/MobileBuyerTopBar';
+import BrandLogo from './BrandLogo';
 import AccountMenuButton from './header/AccountMenuButton';
 import DeliveryLocationBar from './delivery/DeliveryLocationBar';
 import '../styles/delivery-location.css';
@@ -454,33 +455,15 @@ function MainHeader({
       {/* Logo */}
       <Link
         to="/"
-        className="flex items-center gap-2 flex-shrink-0 md:flex-1 md:max-w-[200px]"
+        className="flex items-center flex-shrink-0 md:flex-1 md:max-w-[240px]"
+        aria-label="Spacilly home"
       >
         <motion.div
           whileHover={{ scale: 1.02 }}
           transition={{ duration: 0.2 }}
-          className="flex items-center gap-2"
+          className="flex items-center"
         >
-          <img
-            src="/logo.jpg"
-            alt="Spacilly"
-            className="w-8 h-8 md:w-10 md:h-10 rounded-full object-cover flex-shrink-0"
-            style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
-          />
-          <div className="hidden sm:block">
-            <span
-              className="spacilly-logo-font font-bold block leading-tight"
-              style={{ fontSize: 20, color: 'var(--text-primary)' }}
-            >
-              Spac<span style={{ color: PRIMARY }}>illy</span>
-            </span>
-            <span
-              className="text-[10px] block leading-tight"
-              style={{ color: 'var(--text-muted)' }}
-            >
-              Buy & Sell Anything
-            </span>
-          </div>
+          <BrandLogo className="h-9 md:h-12 max-w-[220px] rounded-md" />
         </motion.div>
       </Link>
 

@@ -11,17 +11,17 @@
  * the admin "AI reasoning logs" panel can show *why* something ranked.
  */
 
-import type { IProduct } from '../../models/Product';
-import type { IBuyerInsightProfile } from '../../models/BuyerInsightProfile';
-import type { IBuyerSessionIntent } from '../../models/BuyerSessionIntent';
-import type { IProductSignalSnapshot } from '../../models/ProductSignalSnapshot';
-import type { ISellerTrustProfile } from '../../models/SellerTrustProfile';
-import type { ISellerSubscription } from '../../models/SellerSubscription';
+import type { IProduct } from "../../models/Product.js";
+import type { IBuyerInsightProfile } from "../../models/BuyerInsightProfile.js";
+import type { IBuyerSessionIntent } from "../../models/BuyerSessionIntent.js";
+import type { IProductSignalSnapshot } from "../../models/ProductSignalSnapshot.js";
+import type { ISellerTrustProfile } from "../../models/SellerTrustProfile.js";
+import type { ISellerSubscription } from "../../models/SellerSubscription.js";
 import type {
   IMarketplaceAIConfig,
   ITrustTierBoosts,
   ISubscriptionBoosts,
-} from '../../models/MarketplaceAIConfig';
+} from "../../models/MarketplaceAIConfig.js";
 
 export interface RankingContext {
   config: IMarketplaceAIConfig;

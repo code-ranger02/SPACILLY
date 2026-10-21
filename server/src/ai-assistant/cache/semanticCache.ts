@@ -1,6 +1,6 @@
 import { Mutex } from 'async-mutex';
-import type { CacheEntry } from '../types';
-import { normalizePromptForCache } from './normalize';
+import type { CacheEntry } from "../types.js";
+import { normalizePromptForCache } from "./normalize.js";
 
 const TTL_MS = 24 * 60 * 60 * 1000;
 const SEMANTIC_THRESHOLD = 0.9;

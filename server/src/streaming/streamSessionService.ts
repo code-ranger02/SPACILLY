@@ -1,6 +1,6 @@
-import { LiveCommerceSession } from '../models/LiveCommerceSession';
-import { StreamProviderFactory } from './StreamProviderFactory';
-import type { StreamCreateOptions, StreamProviderType } from './types';
+import { LiveCommerceSession } from "../models/LiveCommerceSession.js";
+import { StreamProviderFactory } from "./StreamProviderFactory.js";
+import type { StreamCreateOptions, StreamProviderType } from "./types.js";
 
 export async function attachStreamToSession(
   sessionId: string,
@@ -39,7 +39,7 @@ export async function endStreamForSession(sessionId: string) {
     await provider.endStream(session.streamId).catch(() => {});
   }
   if (session.streamProvider === 'webrtc') {
-    const { clearWebRTCRoom } = await import('../socket/webrtcSignaling');
+    const { clearWebRTCRoom } = await import("../socket/webrtcSignaling.js");
     clearWebRTCRoom(String(session._id));
   }
 
@@ -48,14 +48,14 @@ export async function endStreamForSession(sessionId: string) {
   await session.save();
 
   try {
-    const { broadcastLiveEnded } = await import('../socket/liveCommerceSockets');
+    const { broadcastLiveEnded } = await import("../socket/liveCommerceSockets.js");
     broadcastLiveEnded(String(session._id), { status: session.status, reason: 'seller_ended' });
   } catch {
     /* socket not ready */
   }
 
   try {
-    const { clearSellerPresence } = await import('../services/liveSellerPresence');
+    const { clearSellerPresence } = await import("../services/liveSellerPresence.js");
     clearSellerPresence(String(session._id));
   } catch {
     /* noop */
@@ -80,7 +80,7 @@ export async function refreshPlaybackUrl(sessionId: string) {
 }
 
 export async function getDefaultProvider(): Promise<StreamProviderType> {
-  const { getStreamingConfig } = await import('./streamingSettings');
+  const { getStreamingConfig } = await import("./streamingSettings.js");
   const config = await getStreamingConfig();
   return config.defaultProvider;
 }

@@ -1,9 +1,9 @@
 import crypto from 'crypto';
 import mongoose from 'mongoose';
-import { ACCOUNTS } from '../financial/accounts';
-import { addMinor, isZeroMinor, parseMinor } from '../financial/money';
-import { FinancialEvent, type FinancialEventType } from '../models/FinancialEvent';
-import { LedgerEntry, type LedgerSide } from '../models/LedgerEntry';
+import { ACCOUNTS } from "../financial/accounts.js";
+import { addMinor, isZeroMinor, parseMinor } from "../financial/money.js";
+import { FinancialEvent, type FinancialEventType } from "../models/FinancialEvent.js";
+import { LedgerEntry, type LedgerSide } from "../models/LedgerEntry.js";
 
 export type LedgerLineInput = {
   account: string;

@@ -1,5 +1,5 @@
-import type { QueryIntent } from './intelligenceSearch.types';
-import { classifyQuery } from './queryClassifier';
+import type { QueryIntent } from "./intelligenceSearch.types.js";
+import { classifyQuery } from "./queryClassifier.js";
 
 export interface QueryUnderstanding {
   intent: QueryIntent;

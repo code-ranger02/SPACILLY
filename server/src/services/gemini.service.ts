@@ -3,18 +3,18 @@
  * Uses @google/generative-ai SDK (ChatSession + function responses).
  */
 import { GoogleGenerativeAI, FunctionCallingMode, SchemaType } from '@google/generative-ai';
-import { determineTaskComplexity } from '../ai-assistant/engine/complexity';
-import { neverStopExecute } from '../ai-assistant/engine/neverStop';
+import { determineTaskComplexity } from "../ai-assistant/engine/complexity.js";
+import { neverStopExecute } from "../ai-assistant/engine/neverStop.js";
 import {
   getModelBlacklist,
   getModelScorer,
   getAiMetrics,
-} from '../ai-assistant/singleton';
+} from "../ai-assistant/singleton.js";
 import mongoose from 'mongoose';
-import { getServerUrl } from '../config/publicEnv';
-import { Order } from '../models/Order';
-import { Product } from '../models/Product';
-import { initializePayment } from './paymentService';
+import { getServerUrl } from "../config/publicEnv.js";
+import { Order } from "../models/Order.js";
+import { Product } from "../models/Product.js";
+import { initializePayment } from "./paymentService.js";
 
 const MAX_TOOL_ITERATIONS = 8;
 
@@ -217,7 +217,7 @@ async function executeTool(
 
       const regex = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
 
-      const { buyerVisibleProductFilter } = await import('../utils/publicProductQuery');
+      const { buyerVisibleProductFilter } = await import("../utils/publicProductQuery.js");
       const filter: Record<string, unknown> = buyerVisibleProductFilter({
         stock: { $gt: 0 },
       });

@@ -12,9 +12,9 @@
  */
 
 import mongoose from 'mongoose';
-import { RecommendationActivity } from '../../models/RecommendationActivity';
-import { ProductSignalSnapshot } from '../../models/ProductSignalSnapshot';
-import { Product } from '../../models/Product';
+import { RecommendationActivity } from "../../models/RecommendationActivity.js";
+import { ProductSignalSnapshot } from "../../models/ProductSignalSnapshot.js";
+import { Product } from "../../models/Product.js";
 
 const TREND_TYPES = ['product_view', 'cart_add', 'purchase', 'wishlist_add'];
 

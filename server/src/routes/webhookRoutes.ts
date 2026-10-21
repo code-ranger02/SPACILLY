@@ -1,11 +1,11 @@
 import { Router, Request, Response } from 'express';
-import { verifyPayment } from '../services/paymentService';
-import { assertPaymentGatewayEnabled } from '../services/paymentGateway.service';
-import { Order } from '../models/Order';
-import { sendNotification } from '../services/notificationService';
+import { verifyPayment } from "../services/paymentService.js";
+import { assertPaymentGatewayEnabled } from "../services/paymentGateway.service.js";
+import { Order } from "../models/Order.js";
+import { sendNotification } from "../services/notificationService.js";
 import axios from 'axios';
-import { getFlutterwaveResolvedConfig, getPaypalCredentialsResolved } from '../services/paymentGatewayCredentials.service';
-import { getPayPalAccessToken } from '../services/paypalCheckout.service';
+import { getFlutterwaveResolvedConfig, getPaypalCredentialsResolved } from "../services/paymentGatewayCredentials.service.js";
+import { getPayPalAccessToken } from "../services/paypalCheckout.service.js";
 
 const router = Router();
 
@@ -149,7 +149,7 @@ async function handleTransferComplete(data: any) {
       amount: data.amount,
       orderId: String(order._id),
       orderNumber: order.orderNumber,
-      currency: order.currency,
+      currency: order.payment?.currency || order.currencySnapshot?.currency,
     });
   }
 }

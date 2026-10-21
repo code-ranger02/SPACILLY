@@ -1,4 +1,4 @@
-import { notifyBuyerOrderStatusChangeEnhanced } from './orderLifecycleNotifications.service';
+import { notifyBuyerOrderStatusChangeEnhanced } from "./orderLifecycleNotifications.service.js";
 
 /**
  * Order status change → buyer in-app + push + rule-based email (payment & payout aware).

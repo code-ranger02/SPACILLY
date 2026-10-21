@@ -1,53 +1,53 @@
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../middleware/auth';
+import { AuthenticatedRequest } from "../middleware/auth.js";
 import mongoose from 'mongoose';
-import { MarketingCampaign } from '../models/MarketingCampaign';
-import { MarketingCoupon } from '../models/MarketingCoupon';
-import { CustomerSegment } from '../models/CustomerSegment';
-import { MarketingMessageCampaign } from '../models/MarketingMessageCampaign';
-import { AbandonedCart } from '../models/AbandonedCart';
-import { getOrCreateCartSettings, settingsToClient } from '../models/AbandonedCartSettings';
-import { getOrCreateCartStrategy, strategyToClient } from '../models/AbandonedCartStrategy';
+import { MarketingCampaign } from "../models/MarketingCampaign.js";
+import { MarketingCoupon } from "../models/MarketingCoupon.js";
+import { CustomerSegment } from "../models/CustomerSegment.js";
+import { MarketingMessageCampaign } from "../models/MarketingMessageCampaign.js";
+import { AbandonedCart } from "../models/AbandonedCart.js";
+import { getOrCreateCartSettings, settingsToClient } from "../models/AbandonedCartSettings.js";
+import { getOrCreateCartStrategy, strategyToClient } from "../models/AbandonedCartStrategy.js";
 import {
   cancelPendingQueueJobs,
   regenerateQueueFromSettings,
-} from '../services/cartRecoveryEngine.service';
-import { ProductPromotion } from '../models/ProductPromotion';
-import { AdIntegration } from '../models/AdIntegration';
-import { TrackingPixel } from '../models/TrackingPixel';
-import { MarketingCreative } from '../models/MarketingCreative';
-import { ReferralSettings } from '../models/ReferralSettings';
-import { MarketingSettings } from '../models/MarketingSettings';
-import { AIMarketingSettings } from '../models/AIMarketingSettings';
-import { MarketingReferralReward } from '../models/MarketingReferralReward';
-import { BuyerInsightProfile } from '../models/BuyerInsightProfile';
-import { RecommendationEmailHistory } from '../models/RecommendationEmailHistory';
+} from "../services/cartRecoveryEngine.service.js";
+import { ProductPromotion } from "../models/ProductPromotion.js";
+import { AdIntegration } from "../models/AdIntegration.js";
+import { TrackingPixel } from "../models/TrackingPixel.js";
+import { MarketingCreative } from "../models/MarketingCreative.js";
+import { ReferralSettings } from "../models/ReferralSettings.js";
+import { MarketingSettings } from "../models/MarketingSettings.js";
+import { AIMarketingSettings } from "../models/AIMarketingSettings.js";
+import { MarketingReferralReward } from "../models/MarketingReferralReward.js";
+import { BuyerInsightProfile } from "../models/BuyerInsightProfile.js";
+import { RecommendationEmailHistory } from "../models/RecommendationEmailHistory.js";
 import {
   MarketingAutomationSettings,
   MarketingFlowKey,
   getMarketingAutomationSettings,
   invalidateMarketingAutomationSettingsCache,
   resolveEmailNotificationSettings,
-} from '../models/MarketingAutomationSettings';
-import { isEmailConfigured } from '../services/emailService';
+} from "../models/MarketingAutomationSettings.js";
+import { isEmailConfigured } from "../services/emailService.js";
 import {
   isGeminiApiConfigured,
   invalidateEmailNotificationPolicyCache,
-} from '../email/emailNotificationPolicy.service';
-import { PushDevice } from '../models/PushDevice';
-import { User } from '../models/User';
+} from "../email/emailNotificationPolicy.service.js";
+import { PushDevice } from "../models/PushDevice.js";
+import { User } from "../models/User.js";
 import {
   runRecommendationOnce,
   sendRecommendationEmailToUser,
-} from '../services/recommendationEmail.service';
-import { runCartPulseOnce } from '../jobs/cartPulseEmailWorker';
-import { runBrowseAbandonOnce } from '../jobs/browseAbandonEmailWorker';
-import { runWinbackOnce } from '../jobs/lifecycleEmailWorker';
-import { runAbandonedCartOnce } from '../jobs/abandonedCartEmailWorker';
+} from "../services/recommendationEmail.service.js";
+import { runCartPulseOnce } from "../jobs/cartPulseEmailWorker.js";
+import { runBrowseAbandonOnce } from "../jobs/browseAbandonEmailWorker.js";
+import { runWinbackOnce } from "../jobs/lifecycleEmailWorker.js";
+import { runAbandonedCartOnce } from "../jobs/abandonedCartEmailWorker.js";
 import {
   broadcastPushToBuyers,
   sendPushToUser,
-} from '../services/pushNotificationService';
+} from "../services/pushNotificationService.js";
 
 function ensureAdmin(req: AuthenticatedRequest, res: Response): boolean {
   if (!req.user || req.user.role !== 'admin') {

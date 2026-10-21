@@ -1,10 +1,10 @@
 import { Router, Request, Response } from 'express';
 import multer from 'multer';
 import path from 'path';
-import { authenticate, authorize, AuthenticatedRequest } from '../middleware/auth';
-import { cloudinaryUploadBuffers } from '../middleware/cloudinaryMemoryUpload';
+import { authenticate, authorize, AuthenticatedRequest } from "../middleware/auth.js";
+import { cloudinaryUploadBuffers } from "../middleware/cloudinaryMemoryUpload.js";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const { uploadCollectionFields } = require('../../config/cloudinary');
+const { uploadCollectionFields } = require("../../config/cloudinary.js");
 import {
   getSellerOrders,
   getSellerOrderById,
@@ -13,7 +13,7 @@ import {
   getSellerCarrierOptions,
   bulkProcessSellerOrders,
   markOrderReadyForPickup,
-} from '../controllers/sellerOrderController';
+} from "../controllers/sellerOrderController.js";
 import {
   getSellerCollections,
   createSellerCollection,
@@ -25,19 +25,19 @@ import {
   reorderCollectionProducts,
   previewCollectionProducts,
   previewCollectionRules,
-} from '../controllers/sellerCollectionController';
-import { getDashboardStats } from '../controllers/sellerDashboardController';
-import { createAdvertisingInquiry } from '../controllers/sellerAdvertisingController';
-import { getSellerOnboardingStatus } from '../controllers/sellerOnboardingController';
+} from "../controllers/sellerCollectionController.js";
+import { getDashboardStats } from "../controllers/sellerDashboardController.js";
+import { createAdvertisingInquiry } from "../controllers/sellerAdvertisingController.js";
+import { getSellerOnboardingStatus } from "../controllers/sellerOnboardingController.js";
 import {
   listViolationAppeals,
   submitViolationAppeal,
-} from '../controllers/sellerViolationAppealController';
-import { getPublicFeeSchedule } from '../controllers/sellerFeeScheduleController';
+} from "../controllers/sellerViolationAppealController.js";
+import { getPublicFeeSchedule } from "../controllers/sellerFeeScheduleController.js";
 import {
   getSellerShippingSettings,
   putSellerShippingSettings,
-} from '../controllers/sellerShippingSettingsController';
+} from "../controllers/sellerShippingSettingsController.js";
 
 const router = Router();
 

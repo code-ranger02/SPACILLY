@@ -1,10 +1,10 @@
 import { Response } from 'express';
 import mongoose from 'mongoose';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { User } from '../models/User';
-import { SellerSettings } from '../models/SellerSettings';
-import { Product } from '../models/Product';
-import { getSellerKycStatus, isIdentityKycComplete } from '../services/sellerKyc.service';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { User } from "../models/User.js";
+import { SellerSettings } from "../models/SellerSettings.js";
+import { Product } from "../models/Product.js";
+import { getSellerKycStatus, isIdentityKycComplete } from "../services/sellerKyc.service.js";
 
 /** GET /api/admin/kyc-queues */
 export async function getKycQueues(req: AuthenticatedRequest, res: Response) {

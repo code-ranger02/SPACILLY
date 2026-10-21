@@ -1,9 +1,9 @@
 /**
  * Shared builder for marketing / recommendation emails (AI copy + product cards).
  */
-import { formatUsdAsCurrency } from '../utils/money';
-import { generateMarketingEmailCopy, type MarketingCampaign, type MarketingCopyResult } from './emailCopyAi.service';
-import type { ProductCardInput } from './components';
+import { formatUsdAsCurrency } from "../utils/money.js";
+import { generateMarketingEmailCopy, type MarketingCampaign, type MarketingCopyResult } from "./emailCopyAi.service.js";
+import type { ProductCardInput } from "./components.js";
 
 type ProductSource = {
   _id: unknown;

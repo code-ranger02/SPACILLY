@@ -2,8 +2,8 @@ import { Router } from 'express';
 import multer from 'multer';
 import path from 'path';
 import type { Request } from 'express';
-import { authenticate, authorize, AuthenticatedRequest } from '../middleware/auth';
-import { cloudinaryUploadBuffers } from '../middleware/cloudinaryMemoryUpload';
+import { authenticate, authorize, AuthenticatedRequest } from "../middleware/auth.js";
+import { cloudinaryUploadBuffers } from "../middleware/cloudinaryMemoryUpload.js";
 import {
   getTickets,
   getTicket,
@@ -12,7 +12,7 @@ import {
   updateTicket,
   submitSatisfaction,
   getTicketStats,
-} from '../controllers/supportTicketController';
+} from "../controllers/supportTicketController.js";
 
 const router = Router();
 

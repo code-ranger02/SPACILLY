@@ -1,14 +1,14 @@
 import { Response } from 'express';
 import mongoose from 'mongoose';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { User } from '../models/User';
-import { DEFAULT_SPACILLY_METHODS, defaultSpacillySellerShipping } from '../types/spacillyShipping.types';
-import { resolveSellerShippingConfig } from '../services/spacillyShipping.service';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { User } from "../models/User.js";
+import { DEFAULT_SPACILLY_METHODS, defaultSpacillySellerShipping } from "../types/spacillyShipping.types.js";
+import { resolveSellerShippingConfig } from "../services/spacillyShipping.service.js";
 import {
   applyPlatformPolicyToSellerConfig,
   getPlatformShippingContext,
   getPlatformShippingPolicy,
-} from '../services/platformShippingPolicy.service';
+} from "../services/platformShippingPolicy.service.js";
 
 export async function getSellerShippingSettings(req: AuthenticatedRequest, res: Response) {
   if (!req.user) {

@@ -7,9 +7,9 @@ import {
   toggleWishlist,
   getWishlistStatus,
   listUserWishlist,
-} from '../controllers/productController';
-import { cacheMiddleware } from '../middleware/cache';
-import { authenticate, optionalAuthenticate } from '../middleware/auth';
+} from "../controllers/productController.js";
+import { cacheMiddleware } from "../middleware/cache.js";
+import { authenticate, optionalAuthenticate } from "../middleware/auth.js";
 
 const router = Router();
 

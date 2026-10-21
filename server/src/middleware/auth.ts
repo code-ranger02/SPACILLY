@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { AuthTokenPayload } from '../utils/generateToken';
-import { User } from '../models/User';
-import { ActiveSession } from '../models/ActiveSession';
-import { noteUserRequest } from '../services/systemMonitor.service';
-import { getJwtSecret } from '../config/jwtSecret';
+import { AuthTokenPayload } from "../utils/generateToken.js";
+import { User } from "../models/User.js";
+import { ActiveSession } from "../models/ActiveSession.js";
+import { noteUserRequest } from "../services/systemMonitor.service.js";
+import { getJwtSecret } from "../config/jwtSecret.js";
 // Updating `ActiveSession.lastActiveAt` performs a DB write.
 // Throttle this to reduce latency under load.
 const SESSION_TOUCH_MIN_MS =
@@ -101,7 +101,7 @@ export function authorize(...allowedRoles: string[]) {
     if (dbUser.role === 'admin') {
       const path = req.originalUrl.split('?')[0];
       const { canAccessAdminApiPath, isAdminProtectedApiPath } = await import(
-        '../services/adminAccess.service'
+        "../services/adminAccess.service.js"
       );
       if (isAdminProtectedApiPath(path)) {
         const ok = await canAccessAdminApiPath(req.user.id, req.method, path);

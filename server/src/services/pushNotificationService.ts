@@ -13,9 +13,9 @@
  */
 import mongoose from 'mongoose';
 import webpush, { type PushSubscription as WebPushSubscriptionPayload } from 'web-push';
-import { PushDevice } from '../models/PushDevice';
-import { User } from '../models/User';
-import { WebPushSubscription } from '../models/WebPushSubscription';
+import { PushDevice } from "../models/PushDevice.js";
+import { User } from "../models/User.js";
+import { WebPushSubscription } from "../models/WebPushSubscription.js";
 
 const EXPO_PUSH_ENDPOINT = 'https://exp.host/--/api/v2/push/send';
 

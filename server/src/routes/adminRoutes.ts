@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import { authenticate, authorize } from '../middleware/auth';
+import { authenticate, authorize } from "../middleware/auth.js";
 import { 
   getBuyers, getUserDetails, updateUserStatus, createUser, updateUser, deleteUser, getUserStats,
   getSellers, getSellerDetails, updateSellerStatus, createSeller, updateSeller, deleteSeller, getSellerStats
-} from '../controllers/adminController';
+} from "../controllers/adminController.js";
 
 const router = Router();
 

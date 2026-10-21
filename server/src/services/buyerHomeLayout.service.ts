@@ -7,8 +7,8 @@ import {
   resolveHomeSectionLayout,
   type HomeLayoutSectionId,
   type HomeSectionLayoutEntry,
-} from '../constants/buyerHomeLayoutDefaults';
-import { BuyerHomeLayoutConfig } from '../models/BuyerHomeLayoutConfig';
+} from "../constants/buyerHomeLayoutDefaults.js";
+import { BuyerHomeLayoutConfig } from "../models/BuyerHomeLayoutConfig.js";
 
 type Overrides = Partial<Record<HomeLayoutSectionId, Partial<HomeSectionLayoutEntry>>>;
 

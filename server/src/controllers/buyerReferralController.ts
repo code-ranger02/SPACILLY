@@ -1,6 +1,6 @@
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { getBuyerReferralDashboard } from '../services/referralReward.service';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { getBuyerReferralDashboard } from "../services/referralReward.service.js";
 
 /** GET /api/buyer/referral — share link, code, stats (when program enabled). */
 export async function getBuyerReferral(req: AuthenticatedRequest, res: Response) {

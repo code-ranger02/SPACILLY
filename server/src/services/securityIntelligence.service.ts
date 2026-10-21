@@ -4,9 +4,9 @@
  */
 import { EventEmitter } from 'node:events';
 import mongoose from 'mongoose';
-import { getConnectedUsersByRole } from './socketRegistry';
-import { User } from '../models/User';
-import { lookupIpGeoLabel, summarizeUserAgent } from '../utils/ipGeoLookup';
+import { getConnectedUsersByRole } from "./socketRegistry.js";
+import { User } from "../models/User.js";
+import { lookupIpGeoLabel, summarizeUserAgent } from "../utils/ipGeoLookup.js";
 
 export type UserRole = 'buyer' | 'seller' | 'admin' | 'guest';
 

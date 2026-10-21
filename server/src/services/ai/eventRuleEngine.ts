@@ -20,10 +20,10 @@
  */
 
 import mongoose from 'mongoose';
-import { BuyerSessionIntent, type IBuyerSessionIntent, type ISessionEventRef } from '../../models/BuyerSessionIntent';
-import { BuyerInsightProfile } from '../../models/BuyerInsightProfile';
-import { recordCoOccurrence } from './coOccurrenceEngine';
-import { classifyIntent, applyIntentToSession } from './intentClassifier';
+import { BuyerSessionIntent, type IBuyerSessionIntent, type ISessionEventRef } from "../../models/BuyerSessionIntent.js";
+import { BuyerInsightProfile } from "../../models/BuyerInsightProfile.js";
+import { recordCoOccurrence } from "./coOccurrenceEngine.js";
+import { classifyIntent, applyIntentToSession } from "./intentClassifier.js";
 
 export type EngineEvent =
   | { type: 'view'; productId: string; category?: string }

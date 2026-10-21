@@ -1,27 +1,27 @@
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { NotificationTemplate } from '../models/NotificationTemplate';
-import { ScheduledNotification } from '../models/ScheduledNotification';
-import { SentNotificationLog } from '../models/SentNotificationLog';
-import { AdminNotificationSettings } from '../models/AdminNotificationSettings';
-import { NotificationAutomationRule } from '../models/NotificationAutomationRule';
-import { NotificationPermission } from '../models/NotificationPermission';
-import { AdminSystemAlert } from '../models/AdminSystemAlert';
-import { User } from '../models/User';
-import { sendNotificationEmail, isEmailConfigured } from '../services/emailService';
-import { pickCta } from '../email/copyEngine';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { NotificationTemplate } from "../models/NotificationTemplate.js";
+import { ScheduledNotification } from "../models/ScheduledNotification.js";
+import { SentNotificationLog } from "../models/SentNotificationLog.js";
+import { AdminNotificationSettings } from "../models/AdminNotificationSettings.js";
+import { NotificationAutomationRule } from "../models/NotificationAutomationRule.js";
+import { NotificationPermission } from "../models/NotificationPermission.js";
+import { AdminSystemAlert } from "../models/AdminSystemAlert.js";
+import { User } from "../models/User.js";
+import { sendNotificationEmail, isEmailConfigured } from "../services/emailService.js";
+import { pickCta } from "../email/copyEngine.js";
 import mongoose from 'mongoose';
-import { createSystemInboxAndFanout } from '../services/systemInboxFanout';
+import { createSystemInboxAndFanout } from "../services/systemInboxFanout.js";
 import {
   generateNotificationCopy as generateNotificationCopyWithAi,
   improveNotificationCopy as improveNotificationCopyWithAi,
-} from '../services/notificationCopyAi.service';
+} from "../services/notificationCopyAi.service.js";
 import {
   getNotificationEventDefinition,
   NOTIFICATION_EVENT_GROUPS,
   NOTIFICATION_EVENT_LIBRARY,
   sanitizeCustomEventKey,
-} from '../constants/notificationEvents';
+} from "../constants/notificationEvents.js";
 
 function ensureAdmin(req: AuthenticatedRequest, res: Response): boolean {
   if (!req.user || req.user.role !== 'admin') {

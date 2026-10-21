@@ -1,10 +1,10 @@
 import { Response } from 'express';
 import mongoose from 'mongoose';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { Order } from '../models/Order';
-import { MessageThread } from '../models/MessageThread';
-import { SystemNotification } from '../models/SystemNotification';
-import { LiveCommerceSession } from '../models/LiveCommerceSession';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { Order } from "../models/Order.js";
+import { MessageThread } from "../models/MessageThread.js";
+import { SystemNotification } from "../models/SystemNotification.js";
+import { LiveCommerceSession } from "../models/LiveCommerceSession.js";
 
 type BuyerNotificationType = 'order' | 'message' | 'system' | 'live';
 

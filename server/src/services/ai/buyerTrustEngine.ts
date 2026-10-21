@@ -23,10 +23,10 @@
  */
 
 import mongoose from 'mongoose';
-import { BuyerTrustProfile, type BuyerTrustTier, type IBuyerTrustProfile } from '../../models/BuyerTrustProfile';
-import { User } from '../../models/User';
-import { Order } from '../../models/Order';
-import { RefundRequest } from '../../models/RefundRequest';
+import { BuyerTrustProfile, type BuyerTrustTier, type IBuyerTrustProfile } from "../../models/BuyerTrustProfile.js";
+import { User } from "../../models/User.js";
+import { Order } from "../../models/Order.js";
+import { RefundRequest } from "../../models/RefundRequest.js";
 
 const DAYS = 86_400_000;
 const clamp01 = (n: number) => Math.max(0, Math.min(1, n));

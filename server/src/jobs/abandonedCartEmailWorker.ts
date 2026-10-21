@@ -1,17 +1,17 @@
 import mongoose from 'mongoose';
-import { AbandonedCart } from '../models/AbandonedCart';
-import { AbandonedCartQueue } from '../models/AbandonedCartQueue';
-import { getOrCreateCartSettings, settingsToClient } from '../models/AbandonedCartSettings';
-import { RecommendationActivity } from '../models/RecommendationActivity';
-import { Product } from '../models/Product';
-import { User } from '../models/User';
-import { generateMarketingEmailCopy } from '../email/emailCopyAi.service';
-import { isEmailConfigured, sendAbandonedCartEmail } from '../services/emailService';
-import { getClientUrl } from '../config/publicEnv';
-import { formatUsdAsCurrency } from '../utils/money';
-import { recordFlowRun } from '../models/MarketingAutomationSettings';
-import { safeSendPushToUser } from '../services/pushNotificationService';
-import { inferPrimaryCategory } from '../services/abandonedCartRecovery.service';
+import { AbandonedCart } from "../models/AbandonedCart.js";
+import { AbandonedCartQueue } from "../models/AbandonedCartQueue.js";
+import { getOrCreateCartSettings, settingsToClient } from "../models/AbandonedCartSettings.js";
+import { RecommendationActivity } from "../models/RecommendationActivity.js";
+import { Product } from "../models/Product.js";
+import { User } from "../models/User.js";
+import { generateMarketingEmailCopy } from "../email/emailCopyAi.service.js";
+import { isEmailConfigured, sendAbandonedCartEmail } from "../services/emailService.js";
+import { getClientUrl } from "../config/publicEnv.js";
+import { formatUsdAsCurrency } from "../utils/money.js";
+import { recordFlowRun } from "../models/MarketingAutomationSettings.js";
+import { safeSendPushToUser } from "../services/pushNotificationService.js";
+import { inferPrimaryCategory } from "../services/abandonedCartRecovery.service.js";
 import {
   appendTimeline,
   cancelPendingQueueJobs,
@@ -23,10 +23,10 @@ import {
   getStepConfig,
   parseCooldownMs,
   preSendSafetyChecks,
-} from '../services/cartRecoveryEngine.service';
-import { RecommendationEmailHistory } from '../models/RecommendationEmailHistory';
-import { isMarketingFlowEnabled } from '../models/MarketingAutomationSettings';
-import { assertBuyerMarketingEligible } from '../services/marketingRecipient.service';
+} from "../services/cartRecoveryEngine.service.js";
+import { RecommendationEmailHistory } from "../models/RecommendationEmailHistory.js";
+import { isMarketingFlowEnabled } from "../models/MarketingAutomationSettings.js";
+import { assertBuyerMarketingEligible } from "../services/marketingRecipient.service.js";
 
 const CLIENT_URL = getClientUrl();
 const APP_NAME = process.env.APP_NAME || 'Spacilly';
@@ -450,7 +450,7 @@ async function tick(): Promise<{ sent: number; skipped: number; failed: number; 
   if (!(await isMarketingFlowEnabled('abandoned_cart'))) {
     return { sent: 0, skipped: 0, failed: 0, discovered: 0 };
   }
-  const { isSystemFeatureEnabled } = await import('../services/systemFeatureSettings.service');
+  const { isSystemFeatureEnabled } = await import("../services/systemFeatureSettings.service.js");
   if (!(await isSystemFeatureEnabled('abandoned_cart_emails'))) {
     return { sent: 0, skipped: 0, failed: 0, discovered: 0 };
   }

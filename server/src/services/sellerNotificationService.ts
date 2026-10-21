@@ -1,23 +1,23 @@
 import mongoose from 'mongoose';
-import { Order } from '../models/Order';
-import { Product } from '../models/Product';
-import { SellerSettings } from '../models/SellerSettings';
-import { SystemNotification } from '../models/SystemNotification';
-import { User } from '../models/User';
+import { Order } from "../models/Order.js";
+import { Product } from "../models/Product.js";
+import { SellerSettings } from "../models/SellerSettings.js";
+import { SystemNotification } from "../models/SystemNotification.js";
+import { User } from "../models/User.js";
 import {
   generateSellerNotificationCopy,
   type SellerNotificationContext,
   type SellerNotificationEvent,
-} from './sellerNotificationAssistant.service';
-import { createSystemInboxAndFanout } from './systemInboxFanout';
-import { safeSendPushToUser } from './pushNotificationService';
-import { sendRichNotificationEmail, isEmailConfigured } from './emailService';
-import { enhanceTransactionalEmailCopy } from '../email/emailCopyAi.service';
-import { sellerEventCategory, sellerEventAccent } from '../email/eventCategories';
-import { getClientUrl } from '../config/publicEnv';
-import { pickVisualVariant } from '../utils/notificationVisual';
-import { prepareInAppNotificationPayload } from '../utils/notificationDisplay';
-import { normalizeMediaUrls } from '../email/emailUrls';
+} from "./sellerNotificationAssistant.service.js";
+import { createSystemInboxAndFanout } from "./systemInboxFanout.js";
+import { safeSendPushToUser } from "./pushNotificationService.js";
+import { sendRichNotificationEmail, isEmailConfigured } from "./emailService.js";
+import { enhanceTransactionalEmailCopy } from "../email/emailCopyAi.service.js";
+import { sellerEventCategory, sellerEventAccent } from "../email/eventCategories.js";
+import { getClientUrl } from "../config/publicEnv.js";
+import { pickVisualVariant } from "../utils/notificationVisual.js";
+import { prepareInAppNotificationPayload } from "../utils/notificationDisplay.js";
+import { normalizeMediaUrls } from "../email/emailUrls.js";
 
 type PreferenceKey = 'newOrders' | 'newDisputes' | 'paymentReceived' | 'lowStock' | 'newMessages' | 'newReviews';
 

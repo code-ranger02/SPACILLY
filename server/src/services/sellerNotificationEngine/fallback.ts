@@ -6,8 +6,8 @@ import type {
   SellerNotificationEvent,
   SellerNotificationCopy,
   SellerNotificationTone,
-} from './types';
-import { isDuplicate, memoryKey, rememberNotification } from './memory';
+} from "./types.js";
+import { isDuplicate, memoryKey, rememberNotification } from "./memory.js";
 import {
   applyBehavioralRules,
   buildVisualStyle,
@@ -17,7 +17,7 @@ import {
   hoursLabel,
   orderRef,
   pickVariant,
-} from './utils';
+} from "./utils.js";
 
 type PoolVariant = {
   title: (ctx: SellerNotificationContext) => string;

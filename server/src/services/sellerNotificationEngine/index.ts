@@ -1,10 +1,10 @@
-import type { SellerNotificationContext, SellerNotificationEvent, SellerNotificationCopy } from './types';
-import { generateSellerNotificationFallback } from './fallback';
-import { generateSellerNotificationWithGemini } from './gemini';
-import { isDuplicate, memoryKey, rememberNotification } from './memory';
-import { shouldUseGeminiSellerNotifications } from '../../email/emailNotificationPolicy.service';
+import type { SellerNotificationContext, SellerNotificationEvent, SellerNotificationCopy } from "./types.js";
+import { generateSellerNotificationFallback } from "./fallback.js";
+import { generateSellerNotificationWithGemini } from "./gemini.js";
+import { isDuplicate, memoryKey, rememberNotification } from "./memory.js";
+import { shouldUseGeminiSellerNotifications } from "../../email/emailNotificationPolicy.service.js";
 
-export type { SellerNotificationEvent, SellerNotificationContext, SellerNotificationCopy, SellerNotificationTone } from './types';
+export type { SellerNotificationEvent, SellerNotificationContext, SellerNotificationCopy, SellerNotificationTone } from "./types.js";
 
 /**
  * Intelligent seller notification engine — Gemini first, deterministic fallback.

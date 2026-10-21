@@ -1,6 +1,6 @@
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { BuyerHomePromoConfig, IHomePromoBanner } from '../models/BuyerHomePromoConfig';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { BuyerHomePromoConfig, IHomePromoBanner } from "../models/BuyerHomePromoConfig.js";
 
 export const DEFAULT_HOME_PROMO_BANNERS: IHomePromoBanner[] = [
   {

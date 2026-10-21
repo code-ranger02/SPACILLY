@@ -7,11 +7,11 @@
  */
 
 import mongoose from 'mongoose';
-import { BuyerSessionIntent } from '../../models/BuyerSessionIntent';
-import { RecommendationActivity } from '../../models/RecommendationActivity';
-import { Product } from '../../models/Product';
-import { BuyerInsightProfile } from '../../models/BuyerInsightProfile';
-import { processEvent, type EngineEvent } from './eventRuleEngine';
+import { BuyerSessionIntent } from "../../models/BuyerSessionIntent.js";
+import { RecommendationActivity } from "../../models/RecommendationActivity.js";
+import { Product } from "../../models/Product.js";
+import { BuyerInsightProfile } from "../../models/BuyerInsightProfile.js";
+import { processEvent, type EngineEvent } from "./eventRuleEngine.js";
 
 export type BehaviorEvent =
   | { type: 'search'; query: string }

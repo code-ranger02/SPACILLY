@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { getPublicCheckoutGatewayList, getPublicGatewayFlags, ensureCorePaymentGateways } from '../services/paymentGateway.service';
-import { PAYMENT_GATEWAY_REGISTRY } from '../financial/paymentGatewayRegistry';
+import { getPublicCheckoutGatewayList, getPublicGatewayFlags, ensureCorePaymentGateways } from "../services/paymentGateway.service.js";
+import { PAYMENT_GATEWAY_REGISTRY } from "../financial/paymentGatewayRegistry.js";
 
 /** Unauthenticated: which payment providers are enabled and fully configured (for checkout UI). */
 export async function getPublicPaymentGateways(_req: Request, res: Response) {

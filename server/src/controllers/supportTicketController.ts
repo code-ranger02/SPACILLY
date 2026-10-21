@@ -1,9 +1,9 @@
 import { Response } from 'express';
 import { z } from 'zod';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { SupportTicket, ISupportTicket } from '../models/SupportTicket';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { SupportTicket, ISupportTicket } from "../models/SupportTicket.js";
 import mongoose from 'mongoose';
-import { createSystemInboxAndFanout } from '../services/systemInboxFanout';
+import { createSystemInboxAndFanout } from "../services/systemInboxFanout.js";
 
 // Helper to get seller ID from request
 const getSellerId = (req: AuthenticatedRequest): mongoose.Types.ObjectId | null => {

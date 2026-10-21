@@ -1,4 +1,4 @@
-import type { AdminScope } from './adminScopes';
+import type { AdminScope } from "./adminScopes.js";
 
 export type AdminNavCategoryId =
   | 'overview'

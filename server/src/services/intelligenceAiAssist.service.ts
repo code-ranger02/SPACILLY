@@ -1,6 +1,6 @@
-import { User } from '../models/User';
-import { AdminIntelligenceConfig } from '../models/AdminIntelligenceConfig';
-import type { IntelligenceQueryUnderstanding } from '../search/intelligenceSearch.types';
+import { User } from "../models/User.js";
+import { AdminIntelligenceConfig } from "../models/AdminIntelligenceConfig.js";
+import type { IntelligenceQueryUnderstanding } from "../search/intelligenceSearch.types.js";
 
 const GEMINI_API_KEY = String(process.env.GEMINI_API_KEY || '').trim();
 const GEMINI_MODEL = String(
@@ -28,7 +28,7 @@ export function isGeminiConfigured(): boolean {
 }
 
 async function getPlatformAiEnabled(): Promise<boolean> {
-  const { isSystemFeatureEnabled } = await import('./systemFeatureSettings.service');
+  const { isSystemFeatureEnabled } = await import("./systemFeatureSettings.service.js");
   if (!(await isSystemFeatureEnabled('admin_intelligence_gemini'))) return false;
   const row = await AdminIntelligenceConfig.findOne({ key: 'default' }).lean();
   if (!row) return true;

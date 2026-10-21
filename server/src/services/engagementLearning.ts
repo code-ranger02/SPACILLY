@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { RecommendationEmailHistory } from '../models/RecommendationEmailHistory';
+import { RecommendationEmailHistory } from "../models/RecommendationEmailHistory.js";
 
 export interface EngagementPattern {
   openRate: number;

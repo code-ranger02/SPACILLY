@@ -6,11 +6,11 @@ import {
   verifyAuthenticationResponse,
 } from '@simplewebauthn/server';
 import type { PublicKeyCredentialCreationOptionsJSON, PublicKeyCredentialRequestOptionsJSON } from '@simplewebauthn/server';
-import { User } from '../models/User';
-import { WebauthnCredential } from '../models/WebauthnCredential';
-import { generateAuthToken } from '../utils/generateToken';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { getClientUrl } from '../config/publicEnv';
+import { User } from "../models/User.js";
+import { WebauthnCredential } from "../models/WebauthnCredential.js";
+import { generateAuthToken } from "../utils/generateToken.js";
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { getClientUrl } from "../config/publicEnv.js";
 
 const rpName = process.env.WEBAUTHN_RP_NAME || 'Spacilly';
 const rpID = process.env.WEBAUTHN_RP_ID || 'localhost';

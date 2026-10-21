@@ -14,12 +14,12 @@ import type {
   EngagementLevel,
   IBuyerSessionIntent,
   PriceBucket,
-} from '../../models/BuyerSessionIntent';
-import { Product } from '../../models/Product';
-import { ProductSignalSnapshot } from '../../models/ProductSignalSnapshot';
-import { SellerTrustProfile } from '../../models/SellerTrustProfile';
-import { BuyerSessionIntent } from '../../models/BuyerSessionIntent';
-import { computeTrustScore } from './sellerTrustEngine';
+} from "../../models/BuyerSessionIntent.js";
+import { Product } from "../../models/Product.js";
+import { ProductSignalSnapshot } from "../../models/ProductSignalSnapshot.js";
+import { SellerTrustProfile } from "../../models/SellerTrustProfile.js";
+import { BuyerSessionIntent } from "../../models/BuyerSessionIntent.js";
+import { computeTrustScore } from "./sellerTrustEngine.js";
 
 export interface ColdStartUserDefaults {
   mode: BuyerIntentMode;

@@ -1,11 +1,11 @@
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { quoteSpacillyShipments } from '../services/spacillyShipping.service';
-import type { SpacillyShippingMethodKey } from '../types/spacillyShipping.types';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { quoteSpacillyShipments } from "../services/spacillyShipping.service.js";
+import type { SpacillyShippingMethodKey } from "../types/spacillyShipping.types.js";
 import {
   aggregateDeliveryEstimate,
   findDeliveryDestination,
-} from '../services/deliveryDestination.service';
+} from "../services/deliveryDestination.service.js";
 
 function normalizeSelectedMethods(raw: unknown): Record<string, SpacillyShippingMethodKey> {
   const selectedMethods: Record<string, SpacillyShippingMethodKey> = {};

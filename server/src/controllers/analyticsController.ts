@@ -1,16 +1,16 @@
 import { Response } from 'express';
 import mongoose from 'mongoose';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { Order } from '../models/Order';
-import { Product } from '../models/Product';
-import { Message, MessageThread } from '../models/MessageThread';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { Order } from "../models/Order.js";
+import { Product } from "../models/Product.js";
+import { Message, MessageThread } from "../models/MessageThread.js";
 import {
   buildBuyerCommercialProfiles,
   orderMatchesSegmentFilters,
   type BuyerGroupFilter,
   type PaymentTermsFilter,
   type SalesRepFilter,
-} from '../utils/analyticsSegmentFilters';
+} from "../utils/analyticsSegmentFilters.js";
 
 /**
  * Helper to get seller ID from request

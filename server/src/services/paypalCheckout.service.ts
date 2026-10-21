@@ -1,8 +1,8 @@
 import axios from 'axios';
-import { getClientUrl } from '../config/publicEnv';
-import { Order, IOrder } from '../models/Order';
-import { orderPayAmount, orderPayCurrency } from './orderPayMoney';
-import { getPaypalCredentialsResolved } from './paymentGatewayCredentials.service';
+import { getClientUrl } from "../config/publicEnv.js";
+import { Order, IOrder } from "../models/Order.js";
+import { orderPayAmount, orderPayCurrency } from "./orderPayMoney.js";
+import { getPaypalCredentialsResolved } from "./paymentGatewayCredentials.service.js";
 
 function paypalApiBase(environment: 'sandbox' | 'live'): string {
   return environment === 'live' ? 'https://api-m.paypal.com' : 'https://api-m.sandbox.paypal.com';
@@ -127,7 +127,7 @@ export async function capturePayPalOrder(paypalOrderId: string): Promise<{
   const cur = (capture?.amount?.currency_code || 'USD') as string;
   const val = parseFloat(capture?.amount?.value || '0') || order.total;
 
-  const { finalizeSuccessfulEscrowPayment } = await import('./paymentService');
+  const { finalizeSuccessfulEscrowPayment } = await import("./paymentService.js");
   await finalizeSuccessfulEscrowPayment(orderId, {
     provider: 'paypal',
     paidAmount: val,

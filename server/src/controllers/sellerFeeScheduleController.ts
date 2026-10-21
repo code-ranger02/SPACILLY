@@ -1,5 +1,5 @@
 import { Response } from 'express';
-import { PAYMENT_GATEWAY_REGISTRY } from '../financial/paymentGatewayRegistry';
+import { PAYMENT_GATEWAY_REGISTRY } from "../financial/paymentGatewayRegistry.js";
 
 const FAQ_ITEMS = [
   {

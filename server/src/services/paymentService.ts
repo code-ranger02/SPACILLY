@@ -1,15 +1,15 @@
 import mongoose from 'mongoose';
-import { getFlutterwaveClient } from '../config/flutterwave';
-import { getClientUrl } from '../config/publicEnv';
-import { Order, IOrder } from '../models/Order';
-import { EscrowWallet } from '../models/EscrowWallet';
-import { SellerWallet } from '../models/SellerWallet';
-import { sendNotification } from './notificationService';
-import { scheduleAutoRelease } from './escrowService';
-import { processReferralRewardOnOrderPaid } from './referralReward.service';
-import { assertPaymentGatewayEnabled, assertCheckoutGatewayEnabled } from './paymentGateway.service';
-import { recordPaymentCaptured } from './paymentTransactionLog.service';
-import { gatewayKeyFromCheckoutMethod } from '../financial/paymentGatewayRegistry';
+import { getFlutterwaveClient } from "../config/flutterwave.js";
+import { getClientUrl } from "../config/publicEnv.js";
+import { Order, IOrder } from "../models/Order.js";
+import { EscrowWallet } from "../models/EscrowWallet.js";
+import { SellerWallet } from "../models/SellerWallet.js";
+import { sendNotification } from "./notificationService.js";
+import { scheduleAutoRelease } from "./escrowService.js";
+import { processReferralRewardOnOrderPaid } from "./referralReward.service.js";
+import { assertPaymentGatewayEnabled, assertCheckoutGatewayEnabled } from "./paymentGateway.service.js";
+import { recordPaymentCaptured } from "./paymentTransactionLog.service.js";
+import { gatewayKeyFromCheckoutMethod } from "../financial/paymentGatewayRegistry.js";
 import {
   assertMomoCallbackUrlProductionSafe,
   getRequestToPayStatus,
@@ -17,20 +17,20 @@ import {
   newMomoReferenceId,
   normalizeMomoMsisdn,
   requestToPay,
-} from './momoService';
+} from "./momoService.js";
 import {
   airtelRequestToPay,
   getAirtelPaymentStatus,
   newAirtelReferenceId,
   normalizeAirtelMsisdn,
-} from './airtelMoney.service';
-import { createStripeCheckoutSession } from './stripeCheckout.service';
-import { createPayPalCheckoutOrder, capturePayPalOrder } from './paypalCheckout.service';
-import { getMomoResolvedConfig } from './paymentGatewayCredentials.service';
-import { decrementInventoryForPaidOrderInSession, emitInventoryUpdatedForOrder } from './inventory.service';
-import { orderPayAmount, orderPayCurrency } from './orderPayMoney';
-import { toMinor } from '../financial/money';
-import { computeEscrowTrustScores } from './escrowTrust.service';
+} from "./airtelMoney.service.js";
+import { createStripeCheckoutSession } from "./stripeCheckout.service.js";
+import { createPayPalCheckoutOrder, capturePayPalOrder } from "./paypalCheckout.service.js";
+import { getMomoResolvedConfig } from "./paymentGatewayCredentials.service.js";
+import { decrementInventoryForPaidOrderInSession, emitInventoryUpdatedForOrder } from "./inventory.service.js";
+import { orderPayAmount, orderPayCurrency } from "./orderPayMoney.js";
+import { toMinor } from "../financial/money.js";
+import { computeEscrowTrustScores } from "./escrowTrust.service.js";
 
 export type CheckoutPaymentProcessor = 'flutterwave' | 'momo' | 'stripe' | 'paypal' | 'airtel';
 
@@ -106,8 +106,8 @@ async function recordShadowLedgerCapture(
 ): Promise<void> {
   if (process.env.FINANCIAL_LEDGER_SHADOW !== 'true') return;
 
-  const { postPaymentCaptured } = await import('./financialLedger.service');
-  const { verifyPaymentCapture } = await import('./financialIntegrity.service');
+  const { postPaymentCaptured } = await import("./financialLedger.service.js");
+  const { verifyPaymentCapture } = await import("./financialIntegrity.service.js");
 
   const feeBase = orderPayAmount(order);
   const fees = calculateFees(feeBase, ctx.provider);
@@ -199,7 +199,7 @@ export async function finalizeSuccessfulEscrowPayment(
       const insurancePremium = Number(order.escrow?.insurance?.premium || 0);
       const baseWithoutInsurance = Math.max(0, feeBaseAmount - insurancePremium);
 
-      const { isSystemFeatureEnabled } = await import('./systemFeatureSettings.service');
+      const { isSystemFeatureEnabled } = await import("./systemFeatureSettings.service.js");
       const escrowEnabled = await isSystemFeatureEnabled('escrow_payments');
       const releaseEligibleAt =
         (order as any)?.fulfillment?.type === 'digital'
@@ -298,8 +298,8 @@ export async function finalizeSuccessfulEscrowPayment(
 
       await recordPaymentCaptured({
         orderId,
-        buyerId: order.buyerId,
-        sellerId: order.sellerId,
+        buyerId: String(order.buyerId),
+        sellerId: String(order.sellerId),
         grossAmount: feeBaseAmount,
         platformFee: fees.platformFee,
         processingFee: fees.flutterwaveFee,
@@ -343,14 +343,14 @@ export async function finalizeSuccessfulEscrowPayment(
       orderId: String(orderForSideEffects._id),
       orderNumber: orderForSideEffects.orderNumber,
       amount: orderForSideEffects.total,
-      currency: orderForSideEffects.currency,
+      currency: orderForSideEffects.payment?.currency || orderForSideEffects.currencySnapshot?.currency,
       createdBy: String(orderForSideEffects.sellerId),
     });
     await sendNotification(orderForSideEffects.sellerId.toString(), 'NEW_ORDER_PAID', {
       orderId: String(orderForSideEffects._id),
       orderNumber: orderForSideEffects.orderNumber,
       amount: orderForSideEffects.total,
-      currency: orderForSideEffects.currency,
+      currency: orderForSideEffects.payment?.currency || orderForSideEffects.currencySnapshot?.currency,
       createdBy: String(orderForSideEffects.buyerId),
     });
     await scheduleAutoRelease(orderId);
@@ -381,7 +381,7 @@ export async function initializePayment(
 
   if (options.autoSelectGateway) {
     const orderForRoute = await Order.findById(orderId).lean();
-    const { selectOptimalGateway } = await import('./paymentOptimizer');
+    const { selectOptimalGateway } = await import("./paymentOptimizer.js");
     const selection = await selectOptimalGateway({
       country: orderForRoute?.shippingAddress?.country || 'RW',
       amount: orderForRoute ? orderPayAmount(orderForRoute as any) : 0,

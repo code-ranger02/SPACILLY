@@ -1,4 +1,4 @@
-import { StubProvider } from './StubProvider';
+import { StubProvider } from "./StubProvider.js";
 
 export class AgoraProvider extends StubProvider {
   constructor() {

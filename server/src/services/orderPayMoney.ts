@@ -1,4 +1,4 @@
-import type { IOrder } from '../models/Order';
+import type { IOrder } from "../models/Order.js";
 
 /**
  * Payable currency for gateways: prefer checkout lock (currencySnapshot), then legacy paymentMethod hints.

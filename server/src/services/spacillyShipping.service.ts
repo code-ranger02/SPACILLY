@@ -1,29 +1,29 @@
 import mongoose from 'mongoose';
-import { User } from '../models/User';
-import { Product } from '../models/Product';
-import { ShippingRouteCache } from '../models/ShippingRouteCache';
+import { User } from "../models/User.js";
+import { Product } from "../models/Product.js";
+import { ShippingRouteCache } from "../models/ShippingRouteCache.js";
 import {
   geocodeAddressFreeform,
   getDrivingDistanceKm,
   haversineKm,
   routeCacheKey,
   type LatLng,
-} from './openRouteService';
+} from "./openRouteService.js";
 import {
   type SpacillySellerShippingConfig,
   type SpacillyShippingMethodKey,
   type SpacillyShippingMethodRule,
   defaultSpacillySellerShipping,
-} from '../types/spacillyShipping.types';
+} from "../types/spacillyShipping.types.js";
 import {
   applyDestinationEtaToMethods,
   findDeliveryDestination,
-} from './deliveryDestination.service';
+} from "./deliveryDestination.service.js";
 import {
   getPlatformShippingContext,
   platformZoneSurcharge,
   applyPlatformPolicyToSellerConfig,
-} from './platformShippingPolicy.service';
+} from "./platformShippingPolicy.service.js";
 
 export const GROUP_KEY_SEP = '|';
 

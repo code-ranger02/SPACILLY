@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
-import { ReferralSettings } from '../models/ReferralSettings';
+import { ReferralSettings } from "../models/ReferralSettings.js";
 
 /** Unauthenticated: whether new referral signups / rewards are active (admin-controlled). */
 export async function getPublicReferralProgramStatus(_req: Request, res: Response) {
   try {
-    const { isSystemFeatureEnabled } = await import('../services/systemFeatureSettings.service');
+    const { isSystemFeatureEnabled } = await import("../services/systemFeatureSettings.service.js");
     if (!(await isSystemFeatureEnabled('buyer_referrals'))) {
       res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
       res.set('Pragma', 'no-cache');

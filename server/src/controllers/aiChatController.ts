@@ -1,7 +1,7 @@
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { User } from '../models/User';
-import { handleChat, ChatRole } from '../services/gemini.service';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { User } from "../models/User.js";
+import { handleChat, ChatRole } from "../services/gemini.service.js";
 
 function roleFromUser(role?: string): ChatRole {
   if (role === 'admin') return 'admin';

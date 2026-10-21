@@ -1,9 +1,9 @@
-import type { StreamCreateOptions, StreamCreateResult, StreamProvider } from '../types';
+import type { StreamCreateOptions, StreamCreateResult, StreamProvider } from "../types.js";
 import {
   extractYouTubeVideoId,
   mockYouTubeLiveVideoId,
   youtubeEmbedUrl,
-} from '../youtubeUtils';
+} from "../youtubeUtils.js";
 
 /**
  * YouTube Live — default MVP provider (free embed playback).

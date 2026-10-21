@@ -10,11 +10,11 @@
  */
 
 import mongoose from 'mongoose';
-import { ProductPromotion } from '../../models/ProductPromotion';
-import { ProductSignalSnapshot } from '../../models/ProductSignalSnapshot';
-import { SellerTrustProfile } from '../../models/SellerTrustProfile';
-import { Product } from '../../models/Product';
-import type { IMarketplaceAIConfig } from '../../models/MarketplaceAIConfig';
+import { ProductPromotion } from "../../models/ProductPromotion.js";
+import { ProductSignalSnapshot } from "../../models/ProductSignalSnapshot.js";
+import { SellerTrustProfile } from "../../models/SellerTrustProfile.js";
+import { Product } from "../../models/Product.js";
+import type { IMarketplaceAIConfig } from "../../models/MarketplaceAIConfig.js";
 
 export interface SponsoredCandidate {
   productId: string;

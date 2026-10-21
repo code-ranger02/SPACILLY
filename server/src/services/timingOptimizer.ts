@@ -1,7 +1,7 @@
-import type { IAbandonedCartStrategy } from '../models/AbandonedCartStrategy';
-import { applyQuietHours } from './quietHoursService';
-import { getPreferredSendHour } from './engagementLearning';
-import { resolveUserTimezone } from './timezoneService';
+import type { IAbandonedCartStrategy } from "../models/AbandonedCartStrategy.js";
+import { applyQuietHours } from "./quietHoursService.js";
+import { getPreferredSendHour } from "./engagementLearning.js";
+import { resolveUserTimezone } from "./timezoneService.js";
 
 export interface TimingContext {
   abandonedAt: Date;

@@ -21,8 +21,8 @@ import type {
   IBuyerSessionIntent,
   ISessionEventRef,
   PriceBucket,
-} from '../../models/BuyerSessionIntent';
-import type { IBuyerInsightProfile } from '../../models/BuyerInsightProfile';
+} from "../../models/BuyerSessionIntent.js";
+import type { IBuyerInsightProfile } from "../../models/BuyerInsightProfile.js";
 
 export interface IntentClassificationResult {
   mode: BuyerIntentMode;

@@ -1,4 +1,4 @@
-import { getPlatformShippingPolicy } from './platformShippingPolicy.service';
+import { getPlatformShippingPolicy } from "./platformShippingPolicy.service.js";
 
 let cachedRate: number | null = null;
 let cachedAt = 0;

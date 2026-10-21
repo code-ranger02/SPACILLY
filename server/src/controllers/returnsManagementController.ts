@@ -1,13 +1,13 @@
 import mongoose from 'mongoose';
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { ReturnCase } from '../models/ReturnCase';
-import { Order } from '../models/Order';
-import { createSystemInboxAndFanout } from '../services/systemInboxFanout';
-import { sendRichNotificationEmail } from '../services/emailService';
-import { pickCta } from '../email/copyEngine';
-import { getClientUrl } from '../config/publicEnv';
-import { User } from '../models/User';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { ReturnCase } from "../models/ReturnCase.js";
+import { Order } from "../models/Order.js";
+import { createSystemInboxAndFanout } from "../services/systemInboxFanout.js";
+import { sendRichNotificationEmail } from "../services/emailService.js";
+import { pickCta } from "../email/copyEngine.js";
+import { getClientUrl } from "../config/publicEnv.js";
+import { User } from "../models/User.js";
 
 const STATUS_FLOW: Record<string, string[]> = {
   requested: ['seller_reviewing', 'approved', 'rejected'],

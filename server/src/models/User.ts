@@ -1,5 +1,5 @@
 import mongoose, { Document, Schema } from 'mongoose';
-import type { SpacillySellerShippingConfig } from '../types/spacillyShipping.types';
+import type { SpacillySellerShippingConfig } from "../types/spacillyShipping.types.js";
 
 export type UserRole = 'buyer' | 'seller' | 'admin';
 

@@ -1,8 +1,8 @@
 import crypto from 'crypto';
-import { absMinor, compareMinor, parseMinor } from '../financial/money';
-import { FinancialAnomaly, type AnomalySeverity } from '../models/FinancialAnomaly';
-import { FinancialInvestigation } from '../models/FinancialInvestigation';
-import { LedgerEntry } from '../models/LedgerEntry';
+import { absMinor, compareMinor, parseMinor } from "../financial/money.js";
+import { FinancialAnomaly, type AnomalySeverity } from "../models/FinancialAnomaly.js";
+import { FinancialInvestigation } from "../models/FinancialInvestigation.js";
+import { LedgerEntry } from "../models/LedgerEntry.js";
 
 const RCA_TEMPLATES: Record<string, string> = {
   DUPLICATE_PAYOUT: 'Payout mismatch likely originated from asynchronous retry duplication after provider timeout.',
@@ -124,7 +124,7 @@ export async function openAnomaly(input: OpenAnomalyInput): Promise<string> {
     invariantId: input.invariantId,
     recommendedActions: input.recommendedActions,
     evidenceEventIds: input.evidenceEventIds,
-  });
+  } as Parameters<typeof FinancialAnomaly.create>[0]);
 
   if (input.correlationId) {
     await FinancialInvestigation.findOneAndUpdate(

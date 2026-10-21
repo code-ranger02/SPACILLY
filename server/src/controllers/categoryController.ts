@@ -1,11 +1,11 @@
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { Product } from '../models/Product';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { Product } from "../models/Product.js";
 import {
   STOREFRONT_CATEGORIES,
   buildCategorySlugFilter,
   getCategoryBySlug,
-} from '../constants/storefrontCategories';
+} from "../constants/storefrontCategories.js";
 
 /** Public catalog taxonomy for nav + HTML sitemap */
 export async function listCategories(_req: AuthenticatedRequest, res: Response) {

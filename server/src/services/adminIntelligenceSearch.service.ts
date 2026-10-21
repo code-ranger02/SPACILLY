@@ -1,13 +1,13 @@
 import mongoose from 'mongoose';
-import { User } from '../models/User';
-import { Order } from '../models/Order';
-import { Product } from '../models/Product';
-import { TransactionLog } from '../models/TransactionLog';
-import { FleetDriver } from '../models/FleetDriver';
-import { SupportTicket } from '../models/SupportTicket';
-import { SellerSubscription } from '../models/SellerSubscription';
-import { classifyQuery } from '../search/queryClassifier';
-import { explainQuery } from '../search/intelligenceQueryUnderstanding';
+import { User } from "../models/User.js";
+import { Order } from "../models/Order.js";
+import { Product } from "../models/Product.js";
+import { TransactionLog } from "../models/TransactionLog.js";
+import { FleetDriver } from "../models/FleetDriver.js";
+import { SupportTicket } from "../models/SupportTicket.js";
+import { SellerSubscription } from "../models/SellerSubscription.js";
+import { classifyQuery } from "../search/queryClassifier.js";
+import { explainQuery } from "../search/intelligenceQueryUnderstanding.js";
 import {
   INTEL_MAX_GRAPH_EXPAND,
   INTEL_MAX_GRAPH_SEEDS,
@@ -17,25 +17,25 @@ import {
   sanitizeIntelligenceQuery,
   shouldRunGraphExpansion,
   withSearchTimeout,
-} from '../search/intelligenceGuard';
-import { getCachedSearch, setCachedSearch, getCachedPreview, setCachedPreview } from '../search/searchCache';
-import { getMeilisearchClient, INTELLIGENCE_INDEX } from '../search/meilisearchClient';
+} from "../search/intelligenceGuard.js";
+import { getCachedSearch, setCachedSearch, getCachedPreview, setCachedPreview } from "../search/searchCache.js";
+import { getMeilisearchClient, INTELLIGENCE_INDEX } from "../search/meilisearchClient.js";
 import {
   maskEmail,
   maskPhone,
   mongoIntelligenceSearch,
   statusTone,
-} from '../search/intelligenceIndex.service';
-import { logIntelligenceSearch } from '../models/IntelligenceSearchAudit';
-import { Dispute } from '../models/Dispute';
-import { ReturnCase } from '../models/ReturnCase';
-import { registryLookup, expandGraphFromSeeds } from '../search/intelligenceGraph.service';
-import { buildIntelligenceAiInsight, shouldRunAiAssist } from './intelligenceAiAssist.service';
+} from "../search/intelligenceIndex.service.js";
+import { logIntelligenceSearch } from "../models/IntelligenceSearchAudit.js";
+import { Dispute } from "../models/Dispute.js";
+import { ReturnCase } from "../models/ReturnCase.js";
+import { registryLookup, expandGraphFromSeeds } from "../search/intelligenceGraph.service.js";
+import { buildIntelligenceAiInsight, shouldRunAiAssist } from "./intelligenceAiAssist.service.js";
 import {
   buildRuleAssistantBrief,
   mergeGeminiIntoBrief,
   rankIntelligenceHits,
-} from '../search/intelligenceAssistantBrief.service';
+} from "../search/intelligenceAssistantBrief.service.js";
 import type {
   IntelligenceConnectedRecord,
   IntelligenceEntityPreview,
@@ -44,7 +44,7 @@ import type {
   IntelligenceSearchGroup,
   IntelligenceSearchHit,
   IntelligenceSearchResponse,
-} from '../search/intelligenceSearch.types';
+} from "../search/intelligenceSearch.types.js";
 
 const GROUP_META: Record<IntelligenceEntityType, { label: string; icon: string }> = {
   user: { label: 'Users', icon: 'user' },

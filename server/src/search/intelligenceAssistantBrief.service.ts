@@ -1,4 +1,4 @@
-import type { QueryUnderstanding } from './intelligenceQueryUnderstanding';
+import type { QueryUnderstanding } from "./intelligenceQueryUnderstanding.js";
 import type {
   IntelligenceAiInsight,
   IntelligenceAssistantBrief,
@@ -7,7 +7,7 @@ import type {
   IntelligenceExpandableSection,
   IntelligenceSearchHit,
   QueryIntent,
-} from './intelligenceSearch.types';
+} from "./intelligenceSearch.types.js";
 
 function hashPick(seed: string, options: string[]): string {
   if (options.length === 0) return '';

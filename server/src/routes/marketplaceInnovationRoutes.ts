@@ -1,18 +1,18 @@
 import { Router, Response } from 'express';
 import mongoose from 'mongoose';
-import { authenticate, AuthenticatedRequest } from '../middleware/auth';
-import { NegotiationSession } from '../models/NegotiationSession';
-import { ReverseMarketplaceRequest } from '../models/ReverseMarketplaceRequest';
-import { GroupBuyCampaign } from '../models/GroupBuyCampaign';
-import { LiveCommerceSession } from '../models/LiveCommerceSession';
-import { Order } from '../models/Order';
-import { Dispute } from '../models/Dispute';
-import { ProductReview } from '../models/ProductReview';
-import { User } from '../models/User';
-import { Product } from '../models/Product';
-import { buildAICounterOffer } from '../services/negotiationService';
-import { buildMarketplacePassport } from '../services/marketplacePassport';
-import { estimateLiveSessionScore } from '../services/liveCommerceService';
+import { authenticate, AuthenticatedRequest } from "../middleware/auth.js";
+import { NegotiationSession } from "../models/NegotiationSession.js";
+import { ReverseMarketplaceRequest } from "../models/ReverseMarketplaceRequest.js";
+import { GroupBuyCampaign } from "../models/GroupBuyCampaign.js";
+import { LiveCommerceSession } from "../models/LiveCommerceSession.js";
+import { Order } from "../models/Order.js";
+import { Dispute } from "../models/Dispute.js";
+import { ProductReview } from "../models/ProductReview.js";
+import { User } from "../models/User.js";
+import { Product } from "../models/Product.js";
+import { buildAICounterOffer } from "../services/negotiationService.js";
+import { buildMarketplacePassport } from "../services/marketplacePassport.js";
+import { estimateLiveSessionScore } from "../services/liveCommerceService.js";
 
 const router = Router();
 

@@ -1,5 +1,5 @@
-import { SystemMonitorConfig, type ISystemMonitorConfig } from '../models/SystemMonitorConfig';
-import type { MonitorSettings } from './systemMonitor.service';
+import { SystemMonitorConfig, type ISystemMonitorConfig } from "../models/SystemMonitorConfig.js";
+import type { MonitorSettings } from "./systemMonitor.service.js";
 
 const CONFIG_KEY = 'default';
 
@@ -46,7 +46,11 @@ export async function loadSystemMonitorConfig(): Promise<ISystemMonitorConfig> {
   if (cached) return cached;
   let doc = await SystemMonitorConfig.findOne({ key: CONFIG_KEY });
   if (!doc) {
-    doc = await SystemMonitorConfig.create(defaults());
+    const created = await SystemMonitorConfig.create(defaults());
+    doc = Array.isArray(created) ? created[0] : created;
+  }
+  if (!doc) {
+    throw new Error('Failed to load system monitor config');
   }
   cached = doc;
   return doc;

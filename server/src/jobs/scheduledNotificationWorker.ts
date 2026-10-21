@@ -1,9 +1,9 @@
-import { ScheduledNotification } from '../models/ScheduledNotification';
-import { User } from '../models/User';
-import { SentNotificationLog } from '../models/SentNotificationLog';
-import { createSystemInboxAndFanout } from '../services/systemInboxFanout';
-import { sendNotificationEmail, isEmailConfigured } from '../services/emailService';
-import { getClientUrl } from '../config/publicEnv';
+import { ScheduledNotification } from "../models/ScheduledNotification.js";
+import { User } from "../models/User.js";
+import { SentNotificationLog } from "../models/SentNotificationLog.js";
+import { createSystemInboxAndFanout } from "../services/systemInboxFanout.js";
+import { sendNotificationEmail, isEmailConfigured } from "../services/emailService.js";
+import { getClientUrl } from "../config/publicEnv.js";
 
 function mapScheduledTargetToAudience(
   target: string,

@@ -1,6 +1,6 @@
-import { IPlan } from '../models/SubscriptionPlan';
-import { ISellerSubscription } from '../models/SellerSubscription';
-import { basePriceForCycle, planMarketingBullets } from '../services/subscriptionPlan.service';
+import { IPlan } from "../models/SubscriptionPlan.js";
+import { ISellerSubscription } from "../models/SellerSubscription.js";
+import { basePriceForCycle, planMarketingBullets } from "../services/subscriptionPlan.service.js";
 
 /**
  * Transform MongoDB plan to frontend Tier format
@@ -101,7 +101,7 @@ export function transformPaymentMethodToFrontend(method: any) {
  * Transform current plan data to frontend format
  */
 export function transformCurrentPlanToFrontend(subscription: ISellerSubscription, entitlements?: Record<string, unknown>) {
-  const pf = subscription.plan_features || ({} as any);
+  const pf = (subscription.plan_features || {}) as Record<string, unknown>;
   return {
     name: subscription.current_plan.tier_name,
     tierId: subscription.current_plan.tier_id,

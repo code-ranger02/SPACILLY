@@ -17,18 +17,18 @@
 import {
   getMarketplaceAIConfig,
   MarketplaceAIConfig,
-} from '../models/MarketplaceAIConfig';
-import { recomputeAllProductSignals } from '../services/ai/trendDetectionEngine';
-import { recomputeAllFraudRisks } from '../services/ai/fraudSignalEngine';
-import { refreshSellerTrust } from '../services/ai/sellerTrustEngine';
-import { recomputeCategoryAdjacency } from '../services/ai/coOccurrenceEngine';
-import { invalidateAdjacencyCache } from '../services/ai/categoryAdjacencyEngine';
-import { runStabilityTick, invalidateDampingCache } from '../services/ai/stabilityController';
-import { recomputeEconomicHealth } from '../services/ai/economicEngine';
-import { refreshActiveLifecycles } from '../services/ai/lifecycleEngine';
-import { refreshActiveBuyerTrust } from '../services/ai/buyerTrustEngine';
-import { recomputeRuleEffectiveness } from '../services/ai/ruleEffectivenessTracker';
-import { SellerTrustProfile } from '../models/SellerTrustProfile';
+} from "../models/MarketplaceAIConfig.js";
+import { recomputeAllProductSignals } from "../services/ai/trendDetectionEngine.js";
+import { recomputeAllFraudRisks } from "../services/ai/fraudSignalEngine.js";
+import { refreshSellerTrust } from "../services/ai/sellerTrustEngine.js";
+import { recomputeCategoryAdjacency } from "../services/ai/coOccurrenceEngine.js";
+import { invalidateAdjacencyCache } from "../services/ai/categoryAdjacencyEngine.js";
+import { runStabilityTick, invalidateDampingCache } from "../services/ai/stabilityController.js";
+import { recomputeEconomicHealth } from "../services/ai/economicEngine.js";
+import { refreshActiveLifecycles } from "../services/ai/lifecycleEngine.js";
+import { refreshActiveBuyerTrust } from "../services/ai/buyerTrustEngine.js";
+import { recomputeRuleEffectiveness } from "../services/ai/ruleEffectivenessTracker.js";
+import { SellerTrustProfile } from "../models/SellerTrustProfile.js";
 
 const TICK_MS = Math.max(60_000, Number(process.env.MARKETPLACE_AI_TICK_MS) || 10 * 60_000);
 const TRUST_TICK_MS = Math.max(5 * 60_000, Number(process.env.MARKETPLACE_AI_TRUST_TICK_MS) || 30 * 60_000);

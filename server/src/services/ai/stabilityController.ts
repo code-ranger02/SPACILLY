@@ -24,16 +24,16 @@
  * Everything is rule-based and inspectable in the admin panel.
  */
 
-import { Order } from '../../models/Order';
-import { RecommendationActivity } from '../../models/RecommendationActivity';
-import { ProductSignalSnapshot } from '../../models/ProductSignalSnapshot';
-import { Product } from '../../models/Product';
+import { Order } from "../../models/Order.js";
+import { RecommendationActivity } from "../../models/RecommendationActivity.js";
+import { ProductSignalSnapshot } from "../../models/ProductSignalSnapshot.js";
+import { Product } from "../../models/Product.js";
 import {
   getMarketHealth,
   type IMarketHealth,
   type IMarketHealthSample,
-} from '../../models/MarketHealth';
-import { FraudAlert } from '../../models/FraudAlert';
+} from "../../models/MarketHealth.js";
+import { FraudAlert } from "../../models/FraudAlert.js";
 
 const DAYS = 86_400_000;
 const MAX_HISTORY = 96;

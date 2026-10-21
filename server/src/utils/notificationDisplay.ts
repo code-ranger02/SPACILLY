@@ -1,4 +1,4 @@
-import { normalizeMediaUrls } from '../email/emailUrls';
+import { normalizeMediaUrls } from "../email/emailUrls.js";
 
 export type InAppVisualStyle = {
   showProductPreview: boolean;

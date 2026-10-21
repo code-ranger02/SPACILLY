@@ -1,12 +1,12 @@
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { assertSuperAdmin } from '../services/adminAccess.service';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { assertSuperAdmin } from "../services/adminAccess.service.js";
 import {
   applySystemFeatureUpdates,
   getSystemFeatureCatalog,
   requestDisableUnlock,
-} from '../services/systemFeatureSettings.service';
-import { DISABLE_ACKNOWLEDGMENT } from '../constants/systemFeatureRegistry';
+} from "../services/systemFeatureSettings.service.js";
+import { DISABLE_ACKNOWLEDGMENT } from "../constants/systemFeatureRegistry.js";
 
 async function requireSuper(req: AuthenticatedRequest, res: Response): Promise<boolean> {
   if (!req.user?.id) {

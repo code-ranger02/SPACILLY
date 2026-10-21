@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
-import { LiveCommerceSession, ILiveCommerceSession } from '../models/LiveCommerceSession';
-import { getLiveCommerceSettings, type LivePermissionMode } from '../models/LiveCommerceSettings';
-import { User } from '../models/User';
+import { LiveCommerceSession, ILiveCommerceSession } from "../models/LiveCommerceSession.js";
+import { getLiveCommerceSettings, type LivePermissionMode } from "../models/LiveCommerceSettings.js";
+import { User } from "../models/User.js";
 
 export function estimateLiveSessionScore(input: {
   clips: number;
@@ -16,7 +16,7 @@ export function estimateLiveSessionScore(input: {
 }
 
 export async function isLiveGloballyEnabled(): Promise<boolean> {
-  const { isSystemFeatureEnabled } = await import('./systemFeatureSettings.service');
+  const { isSystemFeatureEnabled } = await import("./systemFeatureSettings.service.js");
   if (!(await isSystemFeatureEnabled('live_commerce'))) return false;
   const settings = await getLiveCommerceSettings();
   return Boolean(settings.globallyEnabled);
@@ -124,7 +124,7 @@ export async function discoverLiveSessions(limit = 12) {
   const enabled = await isLiveGloballyEnabled();
   if (!enabled) return { enabled: false, sessions: [] };
 
-  const { liveDiscoverFilter } = await import('./liveSellerPresence');
+  const { liveDiscoverFilter } = await import("./liveSellerPresence.js");
   const liveFilter = liveDiscoverFilter();
 
   const sessions = await LiveCommerceSession.find({
@@ -163,7 +163,7 @@ export async function placeBid(input: {
   amount: number;
   autoMax?: number;
 }) {
-  const { isSystemFeatureEnabled } = await import('./systemFeatureSettings.service');
+  const { isSystemFeatureEnabled } = await import("./systemFeatureSettings.service.js");
   if (!(await isSystemFeatureEnabled('live_commerce_auctions'))) {
     throw new Error('Live auctions are disabled platform-wide');
   }

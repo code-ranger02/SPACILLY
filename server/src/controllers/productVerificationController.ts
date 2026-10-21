@@ -1,15 +1,15 @@
 import { Response } from 'express';
 import mongoose from 'mongoose';
 import { z } from 'zod';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { ProductVerification } from '../models/ProductVerification';
-import { SellerTrustProfile } from '../models/SellerTrustProfile';
-import { Product } from '../models/Product';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { ProductVerification } from "../models/ProductVerification.js";
+import { SellerTrustProfile } from "../models/SellerTrustProfile.js";
+import { Product } from "../models/Product.js";
 import {
   evaluateProductTrustForSeller,
   recalculateSellerTrust,
   runProductVerification,
-} from '../services/productVerification.service';
+} from "../services/productVerification.service.js";
 
 const createRecordSchema = z.object({
   productId: z.string().min(1),

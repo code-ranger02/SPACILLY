@@ -1,16 +1,16 @@
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { SupportTicket } from '../models/SupportTicket';
-import { Dispute } from '../models/Dispute';
-import { FraudAlert } from '../models/FraudAlert';
-import { SupportArticle } from '../models/SupportArticle';
-import { SupportSettings } from '../models/SupportSettings';
-import { User } from '../models/User';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { SupportTicket } from "../models/SupportTicket.js";
+import { Dispute } from "../models/Dispute.js";
+import { FraudAlert } from "../models/FraudAlert.js";
+import { SupportArticle } from "../models/SupportArticle.js";
+import { SupportSettings } from "../models/SupportSettings.js";
+import { User } from "../models/User.js";
 import mongoose from 'mongoose';
-import { createSystemInboxAndFanout } from '../services/systemInboxFanout';
-import { Order } from '../models/Order';
-import { RefundRequest } from '../models/RefundRequest';
-import { refundBuyer } from '../services/escrowService';
+import { createSystemInboxAndFanout } from "../services/systemInboxFanout.js";
+import { Order } from "../models/Order.js";
+import { RefundRequest } from "../models/RefundRequest.js";
+import { refundBuyer } from "../services/escrowService.js";
 
 function ensureAdmin(req: AuthenticatedRequest, res: Response): boolean {
   if (!req.user || req.user.role !== 'admin') {

@@ -1,14 +1,14 @@
-import type { EmailCategory } from './copyEngine';
-import { timeGreeting, pickCta } from './copyEngine';
+import type { EmailCategory } from "./copyEngine.js";
+import { timeGreeting, pickCta } from "./copyEngine.js";
 import {
   renderAction,
   renderBodyParagraphs,
   renderMetaCard,
   renderProductGrid,
   type ProductCardInput,
-} from './components';
-import { renderEmailDocument, type EmailAccent } from './layout';
-import { toAbsoluteEmailUrl } from './emailUrls';
+} from "./components.js";
+import { renderEmailDocument, type EmailAccent } from "./layout.js";
+import { toAbsoluteEmailUrl } from "./emailUrls.js";
 
 export type RichNotificationOptions = {
   appName?: string;

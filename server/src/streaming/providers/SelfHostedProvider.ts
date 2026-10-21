@@ -1,4 +1,4 @@
-import type { StreamCreateOptions, StreamCreateResult, StreamProvider } from '../types';
+import type { StreamCreateOptions, StreamCreateResult, StreamProvider } from "../types.js";
 
 /**
  * Self-hosted RTMP → HLS (configure ingest/playback via env).

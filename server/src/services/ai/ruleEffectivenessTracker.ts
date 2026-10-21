@@ -17,7 +17,7 @@
  * Pure deterministic: no model training, just averages.
  */
 
-import { RuleEffectiveness, type IRuleEffectiveness, type RuleSource } from '../../models/RuleEffectiveness';
+import { RuleEffectiveness, type IRuleEffectiveness, type RuleSource } from "../../models/RuleEffectiveness.js";
 
 const clamp = (n: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, n));
 

@@ -1,8 +1,8 @@
-import { SemanticCache } from './cache/semanticCache';
-import { ModelBlacklist } from './engine/blacklist';
-import { ModelScorer } from './engine/scorer';
-import { AIRouter } from './engine/aiRouter';
-import { MetricsRegistry } from './observability/metrics';
+import { SemanticCache } from "./cache/semanticCache.js";
+import { ModelBlacklist } from "./engine/blacklist.js";
+import { ModelScorer } from "./engine/scorer.js";
+import { AIRouter } from "./engine/aiRouter.js";
+import { MetricsRegistry } from "./observability/metrics.js";
 
 const cache = new SemanticCache();
 const blacklist = new ModelBlacklist();

@@ -15,11 +15,11 @@
  */
 
 import mongoose from 'mongoose';
-import { CoOccurrenceEdge } from '../../models/CoOccurrenceEdge';
-import { CategoryAdjacency } from '../../models/CategoryAdjacency';
-import { RecommendationActivity } from '../../models/RecommendationActivity';
-import { Product } from '../../models/Product';
-import { SellerTrustProfile } from '../../models/SellerTrustProfile';
+import { CoOccurrenceEdge } from "../../models/CoOccurrenceEdge.js";
+import { CategoryAdjacency } from "../../models/CategoryAdjacency.js";
+import { RecommendationActivity } from "../../models/RecommendationActivity.js";
+import { Product } from "../../models/Product.js";
+import { SellerTrustProfile } from "../../models/SellerTrustProfile.js";
 
 export type NodeType = 'user' | 'product' | 'seller' | 'category' | 'session';
 export type EdgeType =

@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
-import { Order } from '../models/Order';
-import { Product } from '../models/Product';
-import { deliverSellerNotification } from '../services/sellerNotificationService';
+import { Order } from "../models/Order.js";
+import { Product } from "../models/Product.js";
+import { deliverSellerNotification } from "../services/sellerNotificationService.js";
 
 const TICK_MS = 30 * 60 * 1000;
 const PENDING_HOURS = Number(process.env.ORDER_FULFILLMENT_WARN_HOURS || 24);

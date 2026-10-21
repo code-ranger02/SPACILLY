@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
-import { authenticate, authorize } from '../middleware/auth';
+import { authenticate, authorize } from "../middleware/auth.js";
 import {
   adminIntelligenceConfig,
   adminIntelligencePreview,
@@ -10,8 +10,8 @@ import {
   adminIntelligenceSetPreferences,
   adminIntelligenceStatus,
   adminIntelligenceSuggest,
-} from '../controllers/adminIntelligenceSearchController';
-import { requireSuperAdmin } from '../middleware/adminAccess';
+} from "../controllers/adminIntelligenceSearchController.js";
+import { requireSuperAdmin } from "../middleware/adminAccess.js";
 
 const router = Router();
 

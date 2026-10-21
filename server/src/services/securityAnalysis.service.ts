@@ -2,8 +2,8 @@
  * Security posture derived from live MongoDB, env, API monitor, and auth telemetry.
  */
 import mongoose from 'mongoose';
-import { User } from '../models/User';
-import { isEmailConfigured } from './emailService';
+import { User } from "../models/User.js";
+import { isEmailConfigured } from "./emailService.js";
 import {
   getApiMonitoringList,
   getAuthSecurityEvents,
@@ -11,7 +11,7 @@ import {
   getSystemHealth,
   refreshTerminalIntelNow,
   type ApiEndpointStat,
-} from './systemMonitor.service';
+} from "./systemMonitor.service.js";
 
 export interface SecurityOverview {
   score: number;

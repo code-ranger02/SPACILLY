@@ -2,11 +2,11 @@ import { Router, Response } from 'express';
 import multer from 'multer';
 import path from 'path';
 import mongoose from 'mongoose';
-import { authenticate, authorize, AuthenticatedRequest } from '../middleware/auth';
-import { cloudinaryUploadBuffers } from '../middleware/cloudinaryMemoryUpload';
+import { authenticate, authorize, AuthenticatedRequest } from "../middleware/auth.js";
+import { cloudinaryUploadBuffers } from "../middleware/cloudinaryMemoryUpload.js";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const { uploadLogo, uploadBanner, deleteImage } = require('../../config/cloudinary');
-import { SellerSettings } from '../models/SellerSettings';
+const { uploadLogo, uploadBanner, deleteImage } = require("../../config/cloudinary.js");
+import { SellerSettings } from "../models/SellerSettings.js";
 import {
   getSellerSettings,
   updateStoreInfo,
@@ -35,13 +35,13 @@ import {
   updateStoreContact,
   getStoreSettings,
   updateStoreSettings,
-} from '../controllers/sellerSettingsController';
+} from "../controllers/sellerSettingsController.js";
 import {
   getIdentityVerificationStatus,
   scanIdentityDocument,
   matchIdentityFace,
   applyIdentityProfile,
-} from '../controllers/sellerIdentityVerificationController';
+} from "../controllers/sellerIdentityVerificationController.js";
 
 // Helper to get seller ID from request
 const getSellerId = (req: AuthenticatedRequest): mongoose.Types.ObjectId | null => {

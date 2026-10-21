@@ -1,4 +1,4 @@
-import type { ModelTier } from '../types';
+import type { ModelTier } from "../types.js";
 
 interface ModelStats {
   latencyEmaMs: number;

@@ -1,7 +1,7 @@
-import type { BuyerNotificationEvent } from '../services/buyerNotificationAssistant.service';
-import type { SellerNotificationEvent } from '../services/sellerNotificationAssistant.service';
-import type { EmailCategory } from './copyEngine';
-import type { EmailAccent } from './layout';
+import type { BuyerNotificationEvent } from "../services/buyerNotificationAssistant.service.js";
+import type { SellerNotificationEvent } from "../services/sellerNotificationAssistant.service.js";
+import type { EmailCategory } from "./copyEngine.js";
+import type { EmailAccent } from "./layout.js";
 
 export function buyerEventCategory(event: BuyerNotificationEvent): EmailCategory {
   const map: Partial<Record<BuyerNotificationEvent, EmailCategory>> = {

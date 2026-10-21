@@ -1,12 +1,12 @@
 import { Router } from 'express';
-import { authenticate, AuthenticatedRequest, optionalAuthenticate } from '../middleware/auth';
-import { User } from '../models/User';
+import { authenticate, AuthenticatedRequest, optionalAuthenticate } from "../middleware/auth.js";
+import { User } from "../models/User.js";
 import {
   detectCurrencyFromRequest,
   getExchangeSnapshot,
   isSupportedDisplayCurrency,
   refreshExchangeRates,
-} from '../services/exchangeRate.service';
+} from "../services/exchangeRate.service.js";
 
 const router = Router();
 

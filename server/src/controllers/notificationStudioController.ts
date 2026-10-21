@@ -1,6 +1,6 @@
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { runStudioTransform, streamStudioText, type StudioAction } from '../services/notificationStudioAi.service';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { runStudioTransform, streamStudioText, type StudioAction } from "../services/notificationStudioAi.service.js";
 
 const ACTIONS = new Set<StudioAction>([
   'generate',

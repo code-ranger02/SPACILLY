@@ -1,4 +1,4 @@
-import { getClientUrl, getServerUrl } from '../config/publicEnv';
+import { getClientUrl, getServerUrl } from "../config/publicEnv.js";
 
 /** Absolute HTTPS/HTTP URL for email CTA buttons (required by mail clients). */
 export function toAbsoluteEmailUrl(pathOrUrl: string): string {

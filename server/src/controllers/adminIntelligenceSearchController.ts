@@ -1,26 +1,26 @@
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { getEntityPreview, runIntelligenceSearch } from '../services/adminIntelligenceSearch.service';
-import { explainQuery, INTELLIGENCE_EXAMPLE_QUERIES } from '../search/intelligenceQueryUnderstanding';
-import { buildTypingAssistantBrief } from '../search/intelligenceAssistantBrief.service';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { getEntityPreview, runIntelligenceSearch } from "../services/adminIntelligenceSearch.service.js";
+import { explainQuery, INTELLIGENCE_EXAMPLE_QUERIES } from "../search/intelligenceQueryUnderstanding.js";
+import { buildTypingAssistantBrief } from "../search/intelligenceAssistantBrief.service.js";
 import {
   assertSuperAdmin,
   filterIntelligenceHitsByAccess,
   getAdminAccessForUserId,
   canAccessIntelligenceEntity,
-} from '../services/adminAccess.service';
-import { sanitizeIntelligenceQuery, withSearchTimeout } from '../search/intelligenceGuard';
+} from "../services/adminAccess.service.js";
+import { sanitizeIntelligenceQuery, withSearchTimeout } from "../search/intelligenceGuard.js";
 import {
   buildTypingAiHint,
   getIntelligenceAiConfig,
   setPlatformIntelligenceAiEnabled,
   setUserIntelligenceAiAssist,
   isGeminiConfigured,
-} from '../services/intelligenceAiAssist.service';
-import { syncIntelligenceIndex } from '../search/intelligenceIndex.service';
-import { isMeilisearchEnabled } from '../search/meilisearchClient';
-import { isRedisEnabled } from '../search/redisClient';
-import type { IntelligenceEntityType } from '../search/intelligenceSearch.types';
+} from "../services/intelligenceAiAssist.service.js";
+import { syncIntelligenceIndex } from "../search/intelligenceIndex.service.js";
+import { isMeilisearchEnabled } from "../search/meilisearchClient.js";
+import { isRedisEnabled } from "../search/redisClient.js";
+import type { IntelligenceEntityType } from "../search/intelligenceSearch.types.js";
 
 export async function adminIntelligenceConfig(req: AuthenticatedRequest, res: Response) {
   try {

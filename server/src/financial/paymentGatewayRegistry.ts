@@ -4,7 +4,7 @@
  * Enabling a gateway = save credentials in Admin → Finance → Payment Gateways.
  */
 
-import type { CheckoutPaymentProcessor } from '../services/paymentService';
+import type { CheckoutPaymentProcessor } from "../services/paymentService.js";
 
 export type GatewayCredentialProfile =
   | 'flutterwave'

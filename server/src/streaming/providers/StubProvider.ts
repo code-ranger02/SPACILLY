@@ -1,4 +1,4 @@
-import type { StreamCreateOptions, StreamCreateResult, StreamProvider, StreamProviderType } from '../types';
+import type { StreamCreateOptions, StreamCreateResult, StreamProvider, StreamProviderType } from "../types.js";
 
 /** Placeholder for future professional streaming integrations. */
 export class StubProvider implements StreamProvider {

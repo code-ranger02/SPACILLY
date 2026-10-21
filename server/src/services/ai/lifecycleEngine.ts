@@ -18,10 +18,10 @@
  */
 
 import mongoose from 'mongoose';
-import { BuyerLifecycle, type IBuyerLifecycle, type LifecycleState } from '../../models/BuyerLifecycle';
-import { BuyerInsightProfile } from '../../models/BuyerInsightProfile';
-import { User } from '../../models/User';
-import { Order } from '../../models/Order';
+import { BuyerLifecycle, type IBuyerLifecycle, type LifecycleState } from "../../models/BuyerLifecycle.js";
+import { BuyerInsightProfile } from "../../models/BuyerInsightProfile.js";
+import { User } from "../../models/User.js";
+import { Order } from "../../models/Order.js";
 
 const HOURS = 60 * 60 * 1000;
 const DAYS = 24 * HOURS;

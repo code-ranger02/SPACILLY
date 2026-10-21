@@ -1,4 +1,4 @@
-import type { QueryIntent } from './intelligenceSearch.types';
+import type { QueryIntent } from "./intelligenceSearch.types.js";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/i;
 const PHONE_RE = /^\+?[\d\s\-().]{8,20}$/;

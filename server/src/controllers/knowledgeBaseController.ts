@@ -1,6 +1,6 @@
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { KnowledgeBase } from '../models/KnowledgeBase';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { KnowledgeBase } from "../models/KnowledgeBase.js";
 import mongoose from 'mongoose';
 
 /**

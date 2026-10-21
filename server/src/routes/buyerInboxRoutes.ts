@@ -2,8 +2,8 @@ import { Router } from 'express';
 import multer from 'multer';
 import path from 'path';
 import type { Request } from 'express';
-import { authenticate, AuthenticatedRequest } from '../middleware/auth';
-import { cloudinaryUploadBuffers } from '../middleware/cloudinaryMemoryUpload';
+import { authenticate, AuthenticatedRequest } from "../middleware/auth.js";
+import { cloudinaryUploadBuffers } from "../middleware/cloudinaryMemoryUpload.js";
 import {
   getThreads,
   getThread,
@@ -18,7 +18,7 @@ import {
   reactToMessage,
   forwardMessage,
   getAvailableSellers,
-} from '../controllers/buyerInboxController';
+} from "../controllers/buyerInboxController.js";
 
 const router = Router();
 

@@ -9,8 +9,8 @@ export type NotificationType =
   | 'ORDER_REFUNDED'
   | 'PAYOUT_CONFIRMED';
 
-import { deliverBuyerNotificationFromLegacy } from './buyerNotificationService';
-import { deliverSellerNotificationFromLegacy } from './sellerNotificationService';
+import { deliverBuyerNotificationFromLegacy } from "./buyerNotificationService.js";
+import { deliverSellerNotificationFromLegacy } from "./sellerNotificationService.js";
 
 const SELLER_TYPES: NotificationType[] = [
   'NEW_ORDER_PAID',

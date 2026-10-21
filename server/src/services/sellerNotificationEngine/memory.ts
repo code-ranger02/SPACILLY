@@ -1,4 +1,4 @@
-import type { SellerNotificationCopy } from './types';
+import type { SellerNotificationCopy } from "./types.js";
 
 const lastFingerprint = new Map<string, string>();
 const MAX_ENTRIES = 5000;

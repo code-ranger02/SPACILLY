@@ -1,4 +1,4 @@
-import { isSellerKycVerified } from '../services/sellerKyc.service';
+import { isSellerKycVerified } from "../services/sellerKyc.service.js";
 
 type SellerKycUserInput = {
   role?: string;

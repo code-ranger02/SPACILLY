@@ -1,5 +1,5 @@
-import { BRAND, escapeHtml, emailButton } from './layout';
-import { toAbsoluteMediaUrl } from './emailUrls';
+import { BRAND, escapeHtml, emailButton } from "./layout.js";
+import { toAbsoluteMediaUrl } from "./emailUrls.js";
 
 export type ProductCardInput = {
   id: string;

@@ -1,7 +1,7 @@
 /**
  * Email-safe layout shell — table-based, inline styles, responsive media queries.
  */
-import { toAbsoluteEmailUrl } from './emailUrls';
+import { toAbsoluteEmailUrl } from "./emailUrls.js";
 
 export const BRAND = {
   primary: '#059669',

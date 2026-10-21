@@ -1,12 +1,12 @@
 import mongoose from 'mongoose';
-import { Order } from '../models/Order';
-import { SellerWallet } from '../models/SellerWallet';
-import { EscrowWallet } from '../models/EscrowWallet';
-import { TransactionLog } from '../models/TransactionLog';
-import { refundBuyer } from './escrowService';
-import { notifyOrderLifecycle } from './orderLifecycleNotifications.service';
-import { sendNotification } from './notificationService';
-import { orderIsCashOnDelivery } from './codCheckout.service';
+import { Order } from "../models/Order.js";
+import { SellerWallet } from "../models/SellerWallet.js";
+import { EscrowWallet } from "../models/EscrowWallet.js";
+import { TransactionLog } from "../models/TransactionLog.js";
+import { refundBuyer } from "./escrowService.js";
+import { notifyOrderLifecycle } from "./orderLifecycleNotifications.service.js";
+import { sendNotification } from "./notificationService.js";
+import { orderIsCashOnDelivery } from "./codCheckout.service.js";
 
 export type RefundResult = {
   success: boolean;

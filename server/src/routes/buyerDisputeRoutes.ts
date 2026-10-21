@@ -2,15 +2,15 @@ import { Router } from 'express';
 import multer from 'multer';
 import path from 'path';
 import type { Request } from 'express';
-import { authenticate } from '../middleware/auth';
-import { cloudinaryUploadBuffers } from '../middleware/cloudinaryMemoryUpload';
+import { authenticate } from "../middleware/auth.js";
+import { cloudinaryUploadBuffers } from "../middleware/cloudinaryMemoryUpload.js";
 import {
   createDispute,
   getBuyerDisputes,
   getBuyerDispute,
   submitBuyerResponse,
   uploadBuyerEvidence,
-} from '../controllers/buyerDisputeController';
+} from "../controllers/buyerDisputeController.js";
 
 const router = Router();
 

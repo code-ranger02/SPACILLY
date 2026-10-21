@@ -1,12 +1,12 @@
 import mongoose from 'mongoose';
-import { Order } from '../models/Order';
-import { ReturnCase } from '../models/ReturnCase';
-import { RefundRequest } from '../models/RefundRequest';
-import { User } from '../models/User';
-import { completeAdminOrder } from '../services/orderLifecycle.service';
-import { deliverBuyerNotification } from '../services/buyerNotificationService';
-import { sendRichNotificationEmail, isEmailConfigured } from '../services/emailService';
-import { getClientUrl } from '../config/publicEnv';
+import { Order } from "../models/Order.js";
+import { ReturnCase } from "../models/ReturnCase.js";
+import { RefundRequest } from "../models/RefundRequest.js";
+import { User } from "../models/User.js";
+import { completeAdminOrder } from "../services/orderLifecycle.service.js";
+import { deliverBuyerNotification } from "../services/buyerNotificationService.js";
+import { sendRichNotificationEmail, isEmailConfigured } from "../services/emailService.js";
+import { getClientUrl } from "../config/publicEnv.js";
 
 const TICK_MS = Number(process.env.ORDER_AUTOCOMPLETE_TICK_MS || 15 * 60 * 1000);
 const GRACE_HOURS = Number(process.env.ORDER_DELIVERED_GRACE_HOURS || 72);

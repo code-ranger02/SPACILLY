@@ -6,7 +6,7 @@ import type {
   SellerNotificationEvent,
   SellerNotificationCopy,
   SellerNotificationGeminiPayload,
-} from './types';
+} from "./types.js";
 import {
   applyBehavioralRules,
   buildVisualStyle,
@@ -15,7 +15,7 @@ import {
   normalizePriority,
   normalizeTone,
   wordCount,
-} from './utils';
+} from "./utils.js";
 
 const GEMINI_API_KEY = String(process.env.GEMINI_API_KEY || '').trim();
 const MODEL = String(

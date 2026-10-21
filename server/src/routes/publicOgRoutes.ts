@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { ogProductCard } from '../controllers/publicOgController';
+import { ogProductCard } from "../controllers/publicOgController.js";
 
 const router = Router();
 

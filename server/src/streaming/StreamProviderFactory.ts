@@ -1,14 +1,14 @@
-import type { StreamProvider, StreamProviderType } from './types';
-import { YouTubeProvider } from './providers/YouTubeProvider';
-import { MuxProvider } from './providers/MuxProvider';
-import { AwsIVSProvider } from './providers/AwsIVSProvider';
-import { CloudflareProvider } from './providers/CloudflareProvider';
-import { AgoraProvider } from './providers/AgoraProvider';
-import { LiveKitProvider } from './providers/LiveKitProvider';
-import { VimeoProvider } from './providers/VimeoProvider';
-import { SelfHostedProvider } from './providers/SelfHostedProvider';
+import type { StreamProvider, StreamProviderType } from "./types.js";
+import { YouTubeProvider } from "./providers/YouTubeProvider.js";
+import { MuxProvider } from "./providers/MuxProvider.js";
+import { AwsIVSProvider } from "./providers/AwsIVSProvider.js";
+import { CloudflareProvider } from "./providers/CloudflareProvider.js";
+import { AgoraProvider } from "./providers/AgoraProvider.js";
+import { LiveKitProvider } from "./providers/LiveKitProvider.js";
+import { VimeoProvider } from "./providers/VimeoProvider.js";
+import { SelfHostedProvider } from "./providers/SelfHostedProvider.js";
 
-import { WebRTCProvider } from './providers/WebRTCProvider';
+import { WebRTCProvider } from "./providers/WebRTCProvider.js";
 
 const DEFAULT_PROVIDER: StreamProviderType =
   (process.env.DEFAULT_STREAM_PROVIDER as StreamProviderType) || 'webrtc';

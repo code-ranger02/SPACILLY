@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { getPublicSystemFeatures } from '../services/systemFeatureSettings.service';
+import { getPublicSystemFeatures } from "../services/systemFeatureSettings.service.js";
 
 /** GET /api/platform/features — buyer/seller clients (no auth). */
 export async function getPublicFeatures(_req: Request, res: Response) {

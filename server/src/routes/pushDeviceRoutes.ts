@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { authenticate } from '../middleware/auth';
+import { authenticate } from "../middleware/auth.js";
 import {
   registerPushDevice,
   unregisterPushDevice,
@@ -7,7 +7,7 @@ import {
   getWebPushConfig,
   subscribeWebPush,
   unsubscribeWebPush,
-} from '../controllers/pushDeviceController';
+} from "../controllers/pushDeviceController.js";
 
 const router = Router();
 

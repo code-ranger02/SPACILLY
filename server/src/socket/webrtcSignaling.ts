@@ -1,6 +1,6 @@
 import type { Namespace } from 'socket.io';
 import type { Socket } from 'socket.io';
-import { getStreamingConfig } from '../streaming/streamingSettings';
+import { getStreamingConfig } from "../streaming/streamingSettings.js";
 
 type LiveSocket = Socket & {
   userId?: string;

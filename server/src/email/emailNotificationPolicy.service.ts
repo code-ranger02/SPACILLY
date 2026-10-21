@@ -1,11 +1,11 @@
 /**
  * Central policy for outbound email features — admin settings + env + AI marketing toggles.
  */
-import { AIMarketingSettings } from '../models/AIMarketingSettings';
+import { AIMarketingSettings } from "../models/AIMarketingSettings.js";
 import {
   getMarketingAutomationSettings,
   resolveEmailNotificationSettings,
-} from '../models/MarketingAutomationSettings';
+} from "../models/MarketingAutomationSettings.js";
 
 const GEMINI_API_KEY = String(process.env.GEMINI_API_KEY || '').trim();
 

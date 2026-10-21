@@ -1,10 +1,10 @@
 import { Router } from 'express';
-import { authenticate, authorize } from '../middleware/auth';
+import { authenticate, authorize } from "../middleware/auth.js";
 import {
   getKycStatus,
   startKycOnboarding,
   completeKycLater,
-} from '../controllers/sellerKycController';
+} from "../controllers/sellerKycController.js";
 
 const router = Router();
 

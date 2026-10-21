@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
-import { authenticate, authorize } from '../middleware/auth';
+import { authenticate, authorize } from "../middleware/auth.js";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const { uploadProductImages, uploadProductVideoProof } = require('../../config/cloudinary');
+const { uploadProductImages, uploadProductVideoProof } = require("../../config/cloudinary.js");
 import {
   listProducts,
   createProduct,
@@ -14,7 +14,7 @@ import {
   deleteWarehouse,
   listStockHistory,
   transferAllProductsToMe,
-} from '../controllers/inventoryController';
+} from "../controllers/inventoryController.js";
 
 const router = Router();
 

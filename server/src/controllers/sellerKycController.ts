@@ -1,8 +1,8 @@
 import { Response } from 'express';
 import mongoose from 'mongoose';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { SellerSettings } from '../models/SellerSettings';
-import { getSellerKycStatus } from '../services/sellerKyc.service';
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { SellerSettings } from "../models/SellerSettings.js";
+import { getSellerKycStatus } from "../services/sellerKyc.service.js";
 
 function getSellerId(req: AuthenticatedRequest): mongoose.Types.ObjectId | null {
   if (!req.user?.id) return null;

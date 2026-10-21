@@ -13,22 +13,22 @@ import {
   seedMonitorLogsOnce,
   systemMonitorBus,
   type ApiRequestEventPayload,
-} from '../services/systemMonitor.service';
+} from "../services/systemMonitor.service.js";
 import {
   getSecurityOverview,
   getSecurityFindings,
   getAttackSurface,
   getSecurityEvents,
   getComplianceOwasp,
-} from '../services/securityAnalysis.service';
+} from "../services/securityAnalysis.service.js";
 import {
   getIntelligenceSnapshot,
   syncAuthMirror,
   syncBehaviorMirror,
-} from '../services/securityIntelligence.service';
-import { getAuthSecurityEvents, getUserSellerBehavior } from '../services/systemMonitor.service';
+} from "../services/securityIntelligence.service.js";
+import { getAuthSecurityEvents, getUserSellerBehavior } from "../services/systemMonitor.service.js";
 
-import { getJwtSecret } from '../config/jwtSecret';
+import { getJwtSecret } from "../config/jwtSecret.js";
 
 function adminSocketAuth(socket: Socket, next: (err?: Error) => void) {
   const handshake = socket.handshake as { auth?: { token?: string }; headers?: { authorization?: string } };

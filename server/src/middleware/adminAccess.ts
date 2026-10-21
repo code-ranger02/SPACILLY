@@ -1,10 +1,10 @@
 import { Response, NextFunction } from 'express';
-import { AuthenticatedRequest } from './auth';
+import { AuthenticatedRequest } from "./auth.js";
 import {
   assertSuperAdmin,
   canAccessAdminApiPath,
   getAdminAccessForUserId,
-} from '../services/adminAccess.service';
+} from "../services/adminAccess.service.js";
 
 /** Attach adminAccess DTO to request for admin users. */
 export async function attachAdminAccess(

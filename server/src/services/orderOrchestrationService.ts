@@ -1,11 +1,11 @@
-import { User } from '../models/User';
-import { quoteSpacillyShipments, type QuoteCartLine } from './spacillyShipping.service';
+import { User } from "../models/User.js";
+import { quoteSpacillyShipments, type QuoteCartLine } from "./spacillyShipping.service.js";
 import {
   optimizeOrderSplit,
   type OrderOptimizationStrategy,
   type OptimizationCandidateGroup,
-} from './orderOptimizationEngine';
-import type { SpacillyShippingMethodKey } from '../types/spacillyShipping.types';
+} from "./orderOptimizationEngine.js";
+import type { SpacillyShippingMethodKey } from "../types/spacillyShipping.types.js";
 
 export async function orchestrateCheckoutPlan(params: {
   lines: QuoteCartLine[];

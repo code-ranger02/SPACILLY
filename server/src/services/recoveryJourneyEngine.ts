@@ -1,4 +1,4 @@
-import type { IRecoveryJourney, IRecoveryJourneyNode } from '../models/AbandonedCartStrategy';
+import type { IRecoveryJourney, IRecoveryJourneyNode } from "../models/AbandonedCartStrategy.js";
 
 export type JourneyEvalContext = {
   abandonedAt: Date;

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import axios from 'axios';
-import { Product } from '../models/Product';
-import { getClientUrl, getServerUrl } from '../config/publicEnv';
+import { Product } from "../models/Product.js";
+import { getClientUrl, getServerUrl } from "../config/publicEnv.js";
 
 function escapeXml(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
