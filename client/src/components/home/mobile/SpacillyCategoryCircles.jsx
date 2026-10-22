@@ -12,7 +12,7 @@ const FALLBACK = [
     id: 'shirts',
     label: 'Shirts',
     href: '/category/clothing',
-    img: 'https://images.unsplash.com/photo-1596755094514-f87e34085b00?w=240&q=80&auto=format&fit=crop',
+    img: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=240&q=80&auto=format&fit=crop',
   },
   {
     id: 'jackets',
@@ -55,7 +55,17 @@ export default function SpacillyCategoryCircles() {
         {items.map((cat) => (
           <Link key={cat.id} to={cat.href} className="sp-mob-cat-circle">
             <div className="sp-mob-cat-circle__img-wrap">
-              <img src={cat.img} alt="" className="sp-mob-cat-circle__img" loading="lazy" decoding="async" />
+              <img
+                src={cat.img}
+                alt=""
+                className="sp-mob-cat-circle__img"
+                loading="lazy"
+                decoding="async"
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = FALLBACK[0].img;
+                }}
+              />
             </div>
             <span className="sp-mob-cat-circle__label">{cat.label}</span>
           </Link>
