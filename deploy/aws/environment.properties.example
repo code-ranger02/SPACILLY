@@ -13,6 +13,7 @@ APP_NAME=Spacilly
 # Public URLs (replace with your domains / EB URL)
 CLIENT_URL=https://www.spacilly.com
 SERVER_URL=https://api.spacilly.com
+# Must include every browser origin that calls the API (apex, www, and any CloudFront SPA URL).
 ALLOWED_ORIGINS=https://www.spacilly.com,https://spacilly.com
 
 # --- Database ---

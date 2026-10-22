@@ -26,41 +26,76 @@ export function getServerUrl(): string {
   return '';
 }
 
+export function normalizeOrigin(origin: string): string {
+  return origin.trim().replace(/\/$/, '');
+}
+
+function splitOriginList(s: string): string[] {
+  return s.split(',').map((x) => normalizeOrigin(x)).filter(Boolean);
+}
+
+function expandWww(origin: string): string[] {
+  const normalized = normalizeOrigin(origin);
+  try {
+    const u = new URL(normalized);
+    const host = u.hostname;
+    if (host.startsWith('www.')) {
+      const bare = host.slice(4);
+      return [normalized, `${u.protocol}//${bare}`];
+    }
+    return [normalized, `${u.protocol}//www.${host}`];
+  } catch {
+    return [normalized];
+  }
+}
+
+/** Live storefront hosts — always allowed over HTTPS so apex vs www cannot drift from ALLOWED_ORIGINS. */
+const CANONICAL_STOREFRONT_ORIGINS = ['https://spacilly.com', 'https://www.spacilly.com'];
+
 /**
  * CORS / Socket.IO allowed browser origins.
- * Production: ALLOWED_ORIGINS (comma-separated) is required when multiple frontends exist.
+ * Production merges CLIENT_URL + ALLOWED_ORIGINS (www and apex of each) plus the canonical storefront.
  */
 export function getAllowedCorsOrigins(): string[] {
-  const split = (s: string) => s.split(',').map((x) => x.trim()).filter(Boolean);
   const client = getClientUrl();
-  const envList = split(process.env.ALLOWED_ORIGINS || process.env.CORS_ORIGINS || '');
+  const envList = splitOriginList(process.env.ALLOWED_ORIGINS || process.env.CORS_ORIGINS || '');
   const localhostPack = ['http://localhost:5173', 'http://localhost:3000'];
 
-  const expandWww = (origin: string): string[] => {
-    try {
-      const u = new URL(origin);
-      const host = u.hostname;
-      if (host.startsWith('www.')) {
-        const bare = host.slice(4);
-        return [origin, `${u.protocol}//${bare}`];
-      }
-      return [origin, `${u.protocol}//www.${host}`];
-    } catch {
-      return [origin];
-    }
-  };
-
   if (isProductionNodeEnv()) {
-    if (envList.length > 0) return [...new Set(envList.flatMap(expandWww))];
-    if (client) {
-      console.warn(
-        '[cors] ALLOWED_ORIGINS is empty in production; using CLIENT_URL only. Add other app origins (e.g. CloudFront) to ALLOWED_ORIGINS.',
-      );
-      return [...new Set(expandWww(client))];
+    const merged = [
+      ...CANONICAL_STOREFRONT_ORIGINS,
+      ...(client ? expandWww(client) : []),
+      ...envList.flatMap(expandWww),
+    ];
+    const unique = [...new Set(merged)];
+    if (!client && envList.length === 0) {
+      console.error('[cors] Set CLIENT_URL and ALLOWED_ORIGINS in production.');
     }
-    console.error('[cors] Set CLIENT_URL and ALLOWED_ORIGINS in production.');
-    return [];
+    return unique;
   }
 
-  return [...new Set([...localhostPack, ...(client ? expandWww(client) : []), ...envList.flatMap(expandWww)])];
+  return [
+    ...new Set([
+      ...localhostPack,
+      ...(client ? expandWww(client) : []),
+      ...envList.flatMap(expandWww),
+    ]),
+  ];
+}
+
+export function isAllowedCorsOrigin(
+  origin: string | undefined | null,
+  allowed: string[] = getAllowedCorsOrigins(),
+): boolean {
+  if (!origin) return true;
+  const normalized = normalizeOrigin(origin);
+  if (allowed.some((item) => normalizeOrigin(item) === normalized)) return true;
+  try {
+    const u = new URL(normalized);
+    if (u.protocol !== 'https:') return false;
+    const host = u.hostname.toLowerCase();
+    return host === 'spacilly.com' || host.endsWith('.spacilly.com');
+  } catch {
+    return false;
+  }
 }

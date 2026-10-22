@@ -5,7 +5,7 @@ import { AuthTokenPayload } from "../utils/generateToken.js";
 import { MessageThread, Message } from "../models/MessageThread.js";
 import { User } from "../models/User.js";
 import mongoose from 'mongoose';
-import { getAllowedCorsOrigins } from "../config/publicEnv.js";
+import { getAllowedCorsOrigins, isAllowedCorsOrigin } from "../config/publicEnv.js";
 import { attachSystemMonitorNamespaces } from "../socket/systemMonitorSockets.js";
 import { attachLiveCommerceSockets } from "../socket/liveCommerceSockets.js";
 import { socketPresenceRegister, socketPresenceUnregister } from "./socketRegistry.js";
@@ -32,7 +32,7 @@ class WebSocketService {
     this.io = new SocketIOServer(httpServer, {
       cors: {
         origin: (origin, cb) => {
-          if (!origin || allowedOrigins.includes(origin)) {
+          if (isAllowedCorsOrigin(origin, allowedOrigins)) {
             cb(null, true);
           } else {
             cb(new Error('Not allowed by CORS'));

@@ -358,6 +358,8 @@ Wait until **Deployed** status (5–15 min).
 | `CLIENT_URL` | `https://d1111111111111.cloudfront.net` |
 | `ALLOWED_ORIGINS` | `https://d1111111111111.cloudfront.net` |
 
+If the SPA is also served on a custom domain, include **every** browser origin (comma-separated), for example `https://spacilly.com,https://www.spacilly.com,https://d1111111111111.cloudfront.net`. A missing origin produces `No Access-Control-Allow-Origin header` in the browser.
+
 Apply → EB restarts.
 
 ### 6.6 Update Google OAuth

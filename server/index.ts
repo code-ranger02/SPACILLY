@@ -7,7 +7,7 @@ dotenv.config({ path: path.join(__dirname, 'env') });
 
 import express, { Request, Response, NextFunction } from 'express';
 import { createServer } from 'http';
-import cors from 'cors';
+import cors, { type CorsOptions } from 'cors';
 import morgan from 'morgan';
 import helmet from 'helmet';
 import compression from 'compression';
@@ -75,7 +75,7 @@ import { sanitizeInput } from "./src/middleware/sanitizeInput.js";
 import "./src/jobs/escrowJobs.js";
 import "./src/jobs/subscriptionRenewalJob.js";
 import { websocketService } from "./src/services/websocketService.js";
-import { getAllowedCorsOrigins } from "./src/config/publicEnv.js";
+import { getAllowedCorsOrigins, isAllowedCorsOrigin } from "./src/config/publicEnv.js";
 import keepAlive from "./keepAlive.js";
 import rateLimit from 'express-rate-limit';
 import { recordApiTiming, seedMonitorLogsOnce } from "./src/services/systemMonitor.service.js";
@@ -166,19 +166,23 @@ if (emailProvider === 'resend') {
 
 logMicroblinkStartupCheck();
 
-// Global middlewares - CORS: from CLIENT_URL + ALLOWED_ORIGINS (see publicEnv)
+// Global middlewares - CORS: CLIENT_URL + ALLOWED_ORIGINS + canonical storefront (see publicEnv)
 const allowedCorsOrigins = getAllowedCorsOrigins();
+console.log(`[cors] allowed origins: ${allowedCorsOrigins.join(', ') || '(none)'}`);
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin) return callback(null, true);
-      if (allowedCorsOrigins.includes(origin)) return callback(null, true);
-      return callback(null, false);
-    },
-    credentials: true,
-  }),
-);
+const corsOptions: CorsOptions = {
+  origin: (origin, callback) => {
+    if (isAllowedCorsOrigin(origin, allowedCorsOrigins)) return callback(null, true);
+    console.warn(`[cors] blocked origin: ${origin || '(none)'}`);
+    return callback(null, false);
+  },
+  credentials: true,
+  methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+  optionsSuccessStatus: 204,
+};
+
+app.use(cors(corsOptions));
 app.use('/api/webhooks/stripe', express.raw({ type: 'application/json' }), stripeWebhookRoutes);
 app.use(express.json());
 app.use(sanitizeInput);
