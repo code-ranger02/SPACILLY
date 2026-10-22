@@ -15,7 +15,7 @@
  */
 
 const APP_NAME = 'Spacilly';
-const VERSION = 'spacilly-pwa-v3';
+const VERSION = 'spacilly-pwa-v4';
 const STATIC_CACHE = `spacilly-static-${VERSION}`;
 const IMAGE_CACHE = `spacilly-images-${VERSION}`;
 const API_CACHE = `spacilly-api-${VERSION}`;
@@ -61,11 +61,29 @@ self.addEventListener('message', (event) => {
   }
 });
 
+function isHttpUrl(url) {
+  try {
+    const protocol = new URL(url).protocol;
+    return protocol === 'http:' || protocol === 'https:';
+  } catch (_e) {
+    return false;
+  }
+}
+
 function isSameOrigin(url) {
   try {
     return new URL(url).origin === self.location.origin;
   } catch (_e) {
     return false;
+  }
+}
+
+async function putInCache(cache, req, res) {
+  if (!isHttpUrl(req.url) || !res || !res.ok || res.type === 'opaque') return;
+  try {
+    await cache.put(req, res.clone());
+  } catch (_e) {
+    /* chrome-extension:, data:, and opaque responses cannot be stored */
   }
 }
 
@@ -85,7 +103,7 @@ async function staleWhileRevalidate(req, cacheName) {
   const cached = await cache.match(req);
   const networkPromise = fetch(req)
     .then((res) => {
-      if (res && res.ok) cache.put(req, res.clone());
+      if (res && res.ok) void putInCache(cache, req, res);
       return res;
     })
     .catch(() => cached);
@@ -98,7 +116,7 @@ async function cacheFirst(req, cacheName, maxEntries = 100) {
   if (cached) {
     fetch(req)
       .then((res) => {
-        if (res && res.ok) cache.put(req, res.clone());
+        if (res && res.ok) void putInCache(cache, req, res);
       })
       .catch(() => undefined);
     return cached;
@@ -106,7 +124,7 @@ async function cacheFirst(req, cacheName, maxEntries = 100) {
   try {
     const res = await fetch(req);
     if (res && res.ok) {
-      cache.put(req, res.clone());
+      await putInCache(cache, req, res);
       trimCache(cacheName, maxEntries);
     }
     return res;
@@ -122,7 +140,7 @@ async function networkFirst(req, cacheName) {
   const cache = await caches.open(cacheName);
   try {
     const res = await fetch(req);
-    if (res && res.ok) cache.put(req, res.clone());
+    if (res && res.ok) await putInCache(cache, req, res);
     return res;
   } catch (_e) {
     const cached = await cache.match(req);
@@ -146,6 +164,7 @@ async function trimCache(cacheName, maxEntries) {
 
 self.addEventListener('fetch', (event) => {
   const req = event.request;
+  if (!isHttpUrl(req.url)) return;
   if (req.method !== 'GET') {
     // Non-GET API calls: try network, on failure ask the page to queue.
     if (isApiRequest(req)) {
@@ -199,7 +218,7 @@ self.addEventListener('fetch', (event) => {
         try {
           const fresh = await fetch(req);
           const cache = await caches.open(RUNTIME_CACHE);
-          cache.put(req, fresh.clone());
+          await putInCache(cache, req, fresh);
           return fresh;
         } catch (_e) {
           const cache = await caches.open(RUNTIME_CACHE);

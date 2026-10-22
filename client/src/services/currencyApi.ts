@@ -22,7 +22,9 @@ export const currencyApi = {
   getRates: (symbols?: string[]) =>
     api
       .get('/currency/rates', {
-        params: symbols?.length ? { symbols: symbols.join(',') } : undefined,
+        params: symbols?.length
+          ? { symbols: [...new Set(symbols.map((s) => s.trim().toUpperCase()).filter(Boolean))].join(',') }
+          : undefined,
       })
       .then((r) => r.data as CurrencyRatesPayload),
   setPreference: (currency: string) => api.post('/currency/preference', { currency }).then((r) => r.data),

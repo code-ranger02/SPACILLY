@@ -5,7 +5,6 @@ import { API_BASE_URL } from '../lib/config';
 const publicApi = axios.create({
   baseURL: API_BASE_URL,
   timeout: 60000,
-  headers: { 'Content-Type': 'application/json' },
 });
 
 declare module 'axios' {
@@ -17,13 +16,25 @@ declare module 'axios' {
 const api: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
   timeout: 60000,
-  headers: { 'Content-Type': 'application/json' },
+});
+
+function applyJsonContentType(config: InternalAxiosRequestConfig) {
+  const method = String(config.method || 'get').toLowerCase();
+  if (method !== 'get' && method !== 'head' && config.data != null) {
+    config.headers['Content-Type'] = 'application/json';
+  }
+}
+
+publicApi.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+  applyJsonContentType(config);
+  return config;
 });
 
 // Attach auth token to every request
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const token = localStorage.getItem('auth_token');
   if (token) config.headers.Authorization = `Bearer ${token}`;
+  applyJsonContentType(config);
   return config;
 });
 

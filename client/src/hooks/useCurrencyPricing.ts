@@ -15,7 +15,7 @@ export function useCurrencyPricing() {
     let mounted = true;
     const load = async () => {
       try {
-        const data = await currencyApi.getRates([currency, 'USD']);
+        const data = await currencyApi.getRates([...new Set([currency, 'USD'])]);
         if (!mounted) return;
         setRate(Number(data?.rates?.[currency] || 1));
         setSource(data?.source || 'cache');

@@ -178,11 +178,39 @@ const corsOptions: CorsOptions = {
   },
   credentials: true,
   methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+  exposedHeaders: ['X-Spacilly-Session'],
   optionsSuccessStatus: 204,
 };
 
+function applySpacillyCors(req: Request, res: Response, next: NextFunction) {
+  const origin = typeof req.headers.origin === 'string' ? req.headers.origin : '';
+  res.vary('Origin');
+  if (origin && isAllowedCorsOrigin(origin, allowedCorsOrigins)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Expose-Headers', 'X-Spacilly-Session');
+  }
+  if (req.method === 'OPTIONS') {
+    res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
+    const requested = req.headers['access-control-request-headers'];
+    res.setHeader(
+      'Access-Control-Allow-Headers',
+      typeof requested === 'string' && requested.trim()
+        ? requested
+        : 'Content-Type, Authorization, X-Requested-With, Accept, Origin, X-Spacilly-Session, X-Spacilly-Client, X-Session-Id',
+    );
+    res.setHeader('Access-Control-Max-Age', '600');
+    return res.status(204).end();
+  }
+  next();
+}
+
+app.use(applySpacillyCors);
 app.use(cors(corsOptions));
+app.use('/api', (_req, res, next) => {
+  res.setHeader('Cache-Control', 'private, no-store, no-cache, must-revalidate');
+  next();
+});
 app.use('/api/webhooks/stripe', express.raw({ type: 'application/json' }), stripeWebhookRoutes);
 app.use(express.json());
 app.use(sanitizeInput);
