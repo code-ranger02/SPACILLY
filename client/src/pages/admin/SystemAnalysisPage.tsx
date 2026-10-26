@@ -12,7 +12,7 @@ import {
   Terminal,
   Zap,
 } from 'lucide-react';
-import { API_BASE_URL, SERVER_URL } from '@/lib/config';
+import { API_BASE_URL, getSocketIoUrl, socketIoClientOptions } from '@/lib/config';
 import { useSystemAnalysisUiStore } from '@/stores/systemAnalysisUiStore';
 import { cn } from '@/lib/utils';
 import SystemOpsCenterPanel from '@/components/admin/SystemOpsCenterPanel';
@@ -124,11 +124,9 @@ export default function SystemAnalysisPage() {
   useEffect(() => {
     const token = localStorage.getItem('auth_token');
     if (!token) return;
-    const base = SERVER_URL.replace(/\/$/, '');
-    const s = io(`${base}/system`, {
-      auth: { token },
-      transports: ['websocket', 'polling'],
-    });
+    const base = getSocketIoUrl();
+    if (!base) return;
+    const s = io(`${base}/system`, socketIoClientOptions({ token }));
     s.on('connect', () => setSocketConnected(true));
     s.on('disconnect', () => setSocketConnected(false));
     s.emit('subscribe:system');

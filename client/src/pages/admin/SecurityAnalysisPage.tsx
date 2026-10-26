@@ -13,7 +13,7 @@ import {
   ShieldCheck,
   Users,
 } from 'lucide-react';
-import { API_BASE_URL, SERVER_URL } from '@/lib/config';
+import { API_BASE_URL, getSocketIoUrl, socketIoClientOptions } from '@/lib/config';
 import {
   useSecurityAnalysisUiStore,
   type SecurityOverview,
@@ -239,8 +239,9 @@ export default function SecurityAnalysisPage() {
   useEffect(() => {
     const token = localStorage.getItem('auth_token');
     if (!token) return;
-    const base = SERVER_URL.replace(/\/$/, '');
-    const s = io(`${base}/security`, { auth: { token }, transports: ['websocket', 'polling'] });
+    const base = getSocketIoUrl();
+    if (!base) return;
+    const s = io(`${base}/security`, socketIoClientOptions({ token }));
     s.emit('subscribe:security');
     s.on('connect', () => setIntelConnected(true));
     s.on('disconnect', () => setIntelConnected(false));

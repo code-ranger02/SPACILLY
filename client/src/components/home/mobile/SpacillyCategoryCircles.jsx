@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useStorefrontCategories } from '../../../hooks/useBuyerSiteContent';
+import { categoryImageOrFallback } from '../../../lib/unsplashFallback';
 
 const FALLBACK = [
   {
@@ -42,7 +43,7 @@ export default function SpacillyCategoryCircles() {
           id: c.slug,
           label: c.name,
           href: `/category/${encodeURIComponent(c.slug)}`,
-          img: c.image || FALLBACK[0].img,
+          img: categoryImageOrFallback(c.image, FALLBACK[0].img),
         }))
       : FALLBACK;
 

@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { resolveGeminiModelId } from "../../config/geminiEnv.js";
 
 export class GeminiClientError extends Error {
   constructor(
@@ -13,6 +14,19 @@ export class GeminiClientError extends Error {
 
 export interface TimeoutOptions {
   timeoutMs: number;
+}
+
+function wrapGeminiError(err: unknown, modelId: string): GeminiClientError {
+  const msg = err instanceof Error ? err.message : String(err);
+  const statusMatch = msg.match(/\b(4\d{2}|5\d{2})\b/);
+  const status = statusMatch ? Number(statusMatch[1]) : undefined;
+  let code = 'GEMINI';
+  if (status === 404 || /not found|not supported/i.test(msg)) code = 'NOT_FOUND';
+  else if (status === 429 || /resource exhausted|quota/i.test(msg)) code = 'RATE_LIMIT';
+  else if (status === 401 || status === 403 || /api key not valid|api_key_invalid/i.test(msg))
+    code = 'AUTH';
+  else if (status && status >= 500) code = 'SERVER';
+  return new GeminiClientError(`${modelId}: ${msg}`, code, status);
 }
 
 function withTimeout<T>(p: Promise<T>, ms: number, label: string): Promise<T> {
@@ -41,17 +55,23 @@ export async function generateText(
   options: TimeoutOptions,
 ): Promise<string> {
   const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({ model: modelId });
-  const result = await withTimeout(
-    model.generateContent(prompt),
-    options.timeoutMs,
-    modelId,
-  );
-  const text = result.response.text();
-  if (!text?.trim()) {
-    throw new GeminiClientError('empty response', 'EMPTY');
+  const resolved = resolveGeminiModelId(modelId);
+  const model = genAI.getGenerativeModel({ model: resolved });
+  try {
+    const result = await withTimeout(
+      model.generateContent(prompt),
+      options.timeoutMs,
+      resolved,
+    );
+    const text = result.response.text();
+    if (!text?.trim()) {
+      throw new GeminiClientError('empty response', 'EMPTY');
+    }
+    return text;
+  } catch (err) {
+    if (err instanceof GeminiClientError) throw err;
+    throw wrapGeminiError(err, resolved);
   }
-  return text;
 }
 
 export async function generateWithSystemInstruction(
@@ -62,23 +82,29 @@ export async function generateWithSystemInstruction(
   options: TimeoutOptions,
 ): Promise<string> {
   const genAI = new GoogleGenerativeAI(apiKey);
+  const resolved = resolveGeminiModelId(modelId);
   const model = genAI.getGenerativeModel({
-    model: modelId,
+    model: resolved,
     systemInstruction: {
       role: 'system',
       parts: [{ text: systemInstruction }],
     },
   });
-  const result = await withTimeout(
-    model.generateContent(userText),
-    options.timeoutMs,
-    modelId,
-  );
-  const text = result.response.text();
-  if (!text?.trim()) {
-    throw new GeminiClientError('empty response', 'EMPTY');
+  try {
+    const result = await withTimeout(
+      model.generateContent(userText),
+      options.timeoutMs,
+      resolved,
+    );
+    const text = result.response.text();
+    if (!text?.trim()) {
+      throw new GeminiClientError('empty response', 'EMPTY');
+    }
+    return text;
+  } catch (err) {
+    if (err instanceof GeminiClientError) throw err;
+    throw wrapGeminiError(err, resolved);
   }
-  return text;
 }
 
 export async function embedText(

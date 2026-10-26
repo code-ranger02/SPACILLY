@@ -3,6 +3,7 @@ import { ModelBlacklist } from "./engine/blacklist.js";
 import { ModelScorer } from "./engine/scorer.js";
 import { AIRouter } from "./engine/aiRouter.js";
 import { MetricsRegistry } from "./observability/metrics.js";
+import { getGeminiApiKey } from "../config/geminiEnv.js";
 
 const cache = new SemanticCache();
 const blacklist = new ModelBlacklist();
@@ -22,7 +23,7 @@ function embeddingModel(): string {
 let router: AIRouter | null = null;
 
 export function getAIRouter(): AIRouter | null {
-  const key = (process.env.GEMINI_API_KEY || '').trim();
+  const key = getGeminiApiKey();
   if (!key) return null;
   if (!router) {
     router = new AIRouter(

@@ -11,7 +11,8 @@ HOST=0.0.0.0
 APP_NAME=Spacilly
 
 # Public URLs (replace with your domains / EB URL)
-CLIENT_URL=https://www.spacilly.com
+# Shop domain — never the frontend CloudFront hostname (d3jx….cloudfront.net)
+CLIENT_URL=https://spacilly.com
 SERVER_URL=https://api.spacilly.com
 # Must include every browser origin that calls the API (apex, www, and any CloudFront SPA URL).
 ALLOWED_ORIGINS=https://www.spacilly.com,https://spacilly.com
@@ -24,7 +25,8 @@ JWT_SECRET=
 JWT_EXPIRES_IN=7d
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
-GOOGLE_CALLBACK_URL=https://api.spacilly.com/api/auth/google/callback
+# Google Console redirect URI = API host (CloudFront is OK). After login, users go to CLIENT_URL (spacilly.com).
+GOOGLE_CALLBACK_URL=https://datzpcrpyk38m.cloudfront.net/api/auth/google/callback
 WEBAUTHN_RP_NAME=Spacilly
 WEBAUTHN_RP_ID=spacilly.com
 WEBAUTHN_ORIGIN=https://www.spacilly.com
@@ -43,7 +45,7 @@ CLOUDINARY_API_SECRET=
 
 # --- AI ---
 GEMINI_API_KEY=
-GEMINI_MODEL=gemini-flash-latest
+GEMINI_MODEL=gemini-2.5-flash
 ANTHROPIC_API_KEY=
 
 # --- Payments: Stripe ---

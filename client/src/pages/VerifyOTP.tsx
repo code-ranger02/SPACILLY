@@ -28,6 +28,7 @@ export function VerifyOTP() {
   const [error, setError] = useState('');
   const [resendCooldown, setResendCooldown] = useState(0);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const lastTried = useRef('');
 
   useEffect(() => {
     const e = emailFromUrl.trim();
@@ -74,6 +75,7 @@ export function VerifyOTP() {
     const { next, focusIndex } = applyOtpInput(index, raw, otp);
     setOtp(next);
     setError('');
+    lastTried.current = '';
     if (focusIndex !== index) inputRefs.current[focusIndex]?.focus();
   };
 
@@ -90,14 +92,15 @@ export function VerifyOTP() {
     const next = Array.from({ length: 6 }, (_, i) => pasted[i] || '');
     setOtp(next);
     setError('');
+    lastTried.current = '';
     inputRefs.current[Math.min(pasted.length, 5)]?.focus();
   };
 
-  const handleVerify = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleVerify = async (e?: React.FormEvent) => {
+    e?.preventDefault();
     const code = otp.join('');
     const eMail = email.trim();
-    if (code.length !== 6 || !eMail) return;
+    if (code.length !== 6 || !eMail || verifyLoading) return;
     setVerifyLoading(true);
     setError('');
     try {
@@ -106,12 +109,22 @@ export function VerifyOTP() {
       showToast('Email verified! You can sign in now.', 'success');
       setTimeout(() => navigate('/login', { replace: true }), 1800);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Invalid code. Try again.';
+      const message = err instanceof Error ? err.message : 'That code is incorrect. Try again.';
       setError(message);
     } finally {
       setVerifyLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (step !== 'code') return;
+    const code = otp.join('');
+    if (!/^\d{6}$/.test(code) || verifyLoading) return;
+    if (lastTried.current === code) return;
+    lastTried.current = code;
+    void handleVerify();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [otp, step]);
 
   const handleResend = async () => {
     if (resendCooldown > 0 || sendLoading) return;

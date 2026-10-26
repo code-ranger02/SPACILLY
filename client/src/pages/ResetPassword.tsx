@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Lock, Check, Eye, EyeOff } from 'lucide-react';
 import AuthPremiumLayout from '../components/AuthPremiumLayout';
 import AuthFusionCard from '../components/auth/AuthFusionCard';
 import AuthFormHeader from '../components/auth/AuthFormHeader';
 import { AuthInput, ErrorBanner, PrimaryBtn } from '../components/auth/AuthFormControls';
+import ResetPasswordOtpForm from '../components/auth/ResetPasswordOtpForm';
 
 import { API_BASE_URL } from '../lib/config';
 
@@ -22,8 +23,14 @@ function checkPasswordReqs(pw: string) {
 
 export function ResetPassword() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const tokenFromUrl = searchParams.get('token');
+  const emailFromQuery = (
+    searchParams.get('email') ||
+    (location.state as { email?: string } | null)?.email ||
+    ''
+  ).trim();
 
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -83,6 +90,44 @@ export function ResetPassword() {
     }
   };
 
+  if (!tokenFromUrl?.trim()) {
+    return (
+      <AuthPremiumLayout>
+        <AuthFusionCard>
+          {emailFromQuery ? (
+            <ResetPasswordOtpForm
+              email={emailFromQuery}
+              onBack={() => navigate('/auth?tab=login')}
+              onSuccess={() => navigate('/auth?tab=login')}
+            />
+          ) : (
+            <>
+              <AuthFormHeader
+                title="Reset Password"
+                subtitle="Enter the 6-digit code from your email, then set a new password."
+                backTo="/auth?tab=login"
+                backLabel="Back to sign in"
+              />
+              <div
+                className="agf-error-banner mb-4"
+                style={{
+                  background: 'var(--badge-warning-bg, rgba(245, 158, 11, 0.12))',
+                  borderColor: 'var(--badge-warning-border, rgba(245, 158, 11, 0.35))',
+                  color: 'var(--badge-warning-text, #b45309)',
+                }}
+              >
+                Start from forgot password so we know which email received the code.{' '}
+                <Link to="/forgot-password" className="agf-link font-semibold">
+                  Request a reset code
+                </Link>
+              </div>
+            </>
+          )}
+        </AuthFusionCard>
+      </AuthPremiumLayout>
+    );
+  }
+
   const reqItems = [
     { ok: reqs.length, label: 'At least 8 characters' },
     { ok: reqs.upper, label: 'One uppercase letter' },
@@ -112,22 +157,6 @@ export function ResetPassword() {
               backTo="/auth?tab=login"
               backLabel="Back to sign in"
             />
-
-            {!tokenFromUrl?.trim() && (
-              <div
-                className="agf-error-banner mb-4"
-                style={{
-                  background: 'var(--badge-warning-bg, rgba(245, 158, 11, 0.12))',
-                  borderColor: 'var(--badge-warning-border, rgba(245, 158, 11, 0.35))',
-                  color: 'var(--badge-warning-text, #b45309)',
-                }}
-              >
-                This page is only valid when opened from the link in your reset email.{' '}
-                <Link to="/forgot-password" className="agf-link font-semibold">
-                  Request a new reset link
-                </Link>
-              </div>
-            )}
 
             <form onSubmit={handleSubmit} className="agf-form">
               <ErrorBanner message={error} />

@@ -1,5 +1,6 @@
 import { Response } from 'express';
 import { AuthenticatedRequest } from "../middleware/auth.js";
+import { geminiPublicErrorPayload } from "../config/geminiEnv.js";
 import { handleAgentChat, AgentContext } from "../services/GeminiAgentService.js";
 import {
   normalizeCommerceProvider,
@@ -52,10 +53,11 @@ export async function postAiAgent(req: AuthenticatedRequest, res: Response) {
       fallbackOccurred: result.fallbackOccurred,
     });
   } catch (error: any) {
-    const msg = error?.message || 'AI agent failed';
-    if (msg.includes('GEMINI_API_KEY')) {
-      return res.status(503).json({ message: 'Assistant is not configured. Set GEMINI_API_KEY on the server.' });
+    const mapped = geminiPublicErrorPayload(error);
+    if (mapped) {
+      return res.status(mapped.status).json({ message: mapped.message });
     }
+    const msg = error?.message || 'AI agent failed';
     // eslint-disable-next-line no-console
     console.error('postAiAgent error:', error);
     return res.status(500).json({ message: msg });

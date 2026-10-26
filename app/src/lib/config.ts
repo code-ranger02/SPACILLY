@@ -33,12 +33,13 @@ export function resolveAssetUrl(path: string): string {
   return `${base}${p}`;
 }
 
-/** Socket.IO URL — same idea as Vite: optional `EXPO_PUBLIC_WS_URL`, else http(s) → ws(s) on server host. */
+/** Socket.IO handshake URL. Must stay http(s) so XHR polling works; do not convert to ws(s). */
 export function getSocketUrl(): string {
   const w = trim(process.env.EXPO_PUBLIC_WS_URL);
-  if (w) return w;
-  const s = SERVER_URL;
-  if (s.startsWith('https://')) return s.replace(/^https/i, 'wss');
-  if (s.startsWith('http://')) return s.replace(/^http/i, 'ws');
-  return s;
+  const raw = w || SERVER_URL;
+  if (!raw) return '';
+  return raw
+    .replace(/\/$/, '')
+    .replace(/^ws:/i, 'http:')
+    .replace(/^wss:/i, 'https:');
 }

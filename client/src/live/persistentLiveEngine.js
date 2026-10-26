@@ -1,5 +1,5 @@
 import { io } from 'socket.io-client';
-import { SERVER_URL } from '../lib/config';
+import { getSocketIoUrl, socketIoClientOptions } from '../lib/config';
 import { useLiveStreamStore } from '../stores/liveStreamStore';
 
 const ICE_CONFIG = {
@@ -127,9 +127,10 @@ class PersistentLiveEngine {
       this.socket.disconnect();
     }
 
-    const socket = io(`${SERVER_URL}/live`, {
-      transports: ['websocket', 'polling'],
-      auth: this.token ? { token: this.token } : {},
+    const base = getSocketIoUrl();
+    if (!base) return;
+    const socket = io(`${base}/live`, {
+      ...socketIoClientOptions(this.token ? { token: this.token } : undefined),
     });
     this.socket = socket;
 

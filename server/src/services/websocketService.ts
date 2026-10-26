@@ -30,6 +30,7 @@ class WebSocketService {
   initialize(httpServer: HttpServer) {
     const allowedOrigins = getAllowedCorsOrigins();
     this.io = new SocketIOServer(httpServer, {
+      path: '/socket.io',
       cors: {
         origin: (origin, cb) => {
           if (isAllowedCorsOrigin(origin, allowedOrigins)) {
@@ -42,6 +43,10 @@ class WebSocketService {
         credentials: true,
       },
       transports: ['polling', 'websocket'],
+      allowUpgrades: true,
+      pingInterval: 25000,
+      pingTimeout: 20000,
+      connectTimeout: 20000,
     });
 
     // Authentication middleware

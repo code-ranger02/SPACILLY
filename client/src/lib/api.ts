@@ -512,6 +512,26 @@ export const authAPI = {
     return handleResponse<{ message: string; token?: string; user?: any }>(response);
   },
 
+  async verifyPasswordResetOtp(email: string, code: string) {
+    const response = await fetch(`${API_BASE_URL}/auth/verify-reset-otp`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ email: email.trim().toLowerCase(), code }),
+    });
+    return handleResponse<{ valid: boolean }>(response);
+  },
+
+  async resetPasswordWithOtp(email: string, code: string, password: string) {
+    const response = await fetch(`${API_BASE_URL}/auth/reset-password-otp`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ email: email.trim().toLowerCase(), code, password }),
+    });
+    return handleResponse<{ message: string }>(response);
+  },
+
   /**
    * Get current user
    */

@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import fs from 'fs';
 import path from 'path';
 import { getAIRouter } from "../ai-assistant/singleton.js";
+import { geminiPublicErrorPayload } from "../config/geminiEnv.js";
 import { getJwtSecret } from "../config/jwtSecret.js";
 
 type UserRole = 'guest' | 'buyer' | 'seller' | 'admin';
@@ -141,6 +142,10 @@ export async function chatWithAssistant(req: Request, res: Response) {
       fallbackOccurred: routed.fallbackOccurred,
     });
   } catch (error: any) {
+    const mapped = geminiPublicErrorPayload(error);
+    if (mapped) {
+      return res.status(mapped.status).json({ message: mapped.message });
+    }
     return res.status(500).json({ message: error?.message || 'Assistant internal error.' });
   }
 }

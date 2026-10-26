@@ -1,34 +1,27 @@
 import type { ModelTier } from "../types.js";
+import { resolveGeminiModelId } from "../../config/geminiEnv.js";
 
 /** Default Google model IDs — override via TIER1_MODELS, TIER2_MODELS, TIER3_MODELS (comma-separated). */
-const DEFAULT_TIER1 = [
-  'gemini-2.5-flash',
-  'gemini-2.5-pro',
-  'gemini-2.0-flash',
-  'gemini-1.5-pro',
-];
+const DEFAULT_TIER1 = ['gemini-2.5-pro', 'gemini-2.5-flash', 'gemini-2.0-flash'];
 
 const DEFAULT_TIER2 = [
-  'gemini-2.5-flash-lite',
   'gemini-2.5-flash',
+  'gemini-2.0-flash',
+  'gemini-2.5-flash-lite',
   'gemini-2.0-flash-lite',
-  'gemini-1.5-flash',
 ];
 
-const DEFAULT_TIER3 = [
-  'gemma-3-27b-it',
-  'gemma-3-12b-it',
-  'gemma-3-4b-it',
-  'gemma-3-2b-it',
-  'gemma-3-1b-it',
-];
+const DEFAULT_TIER3 = ['gemini-2.0-flash-lite', 'gemini-2.5-flash-lite', 'gemini-2.0-flash'];
 
 function parseList(envVal: string | undefined, fallback: string[]): string[] {
-  if (!envVal?.trim()) return [...fallback];
-  return envVal
-    .split(',')
-    .map((s) => s.trim())
-    .filter(Boolean);
+  const preferred = resolveGeminiModelId(process.env.GEMINI_MODEL || '');
+  const fromEnv = envVal?.trim()
+    ? envVal
+        .split(',')
+        .map((s) => resolveGeminiModelId(s.trim()))
+        .filter(Boolean)
+    : fallback.map((s) => resolveGeminiModelId(s));
+  return [...new Set([preferred, ...fromEnv].filter(Boolean))];
 }
 
 /** Spec names (documentation); env overrides use real API model IDs. */

@@ -10,9 +10,19 @@ export function isProductionNodeEnv(): boolean {
 /** Frontend origin (email links, OAuth redirects, payment return, logos). */
 export function getClientUrl(): string {
   const v = (process.env.CLIENT_URL || '').trim().replace(/\/$/, '');
-  if (v) return v;
+  if (v) {
+    try {
+      const host = new URL(v).hostname.toLowerCase();
+      if (isProductionNodeEnv() && host.endsWith('.cloudfront.net')) {
+        return 'https://spacilly.com';
+      }
+    } catch {
+      /* keep raw */
+    }
+    return v;
+  }
   if (!isProductionNodeEnv()) return 'http://localhost:5173';
-  return '';
+  return 'https://spacilly.com';
 }
 
 /** API / asset server base (uploads, Gemini image URLs, webhooks). */
@@ -51,6 +61,36 @@ function expandWww(origin: string): string[] {
 
 /** Live storefront hosts — always allowed over HTTPS so apex vs www cannot drift from ALLOWED_ORIGINS. */
 const CANONICAL_STOREFRONT_ORIGINS = ['https://spacilly.com', 'https://www.spacilly.com'];
+
+function isSpacillyShopHost(hostname: string): boolean {
+  const h = hostname.toLowerCase();
+  return h === 'spacilly.com' || h === 'www.spacilly.com';
+}
+
+/**
+ * Shopper-facing origin for OAuth / email / login redirects.
+ * Never send users to the raw frontend CloudFront hostname once spacilly.com is live.
+ */
+export function getStorefrontUrl(): string {
+  const preferred = (process.env.PUBLIC_SITE_URL || process.env.SITE_ORIGIN || '').trim().replace(/\/$/, '');
+  const client = getClientUrl();
+  for (const candidate of [preferred, client]) {
+    if (!candidate) continue;
+    try {
+      const u = new URL(candidate);
+      if (isSpacillyShopHost(u.hostname)) {
+        return `${u.protocol}//${u.hostname}`;
+      }
+      if (!isProductionNodeEnv() && (u.hostname === 'localhost' || u.hostname === '127.0.0.1')) {
+        return candidate.replace(/\/$/, '');
+      }
+    } catch {
+      /* skip invalid */
+    }
+  }
+  if (!isProductionNodeEnv() && client) return client.replace(/\/$/, '');
+  return CANONICAL_STOREFRONT_ORIGINS[0];
+}
 
 /**
  * CORS / Socket.IO allowed browser origins.

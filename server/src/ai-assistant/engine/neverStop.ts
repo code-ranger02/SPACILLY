@@ -10,20 +10,39 @@ function classifyError(err: unknown): {
   is429: boolean;
   is5xx: boolean;
   isTimeout: boolean;
+  isAuth: boolean;
+  isNotFound: boolean;
 } {
+  const status = err instanceof GeminiClientError ? err.status : undefined;
+  const code = err instanceof GeminiClientError ? err.code : undefined;
   const msg = err instanceof Error ? err.message : String(err);
   const s = msg.toLowerCase();
   const isTimeout =
-    s.includes('timeout') || (err instanceof Error && err.message.includes('TIMEOUT'));
+    code === 'TIMEOUT' || s.includes('timeout') || (err instanceof Error && err.message.includes('TIMEOUT'));
   const is429 =
-    s.includes('429') || s.includes('resource exhausted') || s.includes('quota');
+    code === 'RATE_LIMIT' ||
+    status === 429 ||
+    s.includes('429') ||
+    s.includes('resource exhausted') ||
+    s.includes('quota');
+  const isAuth =
+    code === 'AUTH' ||
+    status === 401 ||
+    status === 403 ||
+    s.includes('api key not valid') ||
+    s.includes('api_key_invalid') ||
+    s.includes('invalid api key') ||
+    s.includes('permission_denied');
+  const isNotFound =
+    code === 'NOT_FOUND' || status === 404 || s.includes('not found') || s.includes('is not found');
   const is5xx =
+    code === 'SERVER' ||
+    (status != null && status >= 500) ||
     s.includes('500') ||
     s.includes('502') ||
     s.includes('503') ||
-    s.includes('504') ||
-    /[^0-9]5\d\d[^0-9]/.test(msg);
-  return { is429, is5xx, isTimeout };
+    s.includes('504');
+  return { is429, is5xx, isTimeout, isAuth, isNotFound };
 }
 
 function tierTryOrder(assigned: ModelTier): ModelTier[] {
@@ -63,6 +82,7 @@ export async function neverStopExecute<T>(params: {
 
   const tiersToTry = tierTryOrder(assignedTier);
   let fallbackOccurred = false;
+  let lastError: unknown = new Error('all_models_failed');
 
   for (const tier of tiersToTry) {
     if (tier !== assignedTier) {
@@ -104,6 +124,7 @@ export async function neverStopExecute<T>(params: {
             fallbackOccurred,
           };
         } catch (err) {
+          lastError = err;
           const latency = Date.now() - start;
           await metrics.recordRequest(modelId, false, latency);
           scorer.recordFailure(modelId);
@@ -119,6 +140,10 @@ export async function neverStopExecute<T>(params: {
             },
             'ai_router_model_error',
           );
+
+          if (c.isAuth) {
+            return { ok: false, error: err };
+          }
 
           if (c.is429) {
             await blacklist.blockForRateLimit(modelId);
@@ -147,5 +172,5 @@ export async function neverStopExecute<T>(params: {
     }
   }
 
-  return { ok: false, error: new Error('all_models_failed') };
+  return { ok: false, error: lastError };
 }

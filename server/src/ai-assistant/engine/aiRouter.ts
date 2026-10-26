@@ -12,6 +12,7 @@ import { normalizePromptForCache } from "../cache/normalize.js";
 import { logger } from "../observability/logger.js";
 import type { MetricsRegistry } from "../observability/metrics.js";
 import type { ModelTier, TaskComplexityResult } from "../types.js";
+import { throwIfGeminiUnusable } from "../../config/geminiEnv.js";
 
 const BUSY_MESSAGE =
   'All AI models are currently busy. Please try again shortly.';
@@ -93,6 +94,7 @@ export class AIRouter {
     });
 
     if (!outcome.ok) {
+      throwIfGeminiUnusable(outcome.error);
       return {
         text: BUSY_MESSAGE,
         model: 'none',
@@ -201,6 +203,7 @@ export class AIRouter {
     });
 
     if (!outcome.ok) {
+      throwIfGeminiUnusable(outcome.error);
       return {
         text: BUSY_MESSAGE,
         model: 'none',

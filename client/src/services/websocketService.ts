@@ -4,9 +4,7 @@
 
 import { io } from 'socket.io-client';
 import type { Socket } from 'socket.io-client';
-import { SERVER_URL } from '../lib/config';
-
-const WS_URL = (import.meta as any).env?.VITE_WS_URL?.trim() || SERVER_URL.replace(/^http/, 'ws');
+import { getSocketIoUrl, socketIoClientOptions } from '../lib/config';
 
 class WebSocketService {
   private socket: Socket | null = null;
@@ -25,18 +23,19 @@ class WebSocketService {
       return;
     }
 
-    if (this.socket?.connected) {
-      console.log('WebSocket already connected');
+    if (this.socket) {
+      if (!this.socket.connected) this.socket.connect();
       return;
     }
 
-    this.socket = io(WS_URL, {
-      auth: {
-        token: token,
-      },
-      transports: ['polling', 'websocket'],
-      reconnection: true,
-      reconnectionDelay: 1000,
+    const url = getSocketIoUrl();
+    if (!url) {
+      console.warn('Socket.IO skipped: VITE_SERVER_URL / VITE_API_URL is not set.');
+      return;
+    }
+
+    this.socket = io(url, {
+      ...socketIoClientOptions({ token }),
       reconnectionAttempts: this.maxReconnectAttempts,
     });
 
@@ -63,8 +62,10 @@ class WebSocketService {
     });
 
     this.socket.on('connect_error', (error) => {
-      console.error('WebSocket connection error:', error);
       this.reconnectAttempts++;
+      if (this.reconnectAttempts <= 1) {
+        console.warn('Socket.IO handshake failed:', error?.message || error);
+      }
       if (this.reconnectAttempts >= this.maxReconnectAttempts) {
         this.onMaxReconnectAttempts?.();
       }

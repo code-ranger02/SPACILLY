@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import {
   Eye, EyeOff, User, Mail, Lock, Check, Sun, Moon, ShieldCheck,
@@ -25,11 +25,9 @@ import { API_BASE_URL } from '../lib/config';
 import { getDashboardPathForRole, resolvePostLoginPath } from '../lib/authRouting';
 import {
   clearAllAuthDrafts,
-  clearAuthDraft,
-  loadAuthDraft,
   type AuthDraftScope,
-  type ResetDraft,
 } from '../lib/authDraftStorage';
+import ResetPasswordOtpForm from '../components/auth/ResetPasswordOtpForm';
 import { mapAuthApiErrors, focusAuthApiErrors } from '../lib/authFieldErrors';
 import { getAuthDraftInitial, useSaveAuthDraft } from '../hooks/useAuthDraft';
 
@@ -724,6 +722,7 @@ function ThemeToggle() {
 
 export default function AuthPage() {
   const navigate            = useNavigate();
+  const location            = useLocation();
   const [searchParams]      = useSearchParams();
   const { setUserAndToken, user, initialized, loading } = useAuthStore();
   const reduceMotion        = useReducedMotion();
@@ -763,18 +762,6 @@ export default function AuthPage() {
   const [sending, setSending] = useState(false);
 
   const [resetEmail,   setResetEmail]   = useState('');
-  const [resetError,   setResetError]   = useState('');
-  const [resetFieldErrors, setResetFieldErrors] = useState<Record<string, string>>({});
-  const [resetLocked,  setResetLocked]  = useState(false);
-  const [resetDigits,  setResetDigits]  = useState(['','','','','','']);
-  const resetRefs = useRef<(HTMLInputElement | null)[]>([]);
-  const [resetResendCd,setResetResendCd]= useState(60);
-  const [resetResendN, setResetResendN] = useState(0);
-  const [resetResendLock,setResetResendLock]=useState<number|null>(null);
-  const [newPassword,  setNewPassword]  = useState('');
-  const [newConfirm,   setNewConfirm]   = useState('');
-  const [resetting,    setResetting]    = useState(false);
-  const [resetFocused, setResetFocused] = useState<string|null>(null);
 
   const onOAuthBegin = useCallback(() => {
     setOtpError('');
@@ -782,26 +769,7 @@ export default function AuthPage() {
     setVerifying(false);
     setSending(false);
     setFailN(0);
-    setResetError('');
-    setResetLocked(false);
-    setResetting(false);
   }, []);
-
-  useEffect(() => {
-    if (panel !== 'reset') return;
-    const saved = loadAuthDraft<ResetDraft>('page', 'reset');
-    if (!saved) return;
-    if (saved.digits?.length === 6) setResetDigits([...saved.digits]);
-    if (saved.newPassword) setNewPassword(saved.newPassword);
-    if (saved.newConfirm) setNewConfirm(saved.newConfirm);
-  }, [panel]);
-
-  useSaveAuthDraft(
-    'page',
-    'reset',
-    { email: resetEmail, digits: resetDigits, newPassword, newConfirm },
-    panel === 'reset',
-  );
 
   /* Deep-link: ?verifyEmail=1&email=... */
   useEffect(() => {
@@ -824,11 +792,6 @@ export default function AuthPage() {
     return () => clearInterval(t);
   }, [panel, resendCd]);
 
-  useEffect(() => {
-    if (panel !== 'reset' || resetResendCd <= 0) return;
-    const t = window.setInterval(() => setResetResendCd((v) => Math.max(0, v - 1)), 1000);
-    return () => clearInterval(t);
-  }, [panel, resetResendCd]);
 
   /* Expiry countdown (force re-render) */
   useEffect(() => {
@@ -846,29 +809,14 @@ export default function AuthPage() {
 
   const canResend      = !resendLock || Date.now() >= resendLock
     ? resendCd <= 0 && resendN < 3 : false;
-  const canResendReset = !resetResendLock || Date.now() >= resetResendLock
-    ? resetResendCd <= 0 && resetResendN < 3 : false;
+  const otpAutoTried = useRef('');
 
   /* OTP helpers */
   const clearOtp  = () => { setOtpDigits(['','','','','','']); setOtpError(''); setFailN(0); setOtpLocked(false); setVerifying(false); };
-  const clearReset= () => {
-    setResetDigits(['','','','','','']);
-    setResetError('');
-    setResetFieldErrors({});
-    setResetLocked(false);
-    setResetResendN(0);
-    setResetResendLock(null);
-    setResetResendCd(RESEND_CD);
-    setNewPassword('');
-    setNewConfirm('');
-    setResetting(false);
-  };
-
   const goBackToLogin = useCallback(() => {
     clearOtp();
-    clearReset();
     setOtpError('');
-    setResetError('');
+    setResetEmail('');
     setPanel('auth');
     setFormEpoch((e) => e + 1);
     navigate('/auth?tab=login');
@@ -887,21 +835,6 @@ export default function AuthPage() {
     } finally { setSending(false); }
   };
 
-  const sendResetOtp = async (email: string, reason: 'request'|'resend') => {
-    const e = email.trim().toLowerCase(); if (!e) return;
-    setResetError('');
-    try {
-      await fetch(`${API_BASE}/auth/forgot-password`, {
-        method: 'POST', credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: e }),
-      });
-      setResetEmail(e); setResetResendCd(RESEND_CD);
-      if (reason === 'resend') setResetResendN((n) => n+1);
-      window.setTimeout(() => resetRefs.current[0]?.focus(), 100);
-    } catch (err: any) { setResetError(err?.message || 'Failed to send code.'); }
-  };
-
   const goToOtp = async (email: string, autoSend: boolean) => {
     setPanel('otp'); setOtpEmail(email.trim().toLowerCase());
     clearOtp(); setResendN(0); setResendLock(null); setResendCd(RESEND_CD);
@@ -910,20 +843,20 @@ export default function AuthPage() {
     else window.setTimeout(() => otpRefs.current[0]?.focus(), 100);
   };
 
-  const goToReset = async (email: string) => {
+  const goToReset = (email: string) => {
     const e = email.trim().toLowerCase();
-    setPanel('reset');
     setResetEmail(e);
-    const saved = loadAuthDraft<ResetDraft>('page', 'reset');
-    clearReset();
-    setResetResendN(0);
-    setResetResendLock(null);
-    setResetResendCd(RESEND_CD);
-    if (saved?.digits?.length === 6) setResetDigits([...saved.digits]);
-    if (saved?.newPassword) setNewPassword(saved.newPassword);
-    if (saved?.newConfirm) setNewConfirm(saved.newConfirm);
-    window.setTimeout(() => resetRefs.current[0]?.focus(), 100);
+    setPanel('reset');
   };
+
+  useEffect(() => {
+    const fromState = (location.state as { resetEmail?: string } | null)?.resetEmail;
+    if (fromState && panel === 'auth') {
+      goToReset(fromState);
+      navigate(location.pathname + location.search, { replace: true, state: {} });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const verifyOtp = async () => {
     const code = otpDigits.join('');
@@ -962,57 +895,22 @@ export default function AuthPage() {
     } finally { setVerifying(false); }
   };
 
-  const submitReset = async () => {
-    setResetError('');
-    setResetFieldErrors({});
-    const code = resetDigits.join('');
-    if (!/^\d{6}$/.test(code)) {
-      setResetError('Enter the 6-digit code.');
-      resetRefs.current[0]?.focus();
-      return;
-    }
-    if (newPassword.length < 6) {
-      setResetFieldErrors({ 'New Password': 'Password must be ≥ 6 characters.' });
-      focusAuthField('New Password');
-      return;
-    }
-    if (newPassword !== newConfirm) {
-      setResetFieldErrors({ 'Confirm Password': 'Passwords do not match.' });
-      focusAuthField('Confirm Password');
-      return;
-    }
-    setResetting(true);
-    try {
-      const res = await fetch(`${API_BASE}/auth/reset-password-otp`, {
-        method: 'POST', credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: resetEmail, code, password: newPassword }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        const { banner, fields } = mapAuthApiErrors(data, 'reset');
-        const { __otp__, ...pwFields } = fields;
-        if (__otp__) setResetError(__otp__);
-        else setResetError(banner);
-        setResetFieldErrors(pwFields);
-        focusAuthApiErrors(fields, banner);
-        return;
-      }
-      clearReset();
-      clearAllAuthDrafts('page');
-      clearAuthDraft('page', 'forgot');
-      setFormEpoch((e) => e + 1);
-      setPanel('auth');
-      navigate('/auth?tab=login');
-    } catch { setResetError('Network error. Try again.'); }
-    finally { setResetting(false); }
-  };
+  useEffect(() => {
+    if (panel !== 'otp') return;
+    const code = otpDigits.join('');
+    if (!/^\d{6}$/.test(code) || otpLocked || verifying || sending) return;
+    if (otpAutoTried.current === code) return;
+    otpAutoTried.current = code;
+    void verifyOtp();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [otpDigits, panel]);
 
   /* OTP key handlers */
   const handleOtpChange = (i: number, raw: string) => {
     if (otpLocked) return;
     const { next, focusIndex } = applyOtpInput(i, raw, otpDigits);
     setOtpDigits(next);
+    otpAutoTried.current = '';
     setOtpError('');
     if (next[focusIndex]) otpRefs.current[focusIndex]?.focus();
     else if (focusIndex < 5 && next[i]) otpRefs.current[Math.min(5, i + 1)]?.focus();
@@ -1043,49 +941,8 @@ export default function AuthPage() {
     e.preventDefault();
     setOtpDigits(Array.from({length:6}, (_,i) => digits[i] || ''));
     setOtpError('');
+    otpAutoTried.current = '';
     window.setTimeout(() => otpRefs.current[Math.min(5, digits.length-1)]?.focus(), 0);
-  };
-
-  const handleResetChange = (i: number, raw: string) => {
-    if (resetLocked || resetting) return;
-    const { next, focusIndex } = applyOtpInput(i, raw, resetDigits);
-    setResetDigits(next);
-    setResetError('');
-    setResetFieldErrors((prev) => {
-      const n = { ...prev };
-      delete n.__otp__;
-      return n;
-    });
-    if (next[focusIndex]) resetRefs.current[focusIndex]?.focus();
-    else if (focusIndex < 5 && next[i]) resetRefs.current[Math.min(5, i + 1)]?.focus();
-  };
-  const handleResetKey = (i: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (resetLocked || resetting) return;
-    if (e.key === 'Backspace') {
-      if (resetDigits[i]) {
-        const next = [...resetDigits];
-        next[i] = '';
-        setResetDigits(next);
-        e.preventDefault();
-        return;
-      }
-      if (i > 0) {
-        e.preventDefault();
-        resetRefs.current[i - 1]?.focus();
-      }
-      return;
-    }
-    if (e.key === 'ArrowLeft'  && i > 0) { e.preventDefault(); resetRefs.current[i-1]?.focus(); }
-    if (e.key === 'ArrowRight' && i < 5) { e.preventDefault(); resetRefs.current[i+1]?.focus(); }
-  };
-  const handleResetPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
-    if (resetLocked || resetting) return;
-    const digits = e.clipboardData.getData('text').replace(/\D/g,'').slice(0,6).split('');
-    if (!digits.length) return;
-    e.preventDefault();
-    setResetDigits(Array.from({length:6}, (_,i) => digits[i] || ''));
-    setResetError('');
-    resetRefs.current[Math.min(5, digits.length-1)]?.focus();
   };
 
   const panelSlide = reduceMotion
@@ -1121,7 +978,7 @@ export default function AuthPage() {
                         >
                           <ForgotFormContent
                             storageScope="page"
-                            onSent={(email) => goToReset(email).catch(() => undefined)}
+                            onSent={(email) => goToReset(email)}
                           />
                         </motion.div>
                       )}
@@ -1219,90 +1076,16 @@ export default function AuthPage() {
                 )}
 
                 {panel === 'reset' && (
-                  <motion.div key="reset" {...panelSlide} className="agf-otp-wrap">
-                    <AuthFormHeader
-                      title="Reset Password"
-                      subtitle={`Enter the 6-digit code sent to ${resetEmail}, then set a new password.`}
-                      backLabel="Back to sign in"
+                  <motion.div key="reset" {...panelSlide}>
+                    <ResetPasswordOtpForm
+                      email={resetEmail}
                       onBack={goBackToLogin}
+                      onSuccess={() => {
+                        setFormEpoch((e) => e + 1);
+                        setPanel('auth');
+                        navigate('/auth?tab=login');
+                      }}
                     />
-
-                    <div className="agf-center-narrow">
-                      <OtpInputs
-                        digits={resetDigits}
-                        inputRefs={resetRefs}
-                        locked={resetLocked || resetting}
-                        error={!!resetError}
-                        errorMessage={resetError || undefined}
-                        onChange={handleResetChange}
-                        onKeyDown={handleResetKey}
-                        onPaste={handleResetPaste}
-                      />
-
-                      <div className="text-center mt-3 mb-5 sm:mb-6">
-                        {resetResendN >= 3 ? (
-                          <p className="agf-meta" style={{ color: 'var(--badge-error-text)' }}>Too many attempts.</p>
-                        ) : resetResendCd > 0 ? (
-                          <p className="agf-meta">Resend in {formatCountdown(resetResendCd)}</p>
-                        ) : (
-                          <button type="button" disabled={!canResendReset}
-                            onClick={async () => {
-                              if (resetResendN >= 2) { setResetResendN(3); setResetResendLock(Date.now() + 30*60*1000); return; }
-                              await sendResetOtp(resetEmail, 'resend');
-                            }}
-                            className="agf-link"
-                            style={{ opacity: !canResendReset ? 0.55 : 1 }}>
-                            Resend Code
-                          </button>
-                        )}
-                      </div>
-
-                      <div className="flex flex-col gap-4 mb-6 text-left">
-                        <AuthInput
-                          label="New Password"
-                          name="new-password"
-                          type="password"
-                          autoComplete="new-password"
-                          value={newPassword}
-                          onChange={(v) => {
-                            setNewPassword(v);
-                            setResetFieldErrors((prev) => stripFieldError(prev, 'New Password'));
-                          }}
-                          error={resetFieldErrors['New Password']}
-                          placeholder="New password"
-                          leftIcon={Lock}
-                          focused={resetFocused === 'np'}
-                          onFocus={() => setResetFocused('np')}
-                          onBlur={() => setResetFocused(null)}
-                          required
-                        />
-                        <AuthInput
-                          label="Confirm Password"
-                          name="confirm-password"
-                          type="password"
-                          autoComplete="new-password"
-                          value={newConfirm}
-                          onChange={(v) => {
-                            setNewConfirm(v);
-                            setResetFieldErrors((prev) => stripFieldError(prev, 'Confirm Password'));
-                          }}
-                          error={resetFieldErrors['Confirm Password']}
-                          placeholder="Confirm new password"
-                          leftIcon={Lock}
-                          focused={resetFocused === 'nc'} onFocus={() => setResetFocused('nc')} onBlur={() => setResetFocused(null)} required />
-                      </div>
-
-                      <PrimaryBtn type="button" onClick={submitReset} loading={resetting} disabled={resetLocked}>
-                        {resetting ? 'Updating…' : 'Set New Password →'}
-                      </PrimaryBtn>
-
-                      <button
-                        type="button"
-                        onClick={goBackToLogin}
-                        className="agf-link block mx-auto mt-5">
-                        ← Back to Sign In
-                      </button>
-                    </div>
                   </motion.div>
                 )}
 

@@ -21,7 +21,7 @@ import {
   sendLoginNotificationEmail,
   isEmailConfigured,
 } from "../services/emailService.js";
-import { getClientUrl, getServerUrl } from "../config/publicEnv.js";
+import { getServerUrl, getStorefrontUrl } from "../config/publicEnv.js";
 import { recordLoginFailure, recordLoginSuccess } from "../services/systemMonitor.service.js";
 import { ensureReferralCodeForUser, applyReferralCodeOnRegister } from "../services/referralReward.service.js";
 import { formatUserWithAdminAccess } from "../services/adminAccess.service.js";
@@ -37,10 +37,13 @@ function serializeAuthUser(user: InstanceType<typeof User>) {
   return formatUserWithAdminAccess(doc);
 }
 
-const CLIENT_URL = getClientUrl();
-const SERVER_URL = getServerUrl();
-const GOOGLE_CALLBACK_URL =
-  process.env.GOOGLE_CALLBACK_URL?.trim() || `${SERVER_URL}/api/auth/google/callback`;
+function clientUrl(): string {
+  return getStorefrontUrl();
+}
+
+function googleCallbackUrl(): string {
+  return process.env.GOOGLE_CALLBACK_URL?.trim() || `${getServerUrl()}/api/auth/google/callback`;
+}
 
 const OTP_EXPIRY_MS = 10 * 60 * 1000; // 10 minutes
 const EMAIL_LINK_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours
@@ -697,7 +700,7 @@ export async function approveDeviceByEmail(req: Request, res: Response) {
   try {
     const token = (req.query.token as string)?.trim();
     if (!token) {
-      return res.redirect(`${CLIENT_URL}/login?error=invalid_approval_link`);
+      return res.redirect(`${clientUrl()}/login?error=invalid_approval_link`);
     }
     const pending = await PendingLoginRequest.findOne({
       emailApprovalToken: token,
@@ -705,10 +708,10 @@ export async function approveDeviceByEmail(req: Request, res: Response) {
       emailApprovalExpires: { $gt: new Date() },
     });
     if (!pending) {
-      return res.redirect(`${CLIENT_URL}/login?error=approval_link_expired`);
+      return res.redirect(`${clientUrl()}/login?error=approval_link_expired`);
     }
     const user = await User.findById(pending.userId);
-    if (!user) return res.redirect(`${CLIENT_URL}/login?error=user_not_found`);
+    if (!user) return res.redirect(`${clientUrl()}/login?error=user_not_found`);
     const authToken = generateAuthToken(user);
     const decoded = decodeAuthToken(authToken);
     if (decoded?.jti) {
@@ -730,10 +733,10 @@ export async function approveDeviceByEmail(req: Request, res: Response) {
     await pending.save();
     return res
       .cookie('token', authToken, authCookieOptions())
-      .redirect(`${CLIENT_URL}/auth/approve-device-success`);
+      .redirect(`${clientUrl()}/auth/approve-device-success`);
   } catch (err: any) {
     console.error('Approve device by email error:', err);
-    return res.redirect(`${CLIENT_URL}/login?error=approval_failed`);
+    return res.redirect(`${clientUrl()}/login?error=approval_failed`);
   }
 }
 
@@ -779,7 +782,7 @@ export async function googleAuth(req: Request, res: Response) {
     const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
     const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
     // Google redirects to backend callback, then backend redirects to frontend.
-    const REDIRECT_URI = GOOGLE_CALLBACK_URL;
+    const REDIRECT_URI = googleCallbackUrl();
 
     // Check if Google OAuth is configured (not empty and not placeholder)
     if (!GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID.includes('your_google_client_id')) {
@@ -829,17 +832,17 @@ export async function googleCallback(req: Request, res: Response) {
   try {
     const { code, state, error } = req.query;
 
-    if (error) return res.redirect(`${CLIENT_URL}/login?error=access_denied`);
+    if (error) return res.redirect(`${clientUrl()}/login?error=access_denied`);
 
-    if (!code) return res.redirect(`${CLIENT_URL}/login?error=no_code`);
+    if (!code) return res.redirect(`${clientUrl()}/login?error=no_code`);
 
     const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
     const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
     // This must match what was sent to Google in googleAuth function.
-    const REDIRECT_URI = GOOGLE_CALLBACK_URL;
+    const REDIRECT_URI = googleCallbackUrl();
 
     if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
-      return res.redirect(`${CLIENT_URL}/login?error=oauth_not_configured`);
+      return res.redirect(`${clientUrl()}/login?error=oauth_not_configured`);
     }
 
     // Decode state to get role
@@ -893,7 +896,7 @@ export async function googleCallback(req: Request, res: Response) {
     console.log('Google user info:', { googleId, email, name, picture });
 
     if (!email) {
-      return res.redirect(`${CLIENT_URL}/login?error=no_email`);
+      return res.redirect(`${clientUrl()}/login?error=no_email`);
     }
 
     // Find user (include verification fields for email-verification check)
@@ -903,7 +906,7 @@ export async function googleCallback(req: Request, res: Response) {
     if (user) {
       // Check if user account is inactive or banned
       if (user.accountStatus === 'inactive' || user.accountStatus === 'banned') {
-        return res.redirect(`${CLIENT_URL}/login?error=account_deactivated`);
+        return res.redirect(`${clientUrl()}/login?error=account_deactivated`);
       }
 
       // User exists - update Google ID and profile picture
@@ -924,7 +927,7 @@ export async function googleCallback(req: Request, res: Response) {
         await issueEmailVerificationLink(user).catch((e) =>
           console.warn('[auth] Google callback: verification email failed', e)
         );
-        const pendingUrl = new URL(`${CLIENT_URL}/verify-email-pending`);
+        const pendingUrl = new URL(`${clientUrl()}/verify-email-pending`);
         pendingUrl.searchParams.set('email', user.email);
         pendingUrl.searchParams.set('source', 'google');
         pendingUrl.searchParams.set('sent', '1');
@@ -942,7 +945,7 @@ export async function googleCallback(req: Request, res: Response) {
       })).toString('base64');
       
       // Redirect to role selection page with temporary token
-      const redirectUrl = new URL(`${CLIENT_URL}/auth/google/select-role`);
+      const redirectUrl = new URL(`${clientUrl()}/auth/google/select-role`);
       redirectUrl.searchParams.set('temp', tempToken);
       return res.redirect(redirectUrl.toString());
     }
@@ -1009,13 +1012,13 @@ export async function googleCallback(req: Request, res: Response) {
       console.warn('[auth] Google callback: failed to register active session', e);
     }
     fireLoginNotificationEmail(user, req);
-    const redirectUrl = new URL(`${CLIENT_URL}/auth/google/callback`);
+    const redirectUrl = new URL(`${clientUrl()}/auth/google/callback`);
     redirectUrl.searchParams.set('token', token);
     redirectUrl.searchParams.set('success', 'true');
     res.redirect(redirectUrl.toString());
   } catch (error: any) {
     console.error('Google callback error:', error);
-    res.redirect(`${CLIENT_URL}/login?error=oauth_failed`);
+    res.redirect(`${clientUrl()}/login?error=oauth_failed`);
   }
 }
 
@@ -1190,6 +1193,55 @@ export async function forgotPassword(req: Request, res: Response) {
   }
 }
 
+async function matchPasswordResetOtp(email: string, code: string) {
+  const normalizedCode = (code || '').replace(/\D/g, '');
+  if (normalizedCode.length !== 6) {
+    return { ok: false as const, message: 'Enter the 6-digit code from your email.' };
+  }
+
+  const user = await findUserByEmailCaseInsensitive(email)
+    .select('_id email passwordHash security.lastPasswordChangeAt passwordResetOtp passwordResetOtpExpires')
+    .exec();
+  if (!user || !user.passwordResetOtp || !user.passwordResetOtpExpires) {
+    return { ok: false as const, message: 'That code is incorrect or has expired. Request a new one.' };
+  }
+  if (user.passwordResetOtpExpires < new Date()) {
+    user.passwordResetOtp = undefined;
+    user.passwordResetOtpExpires = undefined;
+    await user.save();
+    return { ok: false as const, message: 'That code has expired. Request a new one.' };
+  }
+  if (!(await verifyStoredOtp(user.passwordResetOtp, normalizedCode))) {
+    return { ok: false as const, message: 'That code is incorrect. Check the email and try again.' };
+  }
+  return { ok: true as const, user };
+}
+
+/**
+ * POST /api/auth/verify-reset-otp
+ * Confirms the 6-digit reset code without consuming it, so the user can then set a password.
+ */
+export async function verifyPasswordResetOtp(req: Request, res: Response) {
+  try {
+    const schema = z.object({
+      email: z.string().email(),
+      code: z.string().min(6).max(6),
+    });
+    const { email, code } = schema.parse(req.body);
+    const match = await matchPasswordResetOtp(email, code);
+    if (!match.ok) {
+      return res.status(400).json({ message: match.message });
+    }
+    return res.status(200).json({ valid: true });
+  } catch (err: any) {
+    if (err instanceof z.ZodError) {
+      return res.status(400).json({ message: 'Email and a 6-digit code are required.' });
+    }
+    console.error('Verify reset OTP error:', err);
+    return res.status(500).json({ message: 'Something went wrong. Please try again.' });
+  }
+}
+
 /**
  * POST /api/auth/reset-password-otp
  * Reset password using a 6-digit OTP sent by email.
@@ -1202,30 +1254,12 @@ export async function resetPasswordWithOtp(req: Request, res: Response) {
       password: z.string().min(6),
     });
     const { email, code, password } = schema.parse(req.body);
-    const normalizedCode = (code || '').replace(/\D/g, '');
-    if (normalizedCode.length !== 6) {
-      return res.status(400).json({ message: 'Invalid or expired code. Please request a new one.' });
+    const match = await matchPasswordResetOtp(email, code);
+    if (!match.ok) {
+      return res.status(400).json({ message: match.message });
     }
 
-    const user = await findUserByEmailCaseInsensitive(email)
-      .select('_id fullName email passwordHash security.lastPasswordChangeAt passwordResetOtp passwordResetOtpExpires')
-      .exec();
-    if (!user) {
-      return res.status(400).json({ message: 'Invalid email or code.' });
-    }
-    if (!user.passwordResetOtp || !user.passwordResetOtpExpires) {
-      return res.status(400).json({ message: 'Invalid or expired code. Please request a new one.' });
-    }
-    if (user.passwordResetOtpExpires < new Date()) {
-      user.passwordResetOtp = undefined;
-      user.passwordResetOtpExpires = undefined;
-      await user.save();
-      return res.status(400).json({ message: 'Invalid or expired code. Please request a new one.' });
-    }
-    if (!(await verifyStoredOtp(user.passwordResetOtp, normalizedCode))) {
-      return res.status(400).json({ message: 'Invalid or expired code. Please request a new one.' });
-    }
-
+    const user = match.user;
     const passwordHash = await bcrypt.hash(password, 10);
     user.passwordHash = passwordHash;
     user.security.lastPasswordChangeAt = new Date();

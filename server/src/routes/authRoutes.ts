@@ -10,6 +10,7 @@ import {
   forgotPassword,
   resetPassword,
   resetPasswordWithOtp,
+  verifyPasswordResetOtp,
   verifyEmail,
   resendVerification,
   requestVerificationOtp,
@@ -111,6 +112,7 @@ router.get('/session-bootstrap', authenticate, sessionBootstrap);
 router.get('/email-config', emailConfig);
 router.post('/forgot-password', forgotPasswordLimiter, forgotPassword);
 router.post('/reset-password', resetPasswordLimiter, resetPassword);
+router.post('/verify-reset-otp', resetPasswordLimiter, verifyPasswordResetOtp);
 router.post('/reset-password-otp', forgotPasswordLimiter, resetPasswordWithOtp);
 router.get('/verify-email', verifyEmail);
 router.post('/resend-verification', resendVerificationLimiter, resendVerification);

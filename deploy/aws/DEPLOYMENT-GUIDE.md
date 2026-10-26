@@ -272,10 +272,17 @@ Save the domain:
 https://d2222222222222.cloudfront.net   ← API_CLOUDFRONT_URL
 ```
 
-### 5.2 WebSocket note
+### 5.2 WebSocket / Socket.IO
 
-Socket.IO may need sticky sessions. For first deploy, test basic REST API first.  
-If WebSockets fail through CloudFront, consider enabling ALB stickiness on EB or direct EB URL for dev testing.
+The browser handshakes on **HTTPS** (`/socket.io/?EIO=4&transport=polling`), then upgrades to WebSocket. Do not point `VITE_WS_URL` at `wss://` — XHR polling cannot use that scheme and logs `xhr poll error`.
+
+CloudFront cache behavior for `/socket.io*`:
+- Allowed methods: GET, HEAD, OPTIONS, PUT, POST, PATCH, DELETE
+- Cache policy: `CachingDisabled`
+- Origin request policy: `AllViewer` (must forward `Upgrade` and `Connection`)
+- ALB stickiness on EB if you run more than one instance
+
+`VITE_SERVER_URL` must be the **API** CloudFront origin (the same host as `VITE_API_URL` without `/api`), not the shop site.
 
 ### 5.3 Update EB environment properties
 

@@ -68,7 +68,9 @@ export function ForgotPassword() {
             </p>
             <PrimaryBtn
               type="button"
-              onClick={() => navigate('/reset-password')}
+              onClick={() =>
+                navigate(`/reset-password?email=${encodeURIComponent(email.trim().toLowerCase())}`)
+              }
             >
               Enter Code
             </PrimaryBtn>

@@ -12,6 +12,7 @@ import {
 } from "../ai-assistant/singleton.js";
 import mongoose from 'mongoose';
 import { getServerUrl } from "../config/publicEnv.js";
+import { getGeminiApiKey, resolveGeminiModelId, throwIfGeminiUnusable } from "../config/geminiEnv.js";
 import { Order } from "../models/Order.js";
 import { Product } from "../models/Product.js";
 import { initializePayment } from "./paymentService.js";
@@ -512,14 +513,14 @@ async function runLegacyAgentWithModel(
   userMessage: string,
   ctx: GeminiChatContext
 ): Promise<GeminiChatResult> {
-  const apiKey = (process.env.GEMINI_API_KEY || '').trim();
+  const apiKey = getGeminiApiKey();
   if (!apiKey) {
     throw new Error('GEMINI_API_KEY is not set');
   }
 
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({
-    model: modelName,
+    model: resolveGeminiModelId(modelName),
     tools: [{ functionDeclarations: functionDeclarations as any }],
     toolConfig: {
       functionCallingConfig: {
@@ -583,7 +584,7 @@ export async function handleChat(
   userMessage: string,
   ctx: GeminiChatContext
 ): Promise<GeminiChatResult> {
-  const apiKey = (process.env.GEMINI_API_KEY || '').trim();
+  const apiKey = getGeminiApiKey();
   if (!apiKey) {
     throw new Error('GEMINI_API_KEY is not set');
   }
@@ -598,6 +599,7 @@ export async function handleChat(
   });
 
   if (!outcome.ok) {
+    throwIfGeminiUnusable(outcome.error);
     return {
       reply: LEGACY_AGENT_BUSY,
       modelUsed: 'none',

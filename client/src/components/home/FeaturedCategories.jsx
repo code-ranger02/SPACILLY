@@ -2,6 +2,7 @@ import { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useInView } from 'framer-motion';
 import { useStorefrontCategories } from '../../hooks/useBuyerSiteContent';
+import { rewriteBrokenUnsplashUrl } from '../../lib/unsplashFallback';
 import '../../styles/spacilly-commerce.css';
 
 const CATEGORY_IMAGES = {
@@ -10,7 +11,7 @@ const CATEGORY_IMAGES = {
   clothing:
     'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=240&q=80&auto=format&fit=crop',
   accessories:
-    'https://images.unsplash.com/photo-1611591437281-460bf4d0a6a2?w=240&q=80&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=240&q=80&auto=format&fit=crop',
   'home-garden':
     'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=240&q=80&auto=format&fit=crop',
   sports:
@@ -42,7 +43,8 @@ const FALLBACK = [
 }));
 
 function resolveImage(slug, apiImage) {
-  if (apiImage) return apiImage;
+  const rewritten = rewriteBrokenUnsplashUrl(apiImage);
+  if (rewritten) return rewritten;
   return CATEGORY_IMAGES[slug] || CATEGORY_IMAGES.clothing;
 }
 

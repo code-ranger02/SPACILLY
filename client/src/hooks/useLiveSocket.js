@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { io } from 'socket.io-client';
-import { SERVER_URL } from '../lib/config';
+import { getSocketIoUrl, socketIoClientOptions } from '../lib/config';
 
 /**
  * Socket.IO client for /live namespace (reactions, pins, chat, viewer count).
@@ -54,9 +54,10 @@ export function useLiveSocket(sessionId, { enabled = true, token, guestName } = 
   useEffect(() => {
     if (!enabled || !sessionId) return undefined;
 
-    const socket = io(`${SERVER_URL}/live`, {
-      transports: ['websocket', 'polling'],
-      auth: token ? { token } : {},
+    const base = getSocketIoUrl();
+    if (!base) return undefined;
+    const socket = io(`${base}/live`, {
+      ...socketIoClientOptions(token ? { token } : undefined),
     });
     socketRef.current = socket;
 

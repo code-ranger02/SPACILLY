@@ -995,8 +995,27 @@
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--agf-brand) 22%, transparent);
 }
 
+.auth-fusion .agf-otp-hint {
+  margin: 0 0 0.85rem;
+  text-align: center;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--text-muted, #6b7280);
+}
+
 .auth-fusion .agf-otp-digit.is-error {
   border-color: var(--badge-error-text, #ef4444);
+}
+
+.auth-fusion .agf-otp-digit.is-success {
+  border-color: var(--badge-success-text, #16a34a);
+}
+
+.auth-fusion .agf-otp-digit:disabled,
+.auth-fusion .agf-input.is-disabled,
+.auth-fusion .agf-input:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .auth-fusion .agf-otp-wrap {

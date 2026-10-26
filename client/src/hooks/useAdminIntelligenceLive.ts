@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { io, type Socket } from 'socket.io-client';
-import { SERVER_URL } from '@/lib/config';
+import { getSocketIoUrl, socketIoClientOptions } from '@/lib/config';
 import {
   useAdminIntelligenceSearchStore,
   type IntelligenceLivePulse,
@@ -23,11 +23,9 @@ export function useAdminIntelligenceLive(enabled = true): void {
     if (!token) return;
 
     if (!socket) {
-      socket = io(SERVER_URL, {
-        auth: { token },
-        transports: ['websocket', 'polling'],
-        reconnection: true,
-      });
+      const base = getSocketIoUrl();
+      if (!base) return;
+      socket = io(base, socketIoClientOptions({ token }));
     }
 
     const onConnect = () => setLiveConnected(true);

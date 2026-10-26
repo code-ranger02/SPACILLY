@@ -48,6 +48,7 @@ export function AuthInput({
   autoComplete,
   helperText,
   hideLabel,
+  disabled,
 }: {
   label: string;
   type?: string;
@@ -67,6 +68,7 @@ export function AuthInput({
   autoComplete?: string;
   helperText?: string;
   hideLabel?: boolean;
+  disabled?: boolean;
 }) {
   const fieldId = authFieldId(label);
   const errorId = `${fieldId}-error`;
@@ -74,7 +76,7 @@ export function AuthInput({
   const describedBy = [error ? errorId : null, helperText ? helperId : null].filter(Boolean).join(' ') || undefined;
 
   return (
-    <div className={['agf-field', error ? 'is-error' : '', valid ? 'is-valid' : ''].filter(Boolean).join(' ')}>
+    <div className={['agf-field', error ? 'is-error' : '', valid ? 'is-valid' : '', disabled ? 'is-disabled' : ''].filter(Boolean).join(' ')}>
       {!hideLabel && (
         <label
           htmlFor={fieldId}
@@ -111,12 +113,14 @@ export function AuthInput({
           onFocus={onFocus}
           onBlur={onBlur}
           placeholder={placeholder}
-          required={required}
+          required={required && !disabled}
           autoFocus={autoFocus}
           autoComplete={autoComplete}
+          disabled={disabled}
           aria-invalid={error ? true : undefined}
           aria-describedby={describedBy}
           aria-required={required || undefined}
+          aria-disabled={disabled || undefined}
           className={[
             'agf-input',
             'premium-input-exempt',
@@ -124,6 +128,7 @@ export function AuthInput({
             error ? 'is-error' : '',
             valid ? 'is-valid' : '',
             focused && !error ? 'is-focused' : '',
+            disabled ? 'is-disabled' : '',
           ]
             .filter(Boolean)
             .join(' ')}
@@ -284,6 +289,7 @@ export function OtpInputs({
   locked,
   error,
   errorMessage,
+  verified,
   onChange,
   onKeyDown,
   onPaste,
@@ -293,6 +299,7 @@ export function OtpInputs({
   locked: boolean;
   error: boolean;
   errorMessage?: string;
+  verified?: boolean;
   onChange: (i: number, raw: string) => void;
   onKeyDown: (i: number, e: React.KeyboardEvent<HTMLInputElement>) => void;
   onPaste: (e: React.ClipboardEvent<HTMLInputElement>) => void;
@@ -302,7 +309,7 @@ export function OtpInputs({
 
   return (
     <div>
-      <p id={hintId} className="sr-only">
+      <p id={hintId} className="agf-otp-hint">
         Enter the 6-digit verification code. You can paste the full code into any box.
       </p>
       <div
@@ -324,7 +331,14 @@ export function OtpInputs({
             onChange={(e) => onChange(i, e.target.value)}
             onKeyDown={(e) => onKeyDown(i, e)}
             onPaste={onPaste}
-            className={['agf-otp-digit', d ? 'is-filled' : '', error ? 'is-error' : ''].filter(Boolean).join(' ')}
+            className={[
+              'agf-otp-digit',
+              d ? 'is-filled' : '',
+              error ? 'is-error' : '',
+              verified && !error ? 'is-success' : '',
+            ]
+              .filter(Boolean)
+              .join(' ')}
             aria-label={`Digit ${i + 1} of 6`}
             aria-invalid={error || undefined}
           />
