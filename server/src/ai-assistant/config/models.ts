@@ -2,16 +2,11 @@ import type { ModelTier } from "../types.js";
 import { resolveGeminiModelId } from "../../config/geminiEnv.js";
 
 /** Default Google model IDs — override via TIER1_MODELS, TIER2_MODELS, TIER3_MODELS (comma-separated). */
-const DEFAULT_TIER1 = ['gemini-2.5-pro', 'gemini-2.5-flash', 'gemini-2.0-flash'];
+const DEFAULT_TIER1 = ['gemini-3.6-flash', 'gemini-2.5-pro', 'gemini-2.5-flash'];
 
-const DEFAULT_TIER2 = [
-  'gemini-2.5-flash',
-  'gemini-2.0-flash',
-  'gemini-2.5-flash-lite',
-  'gemini-2.0-flash-lite',
-];
+const DEFAULT_TIER2 = ['gemini-3.6-flash', 'gemini-2.5-flash', 'gemini-3.5-flash-lite'];
 
-const DEFAULT_TIER3 = ['gemini-2.0-flash-lite', 'gemini-2.5-flash-lite', 'gemini-2.0-flash'];
+const DEFAULT_TIER3 = ['gemini-3.5-flash-lite', 'gemini-3.6-flash', 'gemini-2.5-flash'];
 
 function parseList(envVal: string | undefined, fallback: string[]): string[] {
   const preferred = resolveGeminiModelId(process.env.GEMINI_MODEL || '');

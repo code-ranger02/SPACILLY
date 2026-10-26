@@ -1,16 +1,19 @@
 /** Retired / alias model ids → current Generative Language API ids. */
 const MODEL_ALIASES: Record<string, string> = {
-  'gemini-flash-latest': 'gemini-2.5-flash',
-  'gemini-2.0-flash-latest': 'gemini-2.0-flash',
-  'gemini-1.5-flash': 'gemini-2.5-flash',
-  'gemini-1.5-flash-latest': 'gemini-2.5-flash',
+  'gemini-flash-latest': 'gemini-3.6-flash',
+  'gemini-2.0-flash-latest': 'gemini-3.6-flash',
+  'gemini-2.0-flash': 'gemini-3.6-flash',
+  'gemini-2.0-flash-lite': 'gemini-3.5-flash-lite',
+  'gemini-2.5-flash-lite': 'gemini-3.5-flash-lite',
+  'gemini-1.5-flash': 'gemini-3.6-flash',
+  'gemini-1.5-flash-latest': 'gemini-3.6-flash',
   'gemini-1.5-pro': 'gemini-2.5-pro',
   'gemini-1.5-pro-latest': 'gemini-2.5-pro',
   'gemini-pro-latest': 'gemini-2.5-pro',
-  'gemini-3-flash': 'gemini-2.5-flash',
-  'gemini-2-flash': 'gemini-2.0-flash',
-  'gemini-2-flash-lite': 'gemini-2.0-flash-lite',
-  'gemini-3.1-flash-lite': 'gemini-2.5-flash-lite',
+  'gemini-3-flash': 'gemini-3.6-flash',
+  'gemini-2-flash': 'gemini-3.6-flash',
+  'gemini-2-flash-lite': 'gemini-3.5-flash-lite',
+  'gemini-3.1-flash-lite': 'gemini-3.5-flash-lite',
   'gemini-3.1-pro': 'gemini-2.5-pro',
 };
 
@@ -65,6 +68,7 @@ export function isGeminiModelError(err: unknown): boolean {
     code === 'NOT_FOUND' ||
     s.includes('is not found') ||
     s.includes('not found for api version') ||
+    s.includes('no longer available') ||
     /models\/[a-z0-9._-]+ is not found/i.test(s) ||
     (s.includes('not found') && s.includes('model'))
   );
@@ -77,7 +81,7 @@ export function throwIfGeminiUnusable(err: unknown): void {
   if (isGeminiModelError(err)) {
     const detail = errorText(err).slice(0, 280);
     throw new Error(
-      `GEMINI_MODEL is invalid or unavailable (${detail}). Set GEMINI_MODEL=gemini-2.5-flash on the server.`,
+      `GEMINI_MODEL is invalid or unavailable (${detail}). Set GEMINI_MODEL=gemini-3.6-flash on the server.`,
     );
   }
 }

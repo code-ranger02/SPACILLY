@@ -38,7 +38,7 @@ CLOUDINARY_API_SECRET=
 
 # --- AI ---
 GEMINI_API_KEY=
-GEMINI_MODEL=gemini-2.5-flash
+GEMINI_MODEL=gemini-3.6-flash
 
 # --- Payments: Stripe ---
 STRIPE_SECRET_KEY=

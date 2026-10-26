@@ -571,12 +571,27 @@ export default function AssistantChat() {
       if (token) headers.Authorization = `Bearer ${token}`;
       const req = async (url: string) => {
         const r = await fetch(url, { method: 'POST', credentials: 'include', headers, body: JSON.stringify(body) });
-        if (!r.ok) throw new Error(`${r.status}`);
-        return r.json();
+        const payload = await r.json().catch(() => ({}));
+        if (!r.ok) {
+          const detail = String(payload?.message || payload?.error || `HTTP ${r.status}`);
+          throw new Error(detail);
+        }
+        return payload;
       };
       let data: any;
-      try { data = await req(`${API_BASE_URL}/ai/agent`); }
-      catch { try { data = await req(`${API_BASE_URL}/ai/chat`); } catch { data = await req(`${API_BASE_URL}/assistant/chat`); } }
+      try {
+        data = await req(`${API_BASE_URL}/ai/agent`);
+      } catch (first) {
+        const firstMsg = first instanceof Error ? first.message : '';
+        if (firstMsg.includes('GEMINI_')) throw first;
+        try {
+          data = await req(`${API_BASE_URL}/ai/chat`);
+        } catch (second) {
+          const secondMsg = second instanceof Error ? second.message : '';
+          if (secondMsg.includes('GEMINI_')) throw second;
+          data = await req(`${API_BASE_URL}/assistant/chat`);
+        }
+      }
       const reply = String(data?.reply || '').trim() || 'How can I help you today?';
       if (data?.model) setPoweredByModel(String(data.model));
       setFallbackNotice(!!data?.fallbackOccurred);
@@ -596,8 +611,13 @@ export default function AssistantChat() {
       const productLayout = data?.productLayout === 'single' && products?.length === 1 ? 'single' : products?.length ? 'grid' : undefined;
       addMessage('bot', reply, { productCards: products?.length ? products : undefined, productLayout, orderNumber, orderIdForPayment, paymentLink, paymentAmount, paymentCurrency, paymentProvider, paymentReferenceId });
       scrollToBottom();
-    } catch {
-      addMessage('bot', "I'm having trouble reaching the AI agent right now.\n\nTry again, or ask about products, order tracking, or shipping.");
+    } catch (err) {
+      const detail = err instanceof Error ? err.message : '';
+      const friendly =
+        detail.includes('GEMINI_') || detail.includes('Assistant is not configured')
+          ? detail
+          : "I'm having trouble reaching the AI agent right now.\n\nTry again, or ask about products, order tracking, or shipping.";
+      addMessage('bot', friendly);
       scrollToBottom();
       setPoweredByModel(null);
     } finally {

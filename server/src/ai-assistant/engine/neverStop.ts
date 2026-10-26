@@ -34,7 +34,11 @@ function classifyError(err: unknown): {
     s.includes('invalid api key') ||
     s.includes('permission_denied');
   const isNotFound =
-    code === 'NOT_FOUND' || status === 404 || s.includes('not found') || s.includes('is not found');
+    code === 'NOT_FOUND' ||
+    status === 404 ||
+    s.includes('not found') ||
+    s.includes('is not found') ||
+    s.includes('no longer available');
   const is5xx =
     code === 'SERVER' ||
     (status != null && status >= 500) ||
@@ -143,6 +147,10 @@ export async function neverStopExecute<T>(params: {
 
           if (c.isAuth) {
             return { ok: false, error: err };
+          }
+
+          if (c.isNotFound) {
+            break;
           }
 
           if (c.is429) {

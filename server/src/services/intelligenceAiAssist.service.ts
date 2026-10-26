@@ -1,18 +1,19 @@
+import { resolveGeminiModelId } from "../config/geminiEnv.js";
 import { User } from "../models/User.js";
 import { AdminIntelligenceConfig } from "../models/AdminIntelligenceConfig.js";
 import type { IntelligenceQueryUnderstanding } from "../search/intelligenceSearch.types.js";
 
 const GEMINI_API_KEY = String(process.env.GEMINI_API_KEY || '').trim();
-const GEMINI_MODEL = String(
-  process.env.INTELLIGENCE_AI_MODEL || process.env.GEMINI_MODEL || 'gemini-2.0-flash',
-).trim();
+const GEMINI_MODEL = resolveGeminiModelId(
+  process.env.INTELLIGENCE_AI_MODEL || process.env.GEMINI_MODEL || 'gemini-3.6-flash',
+);
 
 const AI_MODELS = [
   GEMINI_MODEL,
-  'gemini-2.0-flash',
-  'gemini-1.5-flash-latest',
-  'gemini-1.5-flash',
-];
+  'gemini-3.6-flash',
+  'gemini-2.5-flash',
+  'gemini-3.5-flash-lite',
+].map((id) => resolveGeminiModelId(id));
 
 export interface IntelligenceAiInsight {
   interpretation: string;
