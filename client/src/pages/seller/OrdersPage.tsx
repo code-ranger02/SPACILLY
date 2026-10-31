@@ -1,4 +1,3 @@
-
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -13,6 +12,7 @@ import {
   Download,
   Filter,
   Loader2,
+  Menu,
   Package,
   PackageCheck,
   Printer,
@@ -26,6 +26,7 @@ import {
   X,
   XCircle,
 } from "lucide-react";
+
 import {
   Dialog,
   DialogContent,
@@ -83,48 +84,53 @@ type FilterStatus = "all" | OrderStatus;
 
 const STATUS_CONFIG: Record<
   OrderStatus,
-  { label: string; color: string; soft: string; icon: typeof Clock3 }
+  {
+    label: string;
+    color: string;
+    background: string;
+    icon: typeof Clock3;
+  }
 > = {
   pending: {
     label: "Pending",
     color: "text-amber-700",
-    soft: "bg-amber-50 border-amber-100",
+    background: "bg-amber-50 border-amber-100",
     icon: Clock3,
   },
   processing: {
     label: "Processing",
     color: "text-blue-700",
-    soft: "bg-blue-50 border-blue-100",
+    background: "bg-blue-50 border-blue-100",
     icon: RefreshCw,
   },
   packed: {
     label: "Packed",
     color: "text-indigo-700",
-    soft: "bg-indigo-50 border-indigo-100",
+    background: "bg-indigo-50 border-indigo-100",
     icon: PackageCheck,
   },
   shipped: {
     label: "Shipped",
     color: "text-violet-700",
-    soft: "bg-violet-50 border-violet-100",
+    background: "bg-violet-50 border-violet-100",
     icon: Truck,
   },
   delivered: {
     label: "Delivered",
     color: "text-green-700",
-    soft: "bg-green-50 border-green-100",
+    background: "bg-green-50 border-green-100",
     icon: CheckCircle2,
   },
   cancelled: {
     label: "Cancelled",
     color: "text-rose-700",
-    soft: "bg-rose-50 border-rose-100",
+    background: "bg-rose-50 border-rose-100",
     icon: XCircle,
   },
   returned: {
     label: "Returned",
     color: "text-purple-700",
-    soft: "bg-purple-50 border-purple-100",
+    background: "bg-purple-50 border-purple-100",
     icon: RotateCcw,
   },
 };
@@ -137,6 +143,7 @@ const formatMoney = (amount: number) =>
 
 const formatDate = (date?: string) => {
   if (!date) return "Date unavailable";
+
   const parsed = new Date(date);
   if (Number.isNaN(parsed.getTime())) return "Date unavailable";
 
@@ -189,6 +196,20 @@ const escapeHtml = (value: unknown) =>
     return entities[character];
   });
 
+function StatusBadge({ status }: { status: OrderStatus }) {
+  const config = STATUS_CONFIG[status] ?? STATUS_CONFIG.pending;
+  const Icon = config.icon;
+
+  return (
+    <span
+      className={`inline-flex w-fit items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-[11px] font-bold sm:text-xs ${config.background} ${config.color}`}
+    >
+      <Icon className="h-3.5 w-3.5" />
+      {config.label}
+    </span>
+  );
+}
+
 export default function OrdersPage() {
   const navigate = useNavigate();
   const showToast = useToastStore((state: any) => state.showToast);
@@ -224,15 +245,15 @@ export default function OrdersPage() {
   const [bulkLoading, setBulkLoading] = useState(false);
   const [statusLoading, setStatusLoading] = useState<string | null>(null);
 
-  const token = () => localStorage.getItem("auth_token");
-
   const apiRequest = async (path: string, options: RequestInit = {}) => {
+    const authToken = localStorage.getItem("auth_token");
+
     const response = await fetch(`${API_BASE_URL}/seller/orders${path}`, {
       ...options,
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
-        ...(token() ? { Authorization: `Bearer ${token()}` } : {}),
+        ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
         ...options.headers,
       },
     });
@@ -249,49 +270,70 @@ export default function OrdersPage() {
 
     if (!response.ok) {
       throw new Error(
-        data?.message ?? data?.error ?? "Something went wrong. Please try again."
+        data?.message ??
+          data?.error ??
+          "Something went wrong. Please try again."
       );
     }
 
     return data;
   };
 
-  const fetchOrders = useCallback(
-    async (silent = false) => {
-      if (silent) setRefreshing(true);
-      else setLoading(true);
+  const fetchOrders = useCallback(async (silent = false) => {
+    if (silent) setRefreshing(true);
+    else setLoading(true);
 
-      setError("");
+    setError("");
 
-      try {
-        const data = await apiRequest("");
-        const normalized = Array.isArray(data?.orders)
-          ? data.orders.map(normalizeOrder)
-          : [];
+    try {
+      const authToken = localStorage.getItem("auth_token");
 
-        setOrders(normalized);
-        setSelectedIds([]);
-      } catch (err: any) {
-        setError(err.message ?? "Unable to load orders.");
-        if (!silent) setOrders([]);
-      } finally {
-        setLoading(false);
-        setRefreshing(false);
+      const response = await fetch(`${API_BASE_URL}/seller/orders`, {
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+        },
+      });
+
+      const data = await response.json().catch(() => null);
+
+      if (response.status === 401) {
+        navigate("/login");
+        throw new Error("Your session has expired. Please sign in again.");
       }
-    },
-    []
-  );
+
+      if (!response.ok) {
+        throw new Error(
+          data?.message ?? data?.error ?? "Unable to load orders."
+        );
+      }
+
+      const normalized = Array.isArray(data?.orders)
+        ? data.orders.map(normalizeOrder)
+        : [];
+
+      setOrders(normalized);
+      setSelectedIds([]);
+    } catch (err: any) {
+      setError(err.message ?? "Unable to load orders.");
+      if (!silent) setOrders([]);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, [navigate]);
 
   useEffect(() => {
     fetchOrders();
   }, [fetchOrders]);
 
   useEffect(() => {
-    if (selectedOrder) {
-      const updated = orders.find((order) => order.id === selectedOrder.id);
-      if (updated) setSelectedOrder(updated);
-    }
-  }, [orders]);
+    if (!selectedOrder) return;
+
+    const updated = orders.find((order) => order.id === selectedOrder.id);
+    if (updated) setSelectedOrder(updated);
+  }, [orders, selectedOrder]);
 
   const stats = useMemo(() => {
     const count = (status: OrderStatus) =>
@@ -304,6 +346,8 @@ export default function OrdersPage() {
       cancelled: count("cancelled"),
       returned: count("returned"),
       processing: count("processing"),
+      packed: count("packed"),
+      shipped: count("shipped"),
       fulfillment: count("packed") + count("shipped"),
       revenue: orders
         .filter((order) => order.status !== "cancelled")
@@ -328,16 +372,19 @@ export default function OrdersPage() {
         return matchesStatus && matchesSearch;
       })
       .sort((a, b) => {
-        if (sortBy === "oldest") {
-          return new Date(a.date).getTime() - new Date(b.date).getTime();
-        }
+        const dateA = new Date(a.date).getTime() || 0;
+        const dateB = new Date(b.date).getTime() || 0;
+
+        if (sortBy === "oldest") return dateA - dateB;
         if (sortBy === "highest") return b.total - a.total;
         if (sortBy === "lowest") return a.total - b.total;
-        return new Date(b.date).getTime() - new Date(a.date).getTime();
+
+        return dateB - dateA;
       });
   }, [orders, search, activeFilter, sortBy]);
 
   const visibleIds = filteredOrders.map((order) => order.id);
+
   const allVisibleSelected =
     visibleIds.length > 0 &&
     visibleIds.every((id) => selectedIds.includes(id));
@@ -377,10 +424,15 @@ export default function OrdersPage() {
         )
       );
 
-      showToast?.(`Order updated to ${STATUS_CONFIG[status].label}.`, "success");
+      showToast?.(
+        `Order updated to ${STATUS_CONFIG[status].label}.`,
+        "success"
+      );
+
       setCancelOpen(false);
       setDetailsOpen(false);
       setCancelReason("");
+      setCancelOrderTarget(null);
     } catch (err: any) {
       showToast?.(err.message ?? "Unable to update order.", "error");
     } finally {
@@ -464,26 +516,34 @@ export default function OrdersPage() {
             </div>
             <table>
               <thead>
-                <tr><th>Product</th><th>Qty</th>${
-                  type === "invoice" ? "<th>Price</th><th>Total</th>" : ""
-                }</tr>
+                <tr>
+                  <th>Product</th>
+                  <th>Qty</th>
+                  ${
+                    type === "invoice"
+                      ? "<th>Price</th><th>Total</th>"
+                      : ""
+                  }
+                </tr>
               </thead>
               <tbody>
                 ${order.items
                   .map(
                     (item) => `
                       <tr>
-                        <td>${escapeHtml(item.name)} ${
-                          item.variant
-                            ? `<small>${escapeHtml(item.variant)}</small>`
-                            : ""
-                        }</td>
+                        <td>
+                          ${escapeHtml(item.name)}
+                          ${
+                            item.variant
+                              ? `<small>${escapeHtml(item.variant)}</small>`
+                              : ""
+                          }
+                        </td>
                         <td>${item.quantity}</td>
                         ${
                           type === "invoice"
-                            ? `<td>${formatMoney(item.price)}</td><td>${formatMoney(
-                                item.price * item.quantity
-                              )}</td>`
+                            ? `<td>${formatMoney(item.price)}</td>
+                               <td>${formatMoney(item.price * item.quantity)}</td>`
                             : ""
                         }
                       </tr>
@@ -558,10 +618,19 @@ export default function OrdersPage() {
       setSelectedIds([]);
       await fetchOrders(true);
     } catch (err: any) {
-      showToast?.(err.message ?? "Unable to process selected orders.", "error");
+      showToast?.(
+        err.message ?? "Unable to process selected orders.",
+        "error"
+      );
     } finally {
       setBulkLoading(false);
     }
+  };
+
+  const resetFilters = () => {
+    setSearch("");
+    setActiveFilter("all");
+    setSortBy("newest");
   };
 
   const openDetails = (order: Order) => {
@@ -569,56 +638,31 @@ export default function OrdersPage() {
     setDetailsOpen(true);
   };
 
-  const StatusBadge = ({ status }: { status: OrderStatus }) => {
-    const config = STATUS_CONFIG[status] ?? STATUS_CONFIG.pending;
-    const Icon = config.icon;
-
-    return (
-      <span
-        className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-bold ${config.soft} ${config.color}`}
-      >
-        <Icon className="h-3.5 w-3.5" />
-        {config.label}
-      </span>
-    );
-  };
-
-  const StatCard = ({
-    label,
-    value,
-    icon: Icon,
-    theme,
-    trend,
-    onClick,
-  }: {
+  const statusTabs: {
+    key: FilterStatus;
     label: string;
-    value: number;
-    icon: typeof Clock3;
-    theme: string;
-    trend: string;
-    onClick: () => void;
-  }) => (
-    <button
-      onClick={onClick}
-      className={`group flex min-w-0 items-center gap-3 rounded-[22px] border p-4 text-left transition hover:-translate-y-0.5 hover:shadow-md sm:gap-4 sm:p-5 ${theme}`}
-    >
-      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/80 shadow-sm sm:h-14 sm:w-14">
-        <Icon className="h-6 w-6 sm:h-7 sm:w-7" />
-      </span>
-      <span className="min-w-0 flex-1">
-        <span className="block text-2xl font-extrabold tracking-tight sm:text-3xl">
-          {value}
-        </span>
-        <span className="block truncate text-sm font-semibold">{label}</span>
-      </span>
-      <span className="hidden rounded-full bg-white/70 px-2 py-1 text-[11px] font-bold sm:block">
-        {trend}
-      </span>
-    </button>
-  );
+    count: number;
+  }[] = [
+    { key: "all", label: "All", count: stats.all },
+    { key: "delivered", label: "Delivered", count: stats.delivered },
+    { key: "pending", label: "Pending", count: stats.pending },
+    { key: "processing", label: "Processing", count: stats.processing },
+    { key: "packed", label: "Packed", count: stats.packed },
+    { key: "shipped", label: "Shipped", count: stats.shipped },
+    { key: "cancelled", label: "Cancelled", count: stats.cancelled },
+    { key: "returned", label: "Returned", count: stats.returned },
+  ];
+
+  const navigationItems = [
+    { label: "Dashboard", icon: Wallet, path: "/seller/dashboard" },
+    { label: "Orders", icon: Package, path: "/seller/orders" },
+    { label: "Products", icon: PackageCheck, path: "/seller/products" },
+    { label: "Finance", icon: Wallet, path: "/seller/finance" },
+    { label: "Profile", icon: UserRound, path: "/seller/profile" },
+  ];
 
   return (
-    <div className="min-h-screen bg-[#f7f8fc] text-slate-900">
+    <div className="min-h-screen overflow-x-hidden bg-[#f7f8fc] font-sans text-slate-900">
       {/* Desktop sidebar */}
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-[250px] flex-col border-r border-slate-200 bg-white px-5 py-7 xl:flex">
         <div className="mb-10 flex items-center gap-3 px-2">
@@ -636,13 +680,7 @@ export default function OrdersPage() {
         </p>
 
         <nav className="space-y-1">
-          {[
-            { label: "Dashboard", icon: Wallet, path: "/seller/dashboard" },
-            { label: "Orders", icon: Package, path: "/seller/orders" },
-            { label: "Products", icon: PackageCheck, path: "/seller/products" },
-            { label: "Finance", icon: Wallet, path: "/seller/finance" },
-            { label: "Profile", icon: UserRound, path: "/seller/profile" },
-          ].map((item) => {
+          {navigationItems.map((item) => {
             const Icon = item.icon;
             const active = item.label === "Orders";
 
@@ -678,142 +716,195 @@ export default function OrdersPage() {
       </aside>
 
       <main className="min-w-0 pb-24 xl:ml-[250px] xl:pb-8">
-        {/* Header */}
-        <header className="relative overflow-hidden bg-white">
-          <div className="pointer-events-none absolute -right-16 -top-24 h-72 w-72 rounded-full bg-rose-100/60 blur-3xl" />
-          <div className="relative mx-auto max-w-[1500px] px-4 pb-7 pt-5 sm:px-7 sm:pb-9 sm:pt-7 lg:px-10">
+        {/* Top header */}
+        <header className="border-b border-slate-100 bg-white">
+          <div className="mx-auto max-w-[1500px] px-4 py-4 sm:px-7 lg:px-10">
             <div className="flex items-center justify-between gap-3">
               <div className="flex min-w-0 items-center gap-3">
                 <button
                   onClick={() => navigate(-1)}
                   aria-label="Go back"
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 transition hover:bg-slate-200 sm:h-11 sm:w-11"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 transition hover:bg-slate-200 xl:hidden"
                 >
                   <ArrowLeft className="h-5 w-5" />
                 </button>
+
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-600 text-white xl:hidden">
+                  <Package className="h-5 w-5" />
+                </div>
+
                 <div className="min-w-0">
-                  <p className="text-lg font-extrabold sm:text-xl">
-                    Hello <span className="text-rose-600">Casual</span>
+                  <p className="truncate text-lg font-extrabold tracking-tight sm:text-xl">
+                    Seller Hub
                   </p>
-                  <p className="text-xs text-slate-500 sm:text-sm">Seller Hub</p>
+                  <p className="text-xs text-slate-500">Orders management</p>
                 </div>
               </div>
 
-              <button
-                aria-label="Notifications"
-                onClick={() => navigate("/seller/notifications")}
-                className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white shadow-sm"
-              >
-                <Bell className="h-5 w-5" />
-                <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-600 px-1 text-[10px] font-bold text-white">
-                  3
-                </span>
-              </button>
-            </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => fetchOrders(true)}
+                  disabled={refreshing}
+                  aria-label="Refresh orders"
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50"
+                >
+                  <RefreshCw
+                    className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
+                  />
+                </button>
 
-            <div className="mt-8 flex items-center justify-between gap-5">
-              <div className="max-w-xl">
-                <p className="text-[26px] font-extrabold leading-tight tracking-tight sm:text-3xl lg:text-4xl">
-                  Your orders, <span className="text-rose-600">under control.</span>
-                </p>
-                <p className="mt-2 text-sm leading-6 text-slate-500 sm:text-base">
-                  Here’s what’s happening with your orders today.
-                </p>
-              </div>
-
-              <div className="hidden h-28 w-36 shrink-0 items-center justify-center rounded-3xl bg-gradient-to-br from-rose-50 to-orange-50 lg:flex">
-                <Package className="h-14 w-14 text-rose-500" />
+                <button
+                  aria-label="Notifications"
+                  onClick={() => navigate("/seller/notifications")}
+                  className="relative flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white"
+                >
+                  <Bell className="h-5 w-5" />
+                  <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-600 px-1 text-[10px] font-bold text-white">
+                    3
+                  </span>
+                </button>
               </div>
             </div>
           </div>
         </header>
 
-        <div className="mx-auto max-w-[1500px] space-y-6 px-4 py-5 sm:px-7 sm:py-7 lg:px-10">
-          {/* Stats */}
+        <div className="mx-auto max-w-[1500px] space-y-5 px-3 py-4 sm:space-y-7 sm:px-7 sm:py-7 lg:px-10">
+          {/* Page introduction */}
+          <section className="relative overflow-hidden rounded-[26px] bg-gradient-to-br from-[#fff1f3] via-white to-[#fff7f0] px-5 py-6 sm:rounded-[30px] sm:px-8 sm:py-8">
+            <div className="pointer-events-none absolute -right-10 -top-16 h-48 w-48 rounded-full bg-rose-200/40 blur-3xl" />
+            <div className="relative max-w-2xl">
+              <p className="text-xs font-bold uppercase tracking-[0.15em] text-rose-600">
+                Seller workspace
+              </p>
+              <h1 className="mt-2 text-[26px] font-extrabold leading-tight tracking-tight sm:text-3xl lg:text-4xl">
+                Your orders,
+                <span className="text-rose-600"> under control.</span>
+              </h1>
+              <p className="mt-2 max-w-lg text-sm leading-6 text-slate-600 sm:text-base">
+                Manage incoming orders, prepare shipments and keep every
+                customer updated.
+              </p>
+            </div>
+
+            <div className="pointer-events-none absolute bottom-3 right-5 hidden h-28 w-28 items-center justify-center rounded-full bg-white/70 text-rose-500 sm:flex">
+              <Package className="h-14 w-14" />
+            </div>
+          </section>
+
+          {/* Summary cards */}
           <section>
             <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-sm font-extrabold sm:text-base">Order overview</h2>
-              <button
-                onClick={() => fetchOrders(true)}
-                disabled={refreshing}
-                className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-rose-600"
-              >
-                <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? "animate-spin" : ""}`} />
-                Refresh
-              </button>
+              <h2 className="text-sm font-extrabold sm:text-base">
+                Order overview
+              </h2>
+              <span className="text-xs text-slate-400">
+                {stats.all} total orders
+              </span>
             </div>
 
             <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
-              <StatCard
-                label="Delivered"
-                value={stats.delivered}
-                icon={CheckCircle2}
-                theme="border-blue-100 bg-gradient-to-br from-blue-50 to-blue-100/70 text-blue-700"
-                trend="Completed"
-                onClick={() => setActiveFilter("delivered")}
-              />
-              <StatCard
-                label="Pending"
-                value={stats.pending}
-                icon={Clock3}
-                theme="border-amber-100 bg-gradient-to-br from-amber-50 to-orange-100/60 text-amber-700"
-                trend="Needs action"
-                onClick={() => setActiveFilter("pending")}
-              />
-              <StatCard
-                label="Cancelled"
-                value={stats.cancelled}
-                icon={XCircle}
-                theme="border-rose-100 bg-gradient-to-br from-rose-50 to-pink-100/70 text-rose-700"
-                trend="Cancelled"
-                onClick={() => setActiveFilter("cancelled")}
-              />
-              <StatCard
-                label="Returned"
-                value={stats.returned}
-                icon={RotateCcw}
-                theme="border-purple-100 bg-gradient-to-br from-purple-50 to-violet-100/70 text-purple-700"
-                trend="Returns"
-                onClick={() => setActiveFilter("returned")}
-              />
+              {[
+                {
+                  label: "Delivered",
+                  value: stats.delivered,
+                  icon: CheckCircle2,
+                  theme:
+                    "border-blue-100 bg-gradient-to-br from-blue-50 to-blue-100/70 text-blue-700",
+                  filter: "delivered" as FilterStatus,
+                },
+                {
+                  label: "Pending",
+                  value: stats.pending,
+                  icon: Clock3,
+                  theme:
+                    "border-amber-100 bg-gradient-to-br from-amber-50 to-orange-100/60 text-amber-700",
+                  filter: "pending" as FilterStatus,
+                },
+                {
+                  label: "Cancelled",
+                  value: stats.cancelled,
+                  icon: XCircle,
+                  theme:
+                    "border-rose-100 bg-gradient-to-br from-rose-50 to-pink-100/70 text-rose-700",
+                  filter: "cancelled" as FilterStatus,
+                },
+                {
+                  label: "Returned",
+                  value: stats.returned,
+                  icon: RotateCcw,
+                  theme:
+                    "border-purple-100 bg-gradient-to-br from-purple-50 to-violet-100/70 text-purple-700",
+                  filter: "returned" as FilterStatus,
+                },
+              ].map((stat) => {
+                const Icon = stat.icon;
+
+                return (
+                  <button
+                    key={stat.label}
+                    onClick={() => setActiveFilter(stat.filter)}
+                    className={`flex min-w-0 items-center gap-3 rounded-[20px] border p-3.5 text-left transition hover:shadow-sm sm:gap-4 sm:rounded-[24px] sm:p-5 ${stat.theme}`}
+                  >
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/80 shadow-sm sm:h-12 sm:w-12">
+                      <Icon className="h-5 w-5 sm:h-6 sm:w-6" />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-2xl font-extrabold leading-none tracking-tight sm:text-3xl">
+                        {stat.value}
+                      </span>
+                      <span className="mt-1 block truncate text-xs font-semibold sm:text-sm">
+                        {stat.label}
+                      </span>
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </section>
 
-          {/* Revenue strip */}
-          <section className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3.5 shadow-sm sm:px-5">
+          {/* Revenue summary */}
+          <section className="flex flex-wrap items-center justify-between gap-4 rounded-[22px] border border-slate-200 bg-white px-4 py-4 shadow-sm sm:px-5">
             <div>
-              <p className="text-xs font-medium text-slate-500">Order revenue</p>
-              <p className="mt-0.5 text-xl font-extrabold tracking-tight sm:text-2xl">
+              <p className="text-xs font-medium text-slate-500">
+                Order revenue
+              </p>
+              <p className="mt-1 text-xl font-extrabold tracking-tight sm:text-2xl">
                 {formatMoney(stats.revenue)}
               </p>
             </div>
-            <div className="flex gap-5 text-xs">
+
+            <div className="flex flex-wrap gap-x-5 gap-y-2 text-xs">
               <div>
                 <p className="text-slate-400">Processing</p>
-                <p className="mt-1 font-bold text-blue-700">{stats.processing}</p>
+                <p className="mt-1 font-bold text-blue-700">
+                  {stats.processing}
+                </p>
               </div>
               <div>
                 <p className="text-slate-400">In fulfillment</p>
-                <p className="mt-1 font-bold text-violet-700">{stats.fulfillment}</p>
+                <p className="mt-1 font-bold text-violet-700">
+                  {stats.fulfillment}
+                </p>
               </div>
               <div>
                 <p className="text-slate-400">Total orders</p>
-                <p className="mt-1 font-bold">{stats.all}</p>
+                <p className="mt-1 font-bold text-slate-900">{stats.all}</p>
               </div>
             </div>
           </section>
 
-          {/* Search and filters */}
+          {/* Search and filter controls */}
           <section className="space-y-3">
-            <div className="flex flex-col gap-3 sm:flex-row">
+            <div className="flex gap-2">
               <div className="relative min-w-0 flex-1">
                 <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
                 <input
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
-                  placeholder="Search by order ID or customer..."
-                  className="h-12 w-full rounded-2xl border border-slate-200 bg-white pl-12 pr-4 text-sm outline-none transition placeholder:text-slate-400 focus:border-rose-300 focus:ring-4 focus:ring-rose-100"
+                  placeholder="Search order ID or customer..."
+                  className="h-12 w-full rounded-2xl border border-slate-200 bg-white pl-11 pr-10 text-sm outline-none transition placeholder:text-slate-400 focus:border-rose-300 focus:ring-4 focus:ring-rose-100"
                 />
+
                 {search && (
                   <button
                     onClick={() => setSearch("")}
@@ -827,20 +918,20 @@ export default function OrdersPage() {
 
               <button
                 onClick={() => setShowFilters((value) => !value)}
-                className={`flex h-12 items-center justify-center gap-2 rounded-2xl border px-5 text-sm font-bold transition ${
+                className={`flex h-12 shrink-0 items-center justify-center gap-2 rounded-2xl border px-3.5 text-sm font-bold transition sm:px-5 ${
                   showFilters
                     ? "border-rose-200 bg-rose-50 text-rose-700"
-                    : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                    : "border-slate-200 bg-white text-slate-700"
                 }`}
               >
                 <SlidersHorizontal className="h-4 w-4" />
-                Filters
+                <span className="hidden sm:inline">Filters</span>
                 <ChevronDown className="h-4 w-4" />
               </button>
             </div>
 
             {showFilters && (
-              <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 sm:flex-row sm:items-center">
+              <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 sm:flex-row sm:items-end">
                 <div className="flex-1">
                   <label className="mb-1.5 block text-xs font-bold text-slate-500">
                     Sort orders
@@ -848,7 +939,7 @@ export default function OrdersPage() {
                   <select
                     value={sortBy}
                     onChange={(event) => setSortBy(event.target.value)}
-                    className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-rose-300"
+                    className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-rose-300"
                   >
                     <option value="newest">Newest first</option>
                     <option value="oldest">Oldest first</option>
@@ -856,101 +947,104 @@ export default function OrdersPage() {
                     <option value="lowest">Lowest amount</option>
                   </select>
                 </div>
+
                 <Button
                   variant="outline"
-                  className="h-10 rounded-xl"
-                  onClick={() => {
-                    setSortBy("newest");
-                    setSearch("");
-                    setActiveFilter("all");
-                  }}
+                  className="h-11 rounded-xl"
+                  onClick={resetFilters}
                 >
+                  <RotateCcw className="mr-2 h-4 w-4" />
                   Reset filters
                 </Button>
               </div>
             )}
 
-            {/* Status tabs */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-1">
-              {[
-                { key: "all", label: "All", count: stats.all },
-                { key: "delivered", label: "Delivered", count: stats.delivered },
-                { key: "pending", label: "Pending", count: stats.pending },
-                { key: "processing", label: "Processing", count: stats.processing },
-                { key: "packed", label: "Packed", count: orders.filter((o) => o.status === "packed").length },
-                { key: "shipped", label: "Shipped", count: orders.filter((o) => o.status === "shipped").length },
-                { key: "cancelled", label: "Cancelled", count: stats.cancelled },
-                { key: "returned", label: "Returned", count: stats.returned },
-              ].map((tab) => {
-                const active = activeFilter === tab.key;
+            {/* Status filter chips */}
+            <div className="-mx-3 overflow-x-auto px-3 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <div className="flex w-max gap-2">
+                {statusTabs.map((tab) => {
+                  const active = activeFilter === tab.key;
 
-                return (
-                  <button
-                    key={tab.key}
-                    onClick={() => setActiveFilter(tab.key as FilterStatus)}
-                    className={`flex shrink-0 items-center gap-1.5 rounded-full border px-4 py-2.5 text-xs font-bold transition sm:text-sm ${
-                      active
-                        ? "border-rose-600 bg-rose-600 text-white shadow-sm shadow-rose-200"
-                        : "border-slate-200 bg-white text-slate-600 hover:border-rose-200 hover:text-rose-600"
-                    }`}
-                  >
-                    {tab.label}
-                    <span className={active ? "text-rose-100" : "text-slate-400"}>
-                      {tab.count}
-                    </span>
-                  </button>
-                );
-              })}
+                  return (
+                    <button
+                      key={tab.key}
+                      onClick={() => setActiveFilter(tab.key)}
+                      className={`flex h-10 shrink-0 items-center gap-1.5 rounded-full border px-4 text-xs font-bold transition sm:text-sm ${
+                        active
+                          ? "border-rose-600 bg-rose-600 text-white shadow-sm"
+                          : "border-slate-200 bg-white text-slate-600 hover:border-rose-200"
+                      }`}
+                    >
+                      {tab.label}
+                      <span
+                        className={
+                          active ? "text-rose-100" : "text-slate-400"
+                        }
+                      >
+                        {tab.count}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </section>
 
           {/* Bulk actions */}
           {selectedIds.length > 0 && (
-            <section className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-rose-100 bg-rose-50 p-3 sm:px-4">
+            <section className="sticky top-2 z-20 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-rose-100 bg-white p-3 shadow-lg shadow-rose-100/50 sm:px-4">
               <div className="flex items-center gap-2 text-sm font-bold text-rose-700">
                 <CheckCircle2 className="h-5 w-5" />
-                {selectedIds.length} orders selected
+                {selectedIds.length} selected
               </div>
+
               <div className="flex flex-wrap gap-2">
                 <Button
                   size="sm"
                   variant="outline"
-                  className="rounded-xl border-rose-200 bg-white"
+                  className="rounded-xl"
                   onClick={() =>
                     printOrders(
-                      orders.filter((order) => selectedIds.includes(order.id)),
+                      orders.filter((order) =>
+                        selectedIds.includes(order.id)
+                      ),
                       "invoice"
                     )
                   }
                 >
                   <Printer className="mr-1.5 h-4 w-4" />
-                  Invoices
+                  Invoice
                 </Button>
+
                 <Button
                   size="sm"
                   variant="outline"
-                  className="rounded-xl border-rose-200 bg-white"
+                  className="rounded-xl"
                   onClick={() =>
                     printOrders(
-                      orders.filter((order) => selectedIds.includes(order.id)),
+                      orders.filter((order) =>
+                        selectedIds.includes(order.id)
+                      ),
                       "packing-slip"
                     )
                   }
                 >
                   <Download className="mr-1.5 h-4 w-4" />
-                  Packing slips
+                  Packing slip
                 </Button>
+
                 <Button
                   size="sm"
                   className="rounded-xl bg-rose-600 hover:bg-rose-700"
                   onClick={() => setBulkOpen(true)}
                 >
                   <Truck className="mr-1.5 h-4 w-4" />
-                  Shipping labels
+                  Labels
                 </Button>
+
                 <button
                   onClick={() => setSelectedIds([])}
-                  className="rounded-xl px-3 text-xs font-bold text-rose-700 hover:bg-rose-100"
+                  className="rounded-xl px-2 text-xs font-bold text-slate-500 hover:bg-slate-100"
                 >
                   Clear
                 </button>
@@ -958,15 +1052,18 @@ export default function OrdersPage() {
             </section>
           )}
 
-          {/* Orders */}
+          {/* Order list heading */}
           <section>
             <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
               <div>
-                <h2 className="text-base font-extrabold sm:text-lg">Your orders</h2>
+                <h2 className="text-base font-extrabold sm:text-lg">
+                  All orders
+                </h2>
                 <p className="mt-0.5 text-xs text-slate-500">
-                  Showing {filteredOrders.length} of {orders.length} orders
+                  {filteredOrders.length} matching orders
                 </p>
               </div>
+
               {filteredOrders.length > 0 && (
                 <button
                   onClick={toggleAllVisible}
@@ -1003,14 +1100,15 @@ export default function OrdersPage() {
               </div>
             )}
 
+            {/* Loading skeleton */}
             {loading ? (
               <div className="space-y-3">
                 {Array.from({ length: 5 }).map((_, index) => (
                   <div
                     key={index}
-                    className="flex animate-pulse items-center gap-3 rounded-3xl border border-slate-100 bg-white p-3 sm:p-4"
+                    className="flex animate-pulse items-center gap-3 rounded-[22px] border border-slate-100 bg-white p-3 sm:p-4"
                   >
-                    <div className="h-20 w-20 shrink-0 rounded-2xl bg-slate-100" />
+                    <div className="h-[68px] w-[68px] shrink-0 rounded-2xl bg-slate-100" />
                     <div className="min-w-0 flex-1 space-y-3">
                       <div className="h-4 w-32 rounded bg-slate-100" />
                       <div className="h-3 w-40 rounded bg-slate-100" />
@@ -1021,11 +1119,13 @@ export default function OrdersPage() {
                 ))}
               </div>
             ) : filteredOrders.length === 0 ? (
-              <div className="rounded-3xl border border-dashed border-slate-300 bg-white px-5 py-14 text-center">
+              <div className="rounded-[26px] border border-dashed border-slate-300 bg-white px-5 py-14 text-center">
                 <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100">
                   <Package className="h-8 w-8 text-slate-400" />
                 </div>
-                <h3 className="mt-4 text-lg font-extrabold">No orders found</h3>
+                <h3 className="mt-4 text-lg font-extrabold">
+                  No orders found
+                </h3>
                 <p className="mx-auto mt-1 max-w-xs text-sm text-slate-500">
                   {search
                     ? "Try another search term or clear your filters."
@@ -1034,98 +1134,122 @@ export default function OrdersPage() {
                 <Button
                   variant="outline"
                   className="mt-5 rounded-xl"
-                  onClick={() => {
-                    setSearch("");
-                    setActiveFilter("all");
-                  }}
+                  onClick={resetFilters}
                 >
-                  Clear filters
+                  Reset filters
                 </Button>
               </div>
             ) : (
               <div className="space-y-3">
-                {filteredOrders.map((order) => (
-                  <article
-                    key={order.id}
-                    className="group flex min-w-0 items-center gap-2 rounded-[22px] border border-slate-200/80 bg-white p-3 shadow-sm transition hover:border-rose-200 hover:shadow-md sm:gap-4 sm:rounded-3xl sm:p-4"
-                  >
-                    <button
-                      aria-label={`Select order ${order.orderNumber}`}
-                      onClick={() => toggleSelected(order.id)}
-                      className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition ${
-                        selectedIds.includes(order.id)
-                          ? "border-rose-600 bg-rose-600 text-white"
-                          : "border-slate-300 bg-white hover:border-rose-400"
+                {filteredOrders.map((order) => {
+                  const itemCount = order.items.reduce(
+                    (sum, item) => sum + item.quantity,
+                    0
+                  );
+
+                  const selected = selectedIds.includes(order.id);
+
+                  return (
+                    <article
+                      key={order.id}
+                      className={`group min-w-0 rounded-[22px] border bg-white p-3 shadow-sm transition hover:shadow-md sm:rounded-[26px] sm:p-4 ${
+                        selected
+                          ? "border-rose-300 ring-2 ring-rose-100"
+                          : "border-slate-200/80 hover:border-rose-200"
                       }`}
                     >
-                      {selectedIds.includes(order.id) && (
-                        <Check className="h-3.5 w-3.5" />
-                      )}
-                    </button>
+                      <div className="flex min-w-0 items-center gap-2.5 sm:gap-4">
+                        <button
+                          aria-label={`Select order ${order.orderNumber}`}
+                          onClick={() => toggleSelected(order.id)}
+                          className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition ${
+                            selected
+                              ? "border-rose-600 bg-rose-600 text-white"
+                              : "border-slate-300 bg-white hover:border-rose-400"
+                          }`}
+                        >
+                          {selected && <Check className="h-3.5 w-3.5" />}
+                        </button>
 
-                    <button
-                      onClick={() => openDetails(order)}
-                      className="flex min-w-0 flex-1 items-center gap-3 text-left sm:gap-4"
-                    >
-                      <div className="flex h-[68px] w-[68px] shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-slate-100 sm:h-[82px] sm:w-[82px]">
-                        {order.items[0]?.image ? (
-                          <img
-                            src={order.items[0].image}
-                            alt={order.items[0].name}
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          <Package className="h-8 w-8 text-slate-400" />
-                        )}
+                        <button
+                          onClick={() => openDetails(order)}
+                          className="flex min-w-0 flex-1 items-center gap-3 text-left sm:gap-4"
+                        >
+                          <div className="flex h-[66px] w-[66px] shrink-0 items-center justify-center overflow-hidden rounded-[17px] bg-slate-100 sm:h-[82px] sm:w-[82px]">
+                            {order.items[0]?.image ? (
+                              <img
+                                src={order.items[0].image}
+                                alt={order.items[0].name}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <Package className="h-7 w-7 text-slate-400" />
+                            )}
+                          </div>
+
+                          <div className="min-w-0 flex-1">
+                            <p className="break-all text-[13px] font-extrabold leading-5 text-slate-900 sm:text-base">
+                              #{order.orderNumber}
+                            </p>
+
+                            <p className="mt-1 flex min-w-0 items-center gap-1.5 text-xs text-slate-500 sm:text-sm">
+                              <UserRound className="h-3.5 w-3.5 shrink-0" />
+                              <span className="truncate">{order.customer}</span>
+                            </p>
+
+                            <div className="mt-1.5 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[10px] text-slate-500 sm:text-xs">
+                              <span className="flex items-center gap-1">
+                                <CalendarDays className="h-3.5 w-3.5" />
+                                {formatDate(order.date)}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Package className="h-3.5 w-3.5" />
+                                {itemCount} {itemCount === 1 ? "item" : "items"}
+                              </span>
+                            </div>
+
+                            {order.items[0]?.name && (
+                              <p className="mt-1.5 hidden max-w-[220px] truncate rounded-lg bg-slate-50 px-2 py-1 text-[10px] text-slate-500 sm:block">
+                                {order.items[0].name}
+                                {order.items.length > 1
+                                  ? ` +${order.items.length - 1} more`
+                                  : ""}
+                              </p>
+                            )}
+                          </div>
+                        </button>
+
+                        <div className="flex shrink-0 flex-col items-end gap-2">
+                          <StatusBadge status={order.status} />
+                          <p className="text-[13px] font-extrabold tracking-tight text-slate-900 sm:text-lg">
+                            {formatMoney(order.total)}
+                          </p>
+                          <button
+                            onClick={() => openDetails(order)}
+                            aria-label={`View order ${order.orderNumber}`}
+                            className="flex items-center gap-1 text-[11px] font-bold text-rose-600 sm:hidden"
+                          >
+                            Details
+                            <ChevronRight className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+
+                        <button
+                          onClick={() => openDetails(order)}
+                          aria-label={`View order ${order.orderNumber}`}
+                          className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-full text-slate-400 transition hover:bg-rose-50 hover:text-rose-600 sm:flex"
+                        >
+                          <ChevronRight className="h-5 w-5" />
+                        </button>
                       </div>
-
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-extrabold text-slate-900 sm:text-base">
-                          #{order.orderNumber}
-                        </p>
-                        <p className="mt-1 flex items-center gap-1.5 truncate text-xs text-slate-500 sm:text-sm">
-                          <UserRound className="h-3.5 w-3.5 shrink-0" />
-                          <span className="truncate">{order.customer}</span>
-                        </p>
-                        <p className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-slate-500 sm:text-xs">
-                          <span className="flex items-center gap-1">
-                            <CalendarDays className="h-3.5 w-3.5" />
-                            {formatDate(order.date)}
-                          </span>
-                          <span className="hidden text-slate-300 sm:inline">•</span>
-                          <span>
-                            {order.items.reduce(
-                              (sum, item) => sum + item.quantity,
-                              0
-                            )}{" "}
-                            items
-                          </span>
-                        </p>
-                      </div>
-                    </button>
-
-                    <div className="flex shrink-0 flex-col items-end gap-2">
-                      <StatusBadge status={order.status} />
-                      <p className="text-sm font-extrabold tracking-tight sm:text-lg">
-                        {formatMoney(order.total)}
-                      </p>
-                      <ChevronRight className="hidden h-4 w-4 text-slate-400 sm:block" />
-                    </div>
-
-                    <button
-                      onClick={() => openDetails(order)}
-                      aria-label={`View order ${order.orderNumber}`}
-                      className="flex h-8 w-5 shrink-0 items-center justify-center text-slate-400 transition hover:text-rose-600 sm:hidden"
-                    >
-                      <ChevronRight className="h-5 w-5" />
-                    </button>
-                  </article>
-                ))}
+                    </article>
+                  );
+                })}
               </div>
             )}
           </section>
 
-          {/* Guidance */}
+          {/* Seller guidance */}
           <div className="pt-2">
             <SellerGuidancePanel />
           </div>
@@ -1135,13 +1259,7 @@ export default function OrdersPage() {
       {/* Mobile bottom navigation */}
       <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 px-2 pb-[max(env(safe-area-inset-bottom),8px)] pt-2 backdrop-blur-xl xl:hidden">
         <div className="mx-auto grid max-w-xl grid-cols-5">
-          {[
-            { label: "Dashboard", icon: Wallet, path: "/seller/dashboard" },
-            { label: "Orders", icon: Package, path: "/seller/orders" },
-            { label: "Products", icon: PackageCheck, path: "/seller/products" },
-            { label: "Finance", icon: Wallet, path: "/seller/finance" },
-            { label: "Profile", icon: UserRound, path: "/seller/profile" },
-          ].map((item) => {
+          {navigationItems.map((item) => {
             const Icon = item.icon;
             const active = item.label === "Orders";
 
@@ -1154,7 +1272,7 @@ export default function OrdersPage() {
                 }`}
               >
                 {active && (
-                  <span className="absolute -top-2 h-1 w-12 rounded-full bg-rose-600" />
+                  <span className="absolute -top-2 h-1 w-10 rounded-full bg-rose-600" />
                 )}
                 <Icon className="h-5 w-5 sm:h-6 sm:w-6" />
                 <span className="truncate">{item.label}</span>
@@ -1164,16 +1282,16 @@ export default function OrdersPage() {
         </div>
       </nav>
 
-      {/* Order details */}
+      {/* Order details dialog */}
       <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
-        <DialogContent className="max-h-[90dvh] w-[calc(100%-24px)] max-w-2xl overflow-y-auto rounded-3xl p-0">
+        <DialogContent className="max-h-[90dvh] w-[calc(100%-20px)] max-w-2xl overflow-y-auto rounded-[26px] p-0 sm:w-full">
           {selectedOrder && (
             <>
               <div className="border-b border-slate-100 px-5 pb-5 pt-6 sm:px-7">
                 <DialogHeader>
                   <div className="flex flex-wrap items-center justify-between gap-3 pr-6">
                     <div>
-                      <DialogTitle className="text-xl font-extrabold">
+                      <DialogTitle className="break-all text-lg font-extrabold sm:text-xl">
                         Order #{selectedOrder.orderNumber}
                       </DialogTitle>
                       <DialogDescription className="mt-1">
@@ -1185,36 +1303,43 @@ export default function OrdersPage() {
                 </DialogHeader>
               </div>
 
-              <div className="space-y-6 px-5 py-5 sm:px-7">
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="space-y-5 px-5 py-5 sm:space-y-6 sm:px-7">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <div className="rounded-2xl bg-slate-50 p-4">
-                    <p className="text-xs font-bold uppercase tracking-wide text-slate-400">
+                    <p className="text-[11px] font-bold uppercase tracking-wide text-slate-400">
                       Customer
                     </p>
-                    <p className="mt-2 font-bold">{selectedOrder.customer}</p>
-                    <p className="mt-1 break-all text-sm text-slate-500">
+                    <p className="mt-2 text-sm font-bold">
+                      {selectedOrder.customer}
+                    </p>
+                    <p className="mt-1 break-all text-xs text-slate-500">
                       {selectedOrder.customerEmail || "No email provided"}
                     </p>
-                    <p className="mt-1 text-sm text-slate-500">
+                    <p className="mt-1 text-xs text-slate-500">
                       {selectedOrder.customerPhone || "No phone provided"}
                     </p>
                   </div>
+
                   <div className="rounded-2xl bg-slate-50 p-4">
-                    <p className="text-xs font-bold uppercase tracking-wide text-slate-400">
+                    <p className="text-[11px] font-bold uppercase tracking-wide text-slate-400">
                       Delivery address
                     </p>
                     <p className="mt-2 text-sm leading-6 text-slate-700">
                       {selectedOrder.shippingAddress || "No address provided"}
                     </p>
                     <p className="mt-2 text-xs text-slate-500">
-                      {selectedOrder.paymentMethod || "Payment method unavailable"}
+                      {selectedOrder.paymentMethod ||
+                        "Payment method unavailable"}
                     </p>
                   </div>
                 </div>
 
                 <div>
-                  <h3 className="mb-3 text-sm font-extrabold">Items ordered</h3>
-                  <div className="space-y-3">
+                  <h3 className="mb-3 text-sm font-extrabold">
+                    Items ordered
+                  </h3>
+
+                  <div className="space-y-2">
                     {selectedOrder.items.map((item) => (
                       <div
                         key={item.id}
@@ -1231,13 +1356,17 @@ export default function OrdersPage() {
                             <Package className="h-5 w-5 text-slate-400" />
                           )}
                         </div>
+
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-bold">{item.name}</p>
+                          <p className="truncate text-sm font-bold">
+                            {item.name}
+                          </p>
                           <p className="text-xs text-slate-500">
                             Qty: {item.quantity}
                             {item.variant ? ` · ${item.variant}` : ""}
                           </p>
                         </div>
+
                         <p className="shrink-0 text-sm font-bold">
                           {formatMoney(item.price * item.quantity)}
                         </p>
@@ -1269,17 +1398,19 @@ export default function OrdersPage() {
 
                 {selectedOrder.trackingNumber && (
                   <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4">
-                    <p className="text-xs font-bold text-blue-700">Tracking number</p>
-                    <p className="mt-1 font-mono text-sm font-bold text-blue-900">
+                    <p className="text-xs font-bold text-blue-700">
+                      Tracking number
+                    </p>
+                    <p className="mt-1 break-all font-mono text-sm font-bold text-blue-900">
                       {selectedOrder.trackingNumber}
                     </p>
                   </div>
                 )}
 
-                <div className="flex flex-wrap gap-2">
+                <div className="grid grid-cols-2 gap-2">
                   <Button
                     variant="outline"
-                    className="flex-1 rounded-xl"
+                    className="rounded-xl"
                     onClick={() => printOrders([selectedOrder], "invoice")}
                   >
                     <Printer className="mr-2 h-4 w-4" />
@@ -1287,8 +1418,10 @@ export default function OrdersPage() {
                   </Button>
                   <Button
                     variant="outline"
-                    className="flex-1 rounded-xl"
-                    onClick={() => printOrders([selectedOrder], "packing-slip")}
+                    className="rounded-xl"
+                    onClick={() =>
+                      printOrders([selectedOrder], "packing-slip")
+                    }
                   >
                     <Download className="mr-2 h-4 w-4" />
                     Packing slip
@@ -1315,7 +1448,9 @@ export default function OrdersPage() {
                     <Button
                       className="rounded-xl bg-indigo-600 hover:bg-indigo-700"
                       disabled={statusLoading === selectedOrder.id}
-                      onClick={() => updateOrderStatus(selectedOrder, "packed")}
+                      onClick={() =>
+                        updateOrderStatus(selectedOrder, "packed")
+                      }
                     >
                       <PackageCheck className="mr-2 h-4 w-4" />
                       Mark as packed
@@ -1340,7 +1475,9 @@ export default function OrdersPage() {
                       variant="outline"
                       className="rounded-xl"
                       disabled={statusLoading === selectedOrder.id}
-                      onClick={() => updateOrderStatus(selectedOrder, "shipped")}
+                      onClick={() =>
+                        updateOrderStatus(selectedOrder, "shipped")
+                      }
                     >
                       Mark as shipped
                     </Button>
@@ -1383,15 +1520,16 @@ export default function OrdersPage() {
 
       {/* Tracking dialog */}
       <Dialog open={trackingOpen} onOpenChange={setTrackingOpen}>
-        <DialogContent className="w-[calc(100%-24px)] max-w-md rounded-3xl">
+        <DialogContent className="w-[calc(100%-20px)] max-w-md rounded-[26px]">
           <DialogHeader>
-            <DialogTitle className="text-xl font-extrabold">
+            <DialogTitle className="text-lg font-extrabold">
               Shipping tracking
             </DialogTitle>
             <DialogDescription>
               Add the tracking number for order #{trackingOrder?.orderNumber}.
             </DialogDescription>
           </DialogHeader>
+
           <div className="space-y-4 pt-2">
             <label className="block text-sm font-bold">
               Tracking number
@@ -1402,6 +1540,7 @@ export default function OrdersPage() {
                 className="mt-2 h-12 w-full rounded-xl border border-slate-200 px-4 text-sm outline-none focus:border-rose-300 focus:ring-4 focus:ring-rose-100"
               />
             </label>
+
             <Button
               className="h-12 w-full rounded-xl bg-rose-600 hover:bg-rose-700"
               disabled={!trackingNumber.trim() || trackingSaving}
@@ -1418,9 +1557,9 @@ export default function OrdersPage() {
 
       {/* Cancel order dialog */}
       <Dialog open={cancelOpen} onOpenChange={setCancelOpen}>
-        <DialogContent className="w-[calc(100%-24px)] max-w-md rounded-3xl">
+        <DialogContent className="w-[calc(100%-20px)] max-w-md rounded-[26px]">
           <DialogHeader>
-            <DialogTitle className="text-xl font-extrabold">
+            <DialogTitle className="text-lg font-extrabold">
               Cancel this order?
             </DialogTitle>
             <DialogDescription>
@@ -1428,6 +1567,7 @@ export default function OrdersPage() {
               the order status.
             </DialogDescription>
           </DialogHeader>
+
           <div className="space-y-4 pt-2">
             <label className="block text-sm font-bold">
               Reason for cancellation
@@ -1439,6 +1579,7 @@ export default function OrdersPage() {
                 className="mt-2 w-full resize-none rounded-xl border border-slate-200 p-3 text-sm outline-none focus:border-rose-300 focus:ring-4 focus:ring-rose-100"
               />
             </label>
+
             <div className="flex gap-2">
               <Button
                 variant="outline"
@@ -1447,11 +1588,13 @@ export default function OrdersPage() {
               >
                 Keep order
               </Button>
+
               <Button
                 className="h-11 flex-1 rounded-xl bg-rose-600 hover:bg-rose-700"
                 disabled={cancelSaving || !cancelReason.trim()}
                 onClick={async () => {
                   if (!cancelOrderTarget) return;
+
                   setCancelSaving(true);
                   await updateOrderStatus(
                     cancelOrderTarget,
@@ -1459,7 +1602,6 @@ export default function OrdersPage() {
                     cancelReason.trim()
                   );
                   setCancelSaving(false);
-                  setCancelOrderTarget(null);
                 }}
               >
                 {cancelSaving && (
@@ -1472,17 +1614,18 @@ export default function OrdersPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Bulk shipping labels */}
+      {/* Bulk shipping labels dialog */}
       <Dialog open={bulkOpen} onOpenChange={setBulkOpen}>
-        <DialogContent className="w-[calc(100%-24px)] max-w-md rounded-3xl">
+        <DialogContent className="w-[calc(100%-20px)] max-w-md rounded-[26px]">
           <DialogHeader>
-            <DialogTitle className="text-xl font-extrabold">
+            <DialogTitle className="text-lg font-extrabold">
               Create shipping labels
             </DialogTitle>
             <DialogDescription>
               Prepare labels for {selectedIds.length} selected orders.
             </DialogDescription>
           </DialogHeader>
+
           <div className="space-y-4 pt-2">
             <label className="block text-sm font-bold">
               Shipping carrier
@@ -1497,6 +1640,7 @@ export default function OrdersPage() {
                 <option value="USPS">USPS</option>
               </select>
             </label>
+
             <Button
               className="h-12 w-full rounded-xl bg-rose-600 hover:bg-rose-700"
               disabled={bulkLoading || !selectedIds.length}
